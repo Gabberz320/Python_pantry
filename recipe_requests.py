@@ -54,13 +54,13 @@ def main():
 
         details = get_recipe_details(recipe_id)
 
-        title = details.get('title')
-        cook_time = details.get('readyInMinutes')
+        title = details.get('title','N/A')
+        cook_time = details.get('readyInMinutes','N/A')
         source_url = details.get('sourceUrl')
 
         if details:
             print(f'{title}')
-            print(f'Tome to cook: {cook_time} minutes')
+            print(f'Time to cook: {cook_time} minutes')
             print(f'URL: {source_url}', end = '\n')
             print('\n')
             
