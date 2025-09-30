@@ -11,11 +11,10 @@ NUM_RESULTS = 5
 # search for the recipe with the given ingredients
 # return the list of recipes for future info search
 def search_recipes(query, ingredients, cuisine, diet):
-    params = {'apiKey': API_KEY, 'number': NUM_RESULTS}
-    if query: params['query'] = query
-    if ingredients: params['includedIngredients'] = ','.join(ingredients)
-    if cuisine: params['cuisine'] = ','.join(cuisine)
-    if diet: params['diet'] = diet
+    params = {'apiKey': API_KEY, 'number': NUM_RESULTS,
+            'query': query, 'includeIngredients': ', '.join(ingredients), 
+            'cuisine': ','.join(cuisine),
+            'diet': diet}
 
     try: 
         response = requests.get(SEARCH_URL, params=params)
