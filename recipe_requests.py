@@ -13,7 +13,7 @@ def search_recipes(query, ingredients, cuisine, diet):
     params = {'apiKey': API_KEY, 'number': NUM_RESULTS,
             'query': query, 'includeIngredients': ', '.join(ingredients), 
             'cuisine': ','.join(cuisine),
-            'diet': diet, 'addRecipeInformation': True}
+            'diet': diet, 'addRecipeInformation': True, 'ignorePantry': False}
 
     try: 
         response = requests.get(SEARCH_URL, params=params)
@@ -45,7 +45,7 @@ def main():
             
             title = recipe_summary.get('title','N/A')
             cook_time = recipe_summary.get('readyInMinutes','N/A')
-            source_url = recipe_summary.get('sourceUrl')
+            source_url = recipe_summary.get('sourceUrl', 'N/A')
 
             if recipe_summary:
                 print(f'{title}')
