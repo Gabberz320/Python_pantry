@@ -5,15 +5,15 @@ import requests
 API_KEY = "aa16c40bfb484d6dba1f16ac81f769ea"
 API_URL = "https://api.spoonacular.com"
 SEARCH_URL = f"{API_URL}/recipes/complexSearch"
-NUM_RESULTS = 5
+NUM_RESULTS = 10
 
 # search for the recipe with the given ingredients
 # return the list of recipes for future info search
-def search_recipes(query, ingredients, cuisine, diet):
+def search_recipes(ingredients, cuisine, diet):
     params = {'apiKey': API_KEY, 'number': NUM_RESULTS,
-            'query': query, 'includeIngredients': ', '.join(ingredients), 
+            'includeIngredients': ','.join(ingredients), 
             'cuisine': ','.join(cuisine),
-            'diet': diet, 'addRecipeInformation': True, 'ignorePantry': False}
+            'diet': diet, 'addRecipeInformation': True, 'ignorePantry': False, 'sort': 'random'}
 
     try: 
         response = requests.get(SEARCH_URL, params=params)
@@ -25,14 +25,14 @@ def search_recipes(query, ingredients, cuisine, diet):
 
 
 def main():
-    query = []
+    
     ingredients_str = input('Enter ingredients separated by commas: ').strip()
     ingredients = [ n.strip() for n in ingredients_str.split(',')] if ingredients_str else []
     cuisine_str = input('Enter the cuisine you\'re craving: ').strip()
     cuisine = [n.strip() for n in cuisine_str.split(',')] if cuisine_str else []
     diet = input('Enter dietary preferences: ').strip()
 
-    recipies_found = search_recipes(query,ingredients,cuisine, diet)
+    recipies_found = search_recipes(ingredients,cuisine, diet)
     
 
     if not recipies_found:
