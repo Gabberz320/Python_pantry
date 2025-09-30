@@ -8,6 +8,8 @@ SEARCH_URL = f"{API_URL}/recipes/complexSearch"
 RECIPE_INFO_URL = "https://api.spoonacular.com/recipes/{id}/information"
 NUM_RESULTS = 5
 
+# search for the recipe with the given ingredients
+# return the list of recipes for future info search
 def search_recipes(query, ingredients, cuisine, diet):
     params = {'apiKey': API_KEY, 'number': NUM_RESULTS}
     if query: params['query'] = query
@@ -22,6 +24,7 @@ def search_recipes(query, ingredients, cuisine, diet):
     except requests.exceptions.RequestException as e:
         print(f'An error occured: {e}')
         return None
+# Get the reipe infomation to display from the recipe ID
 def get_recipe_details(recipe_id):
     try:
         params = {'apiKey': API_KEY}
@@ -46,9 +49,9 @@ def main():
         print('Sorry none found')
         return
     
+    # Search for the recipe information (cooktime, URL, anf title of the recipe)
     for recipe_summary in recipies_found:
         recipe_id = recipe_summary['id']
-        print(recipe_id)
 
         details = get_recipe_details(recipe_id)
 
