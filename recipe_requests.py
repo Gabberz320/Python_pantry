@@ -4,8 +4,10 @@ import json
 
 
 API_KEY = "ab1ce54d449b4fac9a3d4feb66bb5707"
-API_URL = "https://api.spoonacular.com/recipes/complexSearch"
-NUM_RESULTS = 1
+API_URL = "https://api.spoonacular.com"
+SEARCH_API_URL = f"{API_URL}/recipes/findByIngredients"
+RECIPE_INFO_URL = f"{API_URL}/recipes/{id}/information"
+NUM_RESULTS = 5
 
 def search_recipes(ingredients):
     params = {'apiKey': API_KEY, 'ingredients': ','.join(ingredients),
@@ -21,10 +23,10 @@ def display_recipes(recipes):
         title = recipe['title']
         used_ingredients_count = recipe['usedIngredientCount']
         missed_ingredient_count = recipe['missedIngredientCount']
-        if missed_ingredient_count > 0:
+        if missed_ingredient_count < 2:
             missed_ingredients = [ing['name'] for ing in recipe['missedIngredients']]
             print(f"you are only missing {missed_ingredient_count} ingredients")
-            print(f"-Missing {','.join(missed_ingredients)}")
+            print(f"-Missing {','.join(missed_ingredients)}\n {recipe}")
         else:
             print('you got it all', recipe)
 
