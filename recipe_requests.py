@@ -1,43 +1,66 @@
 import requests
-import os
-import json
+
 
 
 API_KEY = "ab1ce54d449b4fac9a3d4feb66bb5707"
 API_URL = "https://api.spoonacular.com"
-SEARCH_API_URL = f"{API_URL}/recipes/findByIngredients"
-RECIPE_INFO_URL = f"{API_URL}/recipes/{id}/information"
+SEARCH_URL = f"{API_URL}/recipes/complexSearch"
+RECIPE_INFO_URL = "https://api.spoonacular.com/recipes/{id}/information"
 NUM_RESULTS = 5
 
-def search_recipes(ingredients):
-    params = {'apiKey': API_KEY, 'ingredients': ','.join(ingredients),
-              'number': NUM_RESULTS, 'ranking': 1}
-    response = requests.get(API_URL, params=params)
-    response.raise_for_status()
-    return response.json()
+def search_recipes(query, ingredients, cuisine, diet):
+    params = {'apiKey': API_KEY, 'number': NUM_RESULTS}
+    if query: params['query'] = query
+    if ingredients: params['includedIngredients'] = ','.join(ingredients)
+    if cuisine: params['cuisine'] = ','.join(cuisine)
+    if diet: params['diet'] = diet
 
-def display_recipes(recipes):
-    if not recipes:
-        print("Sorry, no results found")
-    for i, recipe in enumerate(recipes,1):
-        title = recipe['title']
-        used_ingredients_count = recipe['usedIngredientCount']
-        missed_ingredient_count = recipe['missedIngredientCount']
-        if missed_ingredient_count < 2:
-            missed_ingredients = [ing['name'] for ing in recipe['missedIngredients']]
-            print(f"you are only missing {missed_ingredient_count} ingredients")
-            print(f"-Missing {','.join(missed_ingredients)}\n {recipe}")
-        else:
-            print('you got it all', recipe)
+    try: 
+        response = requests.get(SEARCH_URL, params=params)
+        response.raise_for_status()
+        return response.json().get('results',[])
+    except requests.exceptions.RequestException as e:
+        print(f'An error occured: {e}')
+        return None
+def get_recipe_details(recipe_id):
+    try:
+        params = {'apiKey': API_KEY}
+        response = requests.get(RECIPE_INFO_URL.format(id = recipe_id), params = params)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f'Error fetching details: {recipe_id} {e}')
+        return None
 
 def main():
-    input_str = (input("Enter ingredients, separated by commas.: "))
-    ingredients = [ingredient.strip() for ingredient in input_str.split(',')]
+    query = []
+    ingredients_str = input('Enter ingredients separated by commas: ').strip()
+    ingredients = [ n.strip() for n in ingredients_str.split(',')] if ingredients_str else []
+    cuisine_str = input('Enter the cuisine you\'re craving: ').strip()
+    cuisine = [n.strip() for n in cuisine_str.split(',')] if cuisine_str else []
+    diet = input('Enter dietary preferences: ').strip()
 
-    recipies_found = search_recipes(ingredients)
+    recipies_found = search_recipes(query,ingredients,cuisine, diet)
 
-    if recipies_found is not None:
-        display_recipes(recipies_found)
-    else:
-        print("sorry")
+    if not recipies_found:
+        print('Sorry none found')
+        return
+    
+    for recipe_summary in recipies_found:
+        recipe_id = recipe_summary['id']
+        print(recipe_id)
+
+        details = get_recipe_details(recipe_id)
+
+        title = details.get('title')
+        cook_time = details.get('readyInMinutes')
+        source_url = details.get('sourceUrl')
+
+        if details:
+            print(f'{title}')
+            print(f'Tome to cook: {cook_time} minutes')
+            print(f'URL: {source_url}', end = '\n')
+            print('\n')
+            
+
 main()
