@@ -5,7 +5,6 @@ import requests
 API_KEY = "aa16c40bfb484d6dba1f16ac81f769ea"
 API_URL = "https://api.spoonacular.com"
 SEARCH_URL = f"{API_URL}/recipes/complexSearch"
-RECIPE_INFO_URL = "https://api.spoonacular.com/recipes/{id}/information"
 NUM_RESULTS = 5
 
 # search for the recipe with the given ingredients
