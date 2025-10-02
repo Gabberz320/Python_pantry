@@ -6,7 +6,7 @@ API_KEY = "" # add your API key here
 API_URL = "https://api.spoonacular.com"
 SEARCH_URL = f"{API_URL}/recipes/complexSearch"
 NUM_RESULTS = random.randint(50, 100)
-NUM_SKIP = random.randint(1, 500)
+NUM_SKIP = random.randint(1, 10)
 
 # search for the recipe with the given ingredients
 # return the list of recipes for future info search
@@ -14,7 +14,7 @@ def search_recipes(ingredients, cuisine, diet):
     params = {'apiKey': API_KEY, 'number': NUM_RESULTS,
             'includeIngredients': ','.join(ingredients), 
             'cuisine': ','.join(cuisine),
-            'diet': diet, 'addRecipeInformation': True, 'ignorePantry': False, 'sort': 'min-missing-ingredients', 'offset': NUM_SKIP}
+            'diet': diet, 'addRecipeInformation': True, 'ignorePantry': False, 'sort': 'max-used-ingredients','offset': NUM_SKIP}
 
     try: 
         response = requests.get(SEARCH_URL, params=params)
