@@ -1,4 +1,4 @@
 flask
 Flask-SQLAlchemy
-pg8000
+PyMySQL
 requests

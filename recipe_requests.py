@@ -2,7 +2,7 @@ import requests
 import random
 
 
-API_KEY = "" # add your API key here
+API_KEY = "ab1ce54d449b4fac9a3d4feb66bb5707" # add your API key here
 API_URL = "https://api.spoonacular.com"
 SEARCH_URL = f"{API_URL}/recipes/complexSearch"
 RECIPE_INFO_URL = f"{API_URL}/recipes/{id}/information"
