@@ -11,11 +11,14 @@ NUM_SKIP = random.randint(1, 10)
 
 # search for the recipe with the given ingredients
 # return the list of recipes for future info search
-def search_recipes(ingredients, cuisine, diet):
+def search_recipes(ingredients, cuisine, diet, allergies):
     params = {'apiKey': API_KEY, 'number': NUM_RESULTS,
             'includeIngredients': ','.join(ingredients), 
             'cuisine': ','.join(cuisine),
-            'diet': diet, 'addRecipeInformation': True, 'ignorePantry': False, 'sort': 'max-used-ingredients','offset': NUM_SKIP}
+            'diet': diet, 
+            'intolerances': allergies,
+            'addRecipeInformation': True, 'ignorePantry': True, 
+            'sort': 'max-used-ingredients','offset': NUM_SKIP}
 
     try: 
         response = requests.get(SEARCH_URL, params=params)
@@ -58,8 +61,9 @@ def main():
     cuisine_str = input('Enter the cuisine you\'re craving: ').strip()
     cuisine = [n.strip() for n in cuisine_str.split(',')] if cuisine_str else []
     diet = input('Enter dietary preferences: ').strip()
+    allergies = input('Allergies? Enter them here separated by a comma: ')
 
-    recipes_found = search_recipes(ingredients,cuisine, diet)
+    recipes_found = search_recipes(ingredients,cuisine, diet, allergies)
     
 
     if not recipes_found:
