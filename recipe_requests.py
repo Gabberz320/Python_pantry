@@ -3,19 +3,24 @@ import random
 
 
 
-API_KEY = 'ab1ce54d449b4fac9a3d4feb66bb5707'
-API_URL = "https://api.spoonacular.com"
-SEARCH_URL = f"{API_URL}/recipes/complexSearch"
-RECIPE_INFO_URL = f"{API_URL}/recipes/{id}/information"
-JOKE_URL = f"{API_URL}/food/jokes/random"
+API_KEY = "" # put key here
+API_HOST = "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com"
+API_URL = f"https://{API_HOST}"
+SEARCH_URL = f"https://{API_HOST}/recipes/complexSearch"
+RECIPE_INFO_URL = f"https://{API_HOST}/recipes/{{id}}/information"
+
 NUM_RESULTS = random.randint(50, 100)
 NUM_SKIP = random.randint(1, 10)
 
-
+headers = {
+    "x-rapidapi-key": API_KEY,
+    "x-rapidapi-host": API_HOST
+}
 # search for the recipe with the given ingredients
 # return the list of recipes for future info search
 def search_recipes(ingredients, cuisine, diet, allergies):
-    params = {'apiKey': API_KEY, 'number': NUM_RESULTS,
+    
+    params = {'number': NUM_RESULTS,
             'includeIngredients': ','.join(ingredients), 
             'cuisine': ','.join(cuisine),
             'diet': diet, 
@@ -24,10 +29,10 @@ def search_recipes(ingredients, cuisine, diet, allergies):
             'ignorePantry': False,
             'instructionsRequired': True,
             'sort': 'max-used-ingredients',
-            'offset': NUM_SKIP}
-
+            'offset': NUM_SKIP }
+  
     try: 
-        response = requests.get(SEARCH_URL, params=params)
+        response = requests.get(SEARCH_URL, headers=headers, params=params)
         response.raise_for_status()
         return response.json().get('results',[])
     except requests.exceptions.RequestException as e:
@@ -37,8 +42,8 @@ def search_recipes(ingredients, cuisine, diet, allergies):
 # Get recipe info with ID for saved recipes    
 def get_recipe_info(recipe_id):
     try:
-        params = {'apiKey': API_KEY}
-        response = requests.get(RECIPE_INFO_URL.format(id=recipe_id), params=params)
+                
+        response = requests.get(RECIPE_INFO_URL.format(id=recipe_id), headers=headers)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -61,16 +66,16 @@ def display_recipes(recipes):
                 print('\n')
                 
 # Random joke 
-def get_random_joke():
-    try:
-        params = {'apiKey': API_KEY}
-        response = requests.get(JOKE_URL, params=params)
-        response.raise_for_status()
-        joke = response.json()
-        return joke.get('text','N/A')
-    except requests.exceptions.RequestException as e:
-        print(f"Error occured while fetching joke {e}")
-        return None
+# def get_random_joke():
+#     try:
+       
+#         response = requests.get(JOKE_URL, headers=headers)
+#         response.raise_for_status()
+#         joke = response.json()
+#         return joke.get('text','N/A')
+#     except requests.exceptions.RequestException as e:
+#         print(f"Error occured while fetching joke {e}")
+#         return None
 
 
 
@@ -92,8 +97,8 @@ def main():
     else:
 
        #Display recipe information
-       joke = get_random_joke()
-       print(joke, '\n \n')
+    #    joke = get_random_joke()
+    #    print(joke, '\n \n')
        
        display_recipes(recipes_found)
 
