@@ -2,12 +2,15 @@ import requests
 import random
 
 
-API_KEY = "ab1ce54d449b4fac9a3d4feb66bb5707" # add your API key here
+
+API_KEY = 'ab1ce54d449b4fac9a3d4feb66bb5707'
 API_URL = "https://api.spoonacular.com"
 SEARCH_URL = f"{API_URL}/recipes/complexSearch"
 RECIPE_INFO_URL = f"{API_URL}/recipes/{id}/information"
+JOKE_URL = f"{API_URL}/food/jokes/random"
 NUM_RESULTS = random.randint(50, 100)
 NUM_SKIP = random.randint(1, 10)
+
 
 # search for the recipe with the given ingredients
 # return the list of recipes for future info search
@@ -17,8 +20,11 @@ def search_recipes(ingredients, cuisine, diet, allergies):
             'cuisine': ','.join(cuisine),
             'diet': diet, 
             'intolerances': allergies,
-            'addRecipeInformation': True, 'ignorePantry': True, 
-            'sort': 'max-used-ingredients','offset': NUM_SKIP}
+            'addRecipeInformation': True, 
+            'ignorePantry': False,
+            'instructionsRequired': True,
+            'sort': 'max-used-ingredients',
+            'offset': NUM_SKIP}
 
     try: 
         response = requests.get(SEARCH_URL, params=params)
@@ -28,6 +34,7 @@ def search_recipes(ingredients, cuisine, diet, allergies):
         print(f'An error occured: {e}')
         return None
     
+# Get recipe info with ID for saved recipes    
 def get_recipe_info(recipe_id):
     try:
         params = {'apiKey': API_KEY}
@@ -37,7 +44,8 @@ def get_recipe_info(recipe_id):
     except requests.exceptions.RequestException as e:
         print(f'Error fetching details for recipe ID {recipe_id}: {e}')
         return None
-
+    
+# Display recipes 
 def display_recipes(recipes):
     for recipe_summary in recipes[:10]:
             
@@ -51,6 +59,18 @@ def display_recipes(recipes):
                 print(f'Time to cook: {cook_time} minutes')
                 print(f'URL: {source_url}', end = '\n')
                 print('\n')
+                
+# Random joke 
+def get_random_joke():
+    try:
+        params = {'apiKey': API_KEY}
+        response = requests.get(JOKE_URL, params=params)
+        response.raise_for_status()
+        joke = response.json()
+        return joke.get('text','N/A')
+    except requests.exceptions.RequestException as e:
+        print(f"Error occured while fetching joke {e}")
+        return None
 
 
 
@@ -72,7 +92,11 @@ def main():
     else:
 
        #Display recipe information
+       joke = get_random_joke()
+       print(joke, '\n \n')
+       
        display_recipes(recipes_found)
+
         
             
 
