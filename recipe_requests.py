@@ -1,9 +1,11 @@
 import requests
 import random
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
-
-API_KEY = "" # put key here
+API_KEY = os.getenv("API_KEY")
 API_HOST = "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com"
 API_URL = f"https://{API_HOST}"
 SEARCH_URL = f"https://{API_HOST}/recipes/complexSearch"
