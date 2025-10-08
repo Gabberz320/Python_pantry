@@ -75,6 +75,9 @@ def get_random_joke():
         response = requests.get(JOKE_URL, headers=headers)
         response.raise_for_status()
         joke = response.json()
+        if len(joke.get('text','')) > 200:
+            joke = {'text': 'Why did the tomato turn red? Because it saw the salad dressing!'}
+
         return joke.get('text','N/A')
     except requests.exceptions.RequestException as e:
         print(f"Error occured while fetching joke {e}")
