@@ -30,8 +30,8 @@ def search_recipes(ingredients, cuisine, diet, allergies):
             'intolerances': allergies,
             'addRecipeInformation': True, 
             'ignorePantry': False,
-            'instructionsRequired': True,
-            'sort': 'max-used-ingredients',
+            'ranking': 2,
+            'sort': 'min-missing-ingredients',
             'offset': NUM_SKIP }
   
     try: 
@@ -75,7 +75,7 @@ def get_random_joke():
         response = requests.get(JOKE_URL, headers=headers)
         response.raise_for_status()
         joke = response.json()
-        if len(joke.get('text','')) > 200:
+        if len(joke.get('text','N/A')) > 200:
             joke = {'text': 'Why did the tomato turn red? Because it saw the salad dressing!'}
 
         return joke.get('text','N/A')
