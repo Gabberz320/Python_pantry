@@ -34,7 +34,19 @@ class SavedRecipe(db.model):
     missed_ingredients: Mapped[str] = mapped_column(Text, nullable=True)            
     ingredients: Mapped[str] = mapped_column(Text, nullable=True)
     
+    user = relationship("User", back_populates="saved_recipes")
+    
     user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"))
     
     def __repr__(self):
         return f"<Saved recipe {self.recipe_name}>"
+    
+class Ingredient(db.model):
+    __tablename__ = "ingredients"
+    
+    ingredient_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    
+    ingredient_name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    
+    def __repr__(self):
+        return f"<Ingredient {self.ingredient_name}"
