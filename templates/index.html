@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Recipe Dashboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #fafafa;
+      margin: 40px;
+    }
+    .profile {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    img {
+      border-radius: 50%;
+      margin-top: 10px;
+    }
+    a.button {
+      display: inline-block;
+      margin-top: 15px;
+      padding: 10px 20px;
+      background: #4285F4;
+      color: white;
+      text-decoration: none;
+      border-radius: 5px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+    a.button:hover {
+      background: #3367D6;
+    }
+    form {
+      margin-top: 30px;
+      text-align: center;
+    }
+    input {
+      padding: 8px;
+      font-size: 16px;
+      margin: 5px;
+    }
+    button {
+      padding: 8px 16px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #218838;
+    }
+    .results {
+      margin-top: 40px;
+    }
+    .recipe {
+      border: 1px solid #ccc;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .recipe img {
+      width: 120px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="profile">
+    {% if user %}
+      <h2>Welcome, {{ user.name }} 👋</h2>
+      <img src="{{ user.picture }}" width="100" alt="Profile picture" />
+      <p>{{ user.email }}</p>
+      <a href="/logout" class="button">Logout</a>
+    {% else %}
+      <h2>Welcome to Recipe Finder 🍳</h2>
+      <p>Login with Google to start exploring recipes!</p>
+      <a href="/login" class="button">Login with Google</a>
+    {% endif %}
+  </div>
+
+  {% if user %}
+  <hr>
+  <form id="recipeForm" onsubmit="searchRecipes(event)">
+    <input type="text" id="ingredients" placeholder="Ingredients (e.g. chicken,tomato)" />
+    <input type="text" id="cuisine" placeholder="Cuisine (optional)" />
+    <input type="text" id="diet" placeholder="Diet (optional)" />
+    <input type="text" id="allergies" placeholder="Allergies (optional)" />
+    <button type="submit">Search Recipes</button>
+    <button type="button" onclick="getJoke()">Get Random Joke 😂</button>
+  </form>
+
+  <div id="joke" style="text-align:center; margin-top:20px; font-style:italic;"></div>
+
+  <div class="results" id="results"></div>
+  {% endif %}
+
+  <script>
+    async function searchRecipes(e) {
+      e.preventDefault();
+      const ingredients = document.getElementById('ingredients').value;
+      const cuisine = document.getElementById('cuisine').value;
+      const diet = document.getElementById('diet').value;
+      const allergies = document.getElementById('allergies').value;
+
+      const url = `/search_recipes?ingredients=${encodeURIComponent(ingredients)}&cuisine=${encodeURIComponent(cuisine)}&diet=${encodeURIComponent(diet)}&allergies=${encodeURIComponent(allergies)}`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+
+      const container = document.getElementById('results');
+      container.innerHTML = '<h3>Recipes Found:</h3>';
+
+      if (data.length === 0) {
+        container.innerHTML += '<p>No recipes found. Try different ingredients.</p>';
+        return;
+      }
+
+      data.forEach(recipe => {
+        const div = document.createElement('div');
+        div.className = 'recipe';
+        div.innerHTML = `
+          <h4>${recipe.title}</h4>
+          ${recipe.image ? `<img src="${recipe.image}" alt="${recipe.title}">` : ''}
+          <p>Ready in ${recipe.readyInMinutes || 'N/A'} mins</p>
+          <a href="https://spoonacular.com/recipes/${recipe.title.replace(/ /g, "-")}-${recipe.id}" target="_blank">View Recipe</a>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    async function getJoke() {
+      const res = await fetch('/random_joke');
+      const data = await res.json();
+      document.getElementById('joke').textContent = data.joke || 'No joke found.';
+    }
+  </script>
+</body>
+</html>
