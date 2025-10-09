@@ -3,3 +3,4 @@ Flask-SQLAlchemy
 PyMySQL
 requests
 python-dotenv
+cryptography

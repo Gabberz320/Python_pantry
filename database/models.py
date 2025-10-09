@@ -18,10 +18,13 @@ class User(db.Model):
     #Oauth tokens
     # Table will be completed when login and registration page is designed
     
+    saved_recipes = relationship("SavedRecipe", back_populates="user")
+    
+    
     def __repr__(self):
         return f'<User {self.email}>'
     
-class SavedRecipe(db.model):
+class SavedRecipe(db.Model):
     __tablename__ = "saved_recipes"
     
     saved_id: Mapped[int] = mapped_column(Integer, primary_key=True)
@@ -41,7 +44,7 @@ class SavedRecipe(db.model):
     def __repr__(self):
         return f"<Saved recipe {self.recipe_name}>"
     
-class Ingredient(db.model):
+class Ingredient(db.Model):
     __tablename__ = "ingredients"
     
     ingredient_id: Mapped[int] = mapped_column(Integer, primary_key=True)
