@@ -90,6 +90,8 @@ def callback():
         "picture": user_info.get("picture"),
     }
 
+    print(session["user"])
+
     # ✅ Always return something valid
     return redirect(url_for("index"))
 
