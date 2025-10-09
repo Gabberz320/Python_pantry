@@ -139,6 +139,16 @@ def search_recipes():
         return response.json().get("results", [])
     except requests.exceptions.RequestException as e:
         return {"error": str(e)}, 500
+    
+@app.route("/get_recipe_info")    
+def get_recipe_info(recipe_id):
+    try:        
+        response = requests.get(RECIPE_INFO_URL.format(id=recipe_id), headers=headers)
+        response.raise_for_status()
+        return response.json()
+    except requests.exceptions.RequestException as e:
+        print(f'Error fetching details for recipe ID {recipe_id}: {e}')
+        return None
 
 @app.route("/random_joke")
 def random_joke():
