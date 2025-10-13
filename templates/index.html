@@ -144,9 +144,12 @@
         // User favorites 
         let userFavorites = JSON.parse(localStorage.getItem('recipeFavorites')) || mockFavorites;
 
+        // Currently displayed recipes (either API results or mock)
+        let displayedRecipes = [...mockRecipes];
+
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function(){
-            displayRecipes(mockRecipes);
+            displayRecipes(displayedRecipes);
             displayHomeFavorites();
             displayFavorites();
             attachEventListeners();
@@ -162,7 +165,7 @@
                 return;
             }
 
-            // Show only 3 recipes initially 
+            // Show only 3 recipes 
             const recipesToShow = recipes.slice(0, 3);
 
             recipesToShow.forEach(recipe => {
@@ -215,6 +218,13 @@
         function createRecipeCard(recipe, isFavorite) {
             const flipCard = document.createElement('div');
             flipCard.className = 'flip-card';
+            // add data-id so we can find cards by recipe id later
+            if (recipe && recipe.id !== undefined) {
+                flipCard.setAttribute('data-id', recipe.id);
+            }
+
+            // truncate summary for display to ~30 words
+            const displaySummary = truncateWords(recipe.summary || '', 30);
             
             const favoriteButton = isFavorite ? 
                 `<button class="remove-favorite-btn" data-id="${recipe.id}">
@@ -242,7 +252,7 @@
                         <h3 class="recipe-title">${recipe.title}</h3>
                         <p class="cook-time"><i class="far fa-clock"></i> ${recipe.cook_time}</p>
                         <div class="recipe-summary">
-                            <p>${recipe.summary}</p>
+                            <p>${displaySummary}</p>
                         </div>
                         <a href="${recipe.link}" class="recipe-link" target="_blank">
                             <i class="fas fa-external-link-alt"></i> View Full Recipe
@@ -278,22 +288,52 @@
             // Search functionality 
             document.getElementById('search-form').addEventListener('submit', function(e){
                 e.preventDefault();
-                const ingredients = document.getElementById('ingredient-input').value.toLowerCase();
+                const ingredients = document.getElementById('ingredient-input').value.trim();
 
+                // If empty, show mock data
                 if(!ingredients){
-                    displayRecipes(mockRecipes);
+                    displayedRecipes = [...mockRecipes];
+                    displayRecipes(displayedRecipes);
                     return;
                 }
 
-                const searchTerms = ingredients.split(',').map(term => term.trim());
-                const filteredRecipes = mockRecipes.filter(recipe => {
-                    return searchTerms.some(term =>
-                        recipe.ingredients.some(ingredient =>
-                            ingredient.includes(term)
-                        )
-                    );
-                });
-                displayRecipes(filteredRecipes);
+                // Build query and call Flask backend
+                const params = new URLSearchParams({ ingredients });
+                const url = `/search_recipes?${params.toString()}`;
+
+                const recipesGrid = document.getElementById('recipes-grid');
+                recipesGrid.innerHTML = '<div class="loading">Searching recipes...</div>';
+
+                fetch(url)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.error) {
+                            recipesGrid.innerHTML = `<div class="no-results">Error: ${data.error}</div>`;
+                            return;
+                        }
+
+                        // Map API results to UI shape
+                        const results = Array.isArray(data) ? data : [];
+                        displayedRecipes = results.map(r => ({
+                            id: r.id,
+                            title: r.title || r.name || 'Untitled',
+                            cook_time: r.readyInMinutes ? `${r.readyInMinutes} min` : (r.cook_time || 'N/A'),
+                            image: r.image || '',
+                            link: r.sourceUrl || r.spoonacularSourceUrl || '#',
+                            ingredients: (r.extendedIngredients || []).map(i => i.name) || [],
+                            summary: r.summary ? stripHtml(r.summary) : (r.description || '')
+                        }));
+
+                        if(displayedRecipes.length === 0){
+                            recipesGrid.innerHTML = '<div class="no-results">No recipes found with those ingredients. Try different search terms.</div>';
+                            return;
+                        }
+
+                        displayRecipes(displayedRecipes);
+                    })
+                    .catch(err => {
+                        recipesGrid.innerHTML = `<div class="no-results">Error: ${err.message}</div>`;
+                    });
             });
         }
 
@@ -304,7 +344,8 @@
                     e.stopPropagation();  // Prevents card flip
 
                     const recipeId = parseInt(this.getAttribute('data-id'));
-                    const recipe = mockRecipes.find(r => r.id === recipeId);
+                    // Look up in currently displayed recipes first, then fallback to mock or favorites
+                    let recipe = displayedRecipes.find(r => r.id === recipeId) || mockRecipes.find(r => r.id === recipeId) || userFavorites.find(r => r.id === recipeId);
 
                     if(recipe && !userFavorites.some(fav => fav.id === recipeId)){
                         userFavorites.push(recipe);
@@ -363,6 +404,21 @@
                     }
                 });
             });
+        }
+
+        // Helper to strip HTML tags (Spoonacular returns HTML in summaries)
+        function stripHtml(html){
+            const tmp = document.createElement('div');
+            tmp.innerHTML = html || '';
+            return tmp.textContent || tmp.innerText || '';
+        }
+
+        // Helper to truncate text to a number of words
+        function truncateWords(text, wordLimit){
+            if(!text) return '';
+            const words = text.split(/\s+/).filter(Boolean);
+            if(words.length <= wordLimit) return words.join(' ');
+            return words.slice(0, wordLimit).join(' ') + '...';
         }
     </script>
 

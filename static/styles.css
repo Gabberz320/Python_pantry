@@ -390,3 +390,22 @@ body {
         font-size: 2rem;
     }
 }
+
+/* Loading state */
+.no-results, .no-favorites {
+    text-align: center;
+    padding: 2rem;
+    color: #666;
+    font-style: italic;
+}
+
+/* Error state */
+.error-message {
+    background-color: #fee;
+    border: 1px solid #fcc;
+    color: #c66;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: center;
+    margin: 1rem 0;
+}
