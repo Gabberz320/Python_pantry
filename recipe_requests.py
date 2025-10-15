@@ -1,4 +1,7 @@
 import requests
+import concurrent.futures
+import asyncio
+import aiohttp
 import random
 from dotenv import load_dotenv
 import os
@@ -83,7 +86,67 @@ def get_random_joke():
         print(f"Error occured while fetching joke {e}")
         return None
 
+# def is_valid_link(url, timeout=1):
+#     if not url:
+#         return False
+#     try:
+#         response = requests.head(url, timeout=timeout, allow_redirects=True)
+#         if response.status_code < 400:
+#             return True
+#         else:
+#             return False
+#     except requests.exceptions.RequestException as e:
+#         return False
 
+# def filter_valid_links(recipes):
+#     valid_recipes = []
+    
+#     with concurrent.futures.ThreadPoolExecutor(max_workers=35) as executor:
+#         future_to_recipe = {executor.submit(is_valid_link, r.get("sourceUrl")): r for r in recipes}
+
+#         for future in future_to_recipe:
+#             recipe = future_to_recipe[future]
+#             try:
+#                 if future.result():
+#                     valid_recipes.append(recipe)
+#             except Exception:
+#                 pass
+    
+#     return valid_recipes
+
+async def is_valid_link(session, url, timeout=1):
+    if not url:
+        return False
+    try:
+        # Use aiohttp's timeout object
+        client_timeout = aiohttp.ClientTimeout(total=timeout)
+        async with session.head(url, timeout=client_timeout, allow_redirects=True) as response:
+             if response.status < 400:
+                 return True
+             else: 
+                 return False
+    # This line is for catching any network errors connecting to a link
+    except (aiohttp.ClientError, asyncio.TimeoutError):
+        return False
+    
+
+async def filter_links(recipes):
+    valid_recipes = []
+    async with aiohttp.ClientSession() as session:
+        # Create a list of tasks, checking the links of each recipe returned from the API
+        tasks = []
+        for recipe in recipes:
+            task = asyncio.create_task(is_valid_link(session, recipe.get("sourceUrl")))
+            tasks.append((task, recipe))
+        
+        # Waits for all the tasks to complete
+        for task, recipe in tasks:
+            is_valid = await task
+            if is_valid:
+                valid_recipes.append(recipe)
+    
+    return valid_recipes
+    
 
 def main():
     
@@ -106,7 +169,13 @@ def main():
        joke = get_random_joke()
        print(joke, '\n \n')
        
-       display_recipes(recipes_found)
+       print("Checking valid recipe links...")
+       valid_recipes = asyncio.run(filter_links(recipes_found))
+       
+       if not valid_recipes:
+           print("No results with valid recipes found...")
+       
+       display_recipes(valid_recipes)
 
         
             
