@@ -3,44 +3,31 @@ from database.connection import init_connection_engine, db
 from sqlalchemy import text
 import os
 import pathlib
-import requests
-import random
 from dotenv import load_dotenv
 from google_auth_oauthlib.flow import Flow
 from google.oauth2 import id_token
 import google.auth.transport.requests
 
-
+# ---------------- APP SETUP ----------------
 app = Flask(__name__)
-app.secret_key = os.getenv("SECRET_KEY") or "supersecretkey"
+load_dotenv()  # Load environment variables
 
+app.secret_key = os.getenv("SECRET_KEY") or "supersecretkey"
 init_connection_engine(app)
 
-# Load environment variables from a .env file (if present)
-load_dotenv()
-
-# @app.route("/test")
-# def test():
-#     result = db.session.execute(text("SELECT 1")).scalar()
-#     print(f"Test Query: {result}")
-    
-# @app.route("/")
-# def index():
-#     return render_template("index.html")
-
-# if __name__ == "__main__":
-#     app.run(debug=True)
-
-
-# ---------- GOOGLE OAUTH SETUP ----------
+# ---------------- GOOGLE OAUTH SETUP ----------------
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
-
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
 
-# ---------------- LOGIN ----------------
-@app.route("/login")
-def login():
+# ---------------- HOME PAGE ----------------
+@app.route("/")
+def index():
+    return render_template("index.html")
+
+# ---------------- GOOGLE LOGIN ----------------
+@app.route("/google_login")
+def google_login():
     flow = Flow.from_client_secrets_file(
         client_secrets_file,
         scopes=[
@@ -48,21 +35,18 @@ def login():
             "https://www.googleapis.com/auth/userinfo.profile",
             "https://www.googleapis.com/auth/userinfo.email",
         ],
-        redirect_uri=url_for("callback", _external=True),
+        redirect_uri=url_for("google_callback", _external=True),
     )
     auth_url, state = flow.authorization_url(prompt="consent")
     session["state"] = state
     return redirect(auth_url)
 
-
-# ---------------- CALLBACK ----------------
+# ---------------- GOOGLE CALLBACK ----------------
 @app.route("/login/callback")
-def callback():
-    # Validate the 'state' parameter
+def google_callback():
     if session.get("state") != request.args.get("state"):
         return "Invalid state parameter", 400
 
-    # Rebuild flow with the same settings and redirect_uri
     flow = Flow.from_client_secrets_file(
         client_secrets_file,
         scopes=[
@@ -70,14 +54,12 @@ def callback():
             "https://www.googleapis.com/auth/userinfo.profile",
             "https://www.googleapis.com/auth/userinfo.email",
         ],
-        redirect_uri=url_for("callback", _external=True),
+        redirect_uri=url_for("google_callback", _external=True),
     )
 
-    # Exchange code for token
     flow.fetch_token(authorization_response=request.url)
     credentials = flow.credentials
 
-    # Verify ID token and extract user info
     request_session = google.auth.transport.requests.Request()
     user_info = id_token.verify_oauth2_token(
         credentials.id_token,
@@ -85,7 +67,6 @@ def callback():
         GOOGLE_CLIENT_ID,
     )
 
-    # Store info in session
     session["user"] = {
         "id": user_info.get("sub"),
         "name": user_info.get("name"),
@@ -94,8 +75,6 @@ def callback():
     }
 
     print(session["user"])
-
-    # ✅ Always return something valid
     return redirect(url_for("index"))
 
 # ---------------- LOGOUT ----------------
@@ -103,6 +82,46 @@ def callback():
 def logout():
     session.clear()
     return redirect(url_for("index"))
+
+# ---------------- MANUAL LOGIN ----------------
+@app.route("/userlogin", methods=["GET", "POST"])
+def userlogin():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        # Example DB check
+        query = text("SELECT * FROM users WHERE username = :u AND password = :p")
+        result = db.session.execute(query, {"u": username, "p": password}).fetchone()
+
+        if result:
+            session["username"] = username
+            return redirect(url_for("index"))
+        else:
+            return render_template("login.html", error="Invalid username or password")
+
+    return render_template("login.html")
+
+# ---------------- REGISTER ----------------
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    if request.method == "POST":
+        username = request.form["username"]
+        password = request.form["password"]
+
+        # Example insert into DB
+        query = text("INSERT INTO users (username, password) VALUES (:u, :p)")
+        db.session.execute(query, {"u": username, "p": password})
+        db.session.commit()
+
+        return redirect(url_for("userlogin"))
+
+    return render_template("register.html")
+
+# ---------------- MAIN ----------------
+if __name__ == "__main__":
+    app.run(debug=True)
+
 
 
 # ---------- SPOONACULAR API SETUP ----------

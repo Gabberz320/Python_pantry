@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Login</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <style>
+        /* Temporary centering, your static CSS can override this */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
+        }
+        form {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Login</h2>
+
+    <form action="{{ url_for('userlogin') }}" method="POST">
+        <input type="text" name="username" placeholder="Username" required><br><br>
+        <input type="password" name="password" placeholder="Password" required><br><br>
+        <button type="submit">Login</button>
+    </form>
+
+    <br>
+    <a href="{{ url_for('login') }}">Login with Google</a>
+    <br><br>
+    <a href="{{ url_for('register') }}">Don’t have an account? Register here</a>
+
+</body>
+</html>
