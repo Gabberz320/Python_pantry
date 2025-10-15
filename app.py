@@ -11,6 +11,7 @@ from google.oauth2 import id_token
 import google.auth.transport.requests
 import asyncio
 import aiohttp
+from database.models import User
 
 
 app = Flask(__name__)
@@ -86,7 +87,24 @@ def callback():
         request_session,
         GOOGLE_CLIENT_ID,
     )
-
+    # ------------- Store user info in DB ----------
+    #Check if user exists in DB, if not add them
+    # user_id = user_info.get("sub")
+    # email = user_info.get("email")
+    # name = user_info.get("name")
+   # picture = user_info.get("picture")
+    #user = User.query.filter_by(id=user_id).first()
+    # if not user:
+    #     new_user = User(id=user_id, email=email, name=name)
+    #     db.session.add(new_user)
+    #     db.session.commit()
+    # else:
+    #     # Update user info if needed
+    #     if user.email != email or user.name != name:
+    #         user.email = email
+    #         user.name = name
+    #         db.session.commit()
+    
     # Store info in session
     session["user"] = {
         "id": user_info.get("sub"),
@@ -95,9 +113,7 @@ def callback():
         "picture": user_info.get("picture"),
     }
 
-    print(session["user"])
-
-    # ✅ Always return something valid
+    # Always return something valid
     return redirect(url_for("index"))
 
 # ---------------- LOGOUT ----------------
