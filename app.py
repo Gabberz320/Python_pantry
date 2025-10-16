@@ -203,6 +203,7 @@ def search_recipes():
         "diet": diet,
         "intolerances": allergies,
         "addRecipeInformation": True,
+        "addRecipeNutrition": True,
         "ignorePantry": False,
         "ranking": 2,
         "sort": "min-missing-ingredients",
