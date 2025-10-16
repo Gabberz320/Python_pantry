@@ -2,6 +2,11 @@ from sqlalchemy import insert
 from database.connection import db
 from database.models import Ingredient
 from app import app
+from database.models import Oauth_User
+
+with app.app_context():
+    db.create_all()
+    print("Database tables created successfully.")
 
 def main():
     with app.app_context():

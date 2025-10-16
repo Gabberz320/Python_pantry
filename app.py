@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, request, url_for, session
 from database.connection import init_connection_engine, db
-from sqlalchemy import text
+from database.models import Oauth_User
+from sqlalchemy import select, text
 import os
 import requests
 import random
@@ -11,6 +12,30 @@ from dotenv import load_dotenv
 from google_auth_oauthlib.flow import Flow
 from google.oauth2 import id_token
 import google.auth.transport.requests
+
+#-- for rapidfuzz --
+from rapidfuzz import fuzz, process
+
+# -- for autocomplete with file --
+import pandas as pd
+INGREDIENTS_DF = pd.read_csv("ingredients-with-possible-units.csv", sep=";", header=None, names=["name", "id", "unit"])
+INGREDIENTS = []
+for _, row in INGREDIENTS_DF.iterrows():
+    name = str(row["name"]).strip()
+    try:
+        ing_id = int(row["id"])
+    except (ValueError, TypeError):
+        ing_id = None
+
+    INGREDIENTS.append({
+        "id": ing_id,
+        "name": name,
+        "unit": str(row["unit"]).strip() if pd.notna(row["unit"]) else ""
+    })
+
+
+
+# -- random nums --
 
 NUM_RESULTS = random.randint(50, 100)
 NUM_SKIP = random.randint(1, 10)
@@ -73,6 +98,24 @@ def google_callback():
         request_session,
         GOOGLE_CLIENT_ID,
     )
+    
+    oauth_id = user_info.get("sub")
+    
+    user = db.session.execute(select(Oauth_User).where(oauth_id==oauth_id)).scalar()
+    
+    if user:
+        user.name = user_info.get("name")
+        user.picture_url = user_info.get("picture")
+    else:
+        user = Oauth_User(
+            oauth_id=oauth_id,
+            name=user_info.get("name"),
+            email=user_info.get("email"),
+            picture_url=user_info.get("picture")
+        )
+        db.session.add(user)
+
+        db.session.commit()
 
     session["user"] = {
         "id": user_info.get("sub"),
@@ -203,6 +246,7 @@ def search_recipes():
         "diet": diet,
         "intolerances": allergies,
         "addRecipeInformation": True,
+        "addRecipeNutrition": True,
         "ignorePantry": False,
         "ranking": 2,
         "sort": "min-missing-ingredients",
@@ -265,6 +309,64 @@ def random_joke():
     except requests.exceptions.RequestException as e:
         app.logger.warning(f"Error fetching joke from Spoonacular: {e}")
         return {"error": str(e)}, 502
+
+
+#--- autocomplete ---
+
+    # -- api one, uses way too many calls --
+# @app.route("/autocomplete")
+# def autocomplete():
+#     query = request.args.get("query", "")
+#     if not query:
+#         return {"error": "Missing query parameter"}, 400
+
+#     url = f"{API_URL}/food/ingredients/autocomplete"
+#     params = {
+#         "query": query,
+#         "number": 5,
+#     }
+#     try:
+#         response = requests.get(url, headers=headers, params=params, timeout=REQUEST_TIMEOUT)
+#         response.raise_for_status()
+#         data = response.json()
+#         return data[:5]
+#     except requests.exceptions.Timeout:
+#         app.logger.warning("Timeout error")
+#         return {"error": "Request timed out."}, 504
+    # except requests.exceptions.HTTPError as e:
+    #     status = getattr(e.response, 'status_code', 502)
+    #     app.logger.warning(f"HTTP error: {status} - {e}")
+    #     return {"error": f"HTTP error {status}."}, 502
+    # except requests.exceptions.RequestException as e:
+    #     app.logger.warning(f"Autocomplete error: {e}")
+    #     return {"error": str(e)}, 502
+
+    # -- autocomplete using local file --
+@app.route("/autocomplete")
+def autocomplete():
+    query = request.args.get("query", "").strip().lower()
+    if not query:
+        return {"error": "Missing parameter"}, 400
+
+    names = [item["name"] for item in INGREDIENTS]
+    #--fuzzy match --
+    results = process.extract(query, names, limit=5, scorer=fuzz.WRatio)
+
+    matches = []
+    for name, score, _ in results:
+        for item in INGREDIENTS:
+            if item["name"] == name:
+                matches.append({
+                    "id": item["id"],
+                    "name": item["name"],
+                    "unit": item["unit"]
+                })
+                break  #stop after first match is found
+
+    return matches
+
+
+
 
 
 # @app.route("/")

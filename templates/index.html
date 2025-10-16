@@ -15,6 +15,8 @@
             <div class="search-bar">
                 <form id="search-form">
                     <input type="text" id="ingredient-input" placeholder="Enter Ingredients (comma seperated)">
+                    <!--autocomplete-->
+                    <ul id="autocomplete-list" class="autocomplete-list"></ul>
                     <button type="submit">Search</button>
                 </form>
             </div>
@@ -422,6 +424,49 @@
             if(words.length <= wordLimit) return words.join(' ');
             return words.slice(0, wordLimit).join(' ') + '...';
         }
+
+        //autocomplete 
+        const ingredientInput = document.getElementById('ingredient-input');
+        const autocompleteList = document.getElementById('autocomplete-list');
+
+        ingredientInput.addEventListener('input', () => {
+            clearTimeout(autocompleteTimer);
+            autocompleteTimer = setTimeout(fetchAutocomplete, 1000); //waits 1s after typing stops
+        });
+
+        ingredientInput.addEventListener('input', async () => {
+        const query = ingredientInput.value.trim(); 
+        autocompleteList.innerHTML = ''; //clear prev suggestions
+        if (query.length < 2) return; //minimal api calls
+
+        try {
+            const res = await fetch(`/autocomplete?query=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            if (Array.isArray(data)) {
+            data.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item.name;
+                li.onclick = () => {    //adds ingredient and clears list
+                ingredientInput.value = item.name;
+                autocompleteList.innerHTML = '';
+                };
+                autocompleteList.appendChild(li);
+            });
+            }
+        } catch (err) {
+            console.error("Autocomplete error:", err);
+        }
+        });
+
+        document.addEventListener('click', (e) => {
+        if (!autocompleteList.contains(e.target) && e.target !== ingredientInput) {
+            autocompleteList.innerHTML = '';
+        }   //clicking off closes the list of suggestions
+        });
+
+
+
+
     </script>
 
     </body>

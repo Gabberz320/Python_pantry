@@ -8,3 +8,5 @@ pip install python-dotenv
 pip install cryptography
 pip install aiohttp
 pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+pip install rapidfuzz
+pip install pandas

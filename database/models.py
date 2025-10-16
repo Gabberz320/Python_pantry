@@ -53,3 +53,17 @@ class Ingredient(db.Model):
     
     def __repr__(self):
         return f"<Ingredient {self.ingredient_name}"
+    
+    from database.connection import db
+
+class Oauth_User(db.Model):
+    __tablename__ = "oauth_user"
+
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    oauth_id = db.Column(db.String(255), unique=True, nullable=False)
+    name = db.Column(db.String(255), nullable=False)
+    email = db.Column(db.String(255), nullable=False)
+    picture_url = db.Column(db.String(500))
+
+    def __repr__(self):
+        return f"<Oauth_User {self.name}>"
