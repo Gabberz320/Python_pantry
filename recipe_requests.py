@@ -33,6 +33,8 @@ def search_recipes(ingredients, cuisine, diet, allergies):
             'intolerances': allergies,
             'addRecipeInformation': True, 
             'ignorePantry': False,
+            'addRecipeInstructions': True,
+            'addRecipeNutrition': True,
             'ranking': 2,
             'sort': 'min-missing-ingredients',
             'offset': NUM_SKIP }
@@ -63,12 +65,24 @@ def display_recipes(recipes):
             title = recipe_summary.get('title','N/A')
             cook_time = recipe_summary.get('readyInMinutes','N/A')
             source_url = recipe_summary.get('sourceUrl', 'N/A')
+            instructions = recipe_summary.get('instructions', 'N/A')
+            nutrition = recipe_summary.get('nutrition', {})
 
             if recipe_summary:
 
                 print(f'{title}')
                 print(f'Time to cook: {cook_time} minutes')
                 print(f'URL: {source_url}', end = '\n')
+                print('Instructions:')
+                print(instructions if instructions else 'N/A')
+                print('Nutrition Information:')
+                nutrients = nutrition.get('nutrients', [])
+                if nutrients:
+                    for nutrient in nutrients:
+                        name = nutrient.get('name', 'N/A')
+                        amount = nutrient.get('amount', 'N/A')
+                        unit = nutrient.get('unit', '')
+                        print(f'  {name}: {amount} {unit}')
                 print('\n')
                 
 # Random joke 
