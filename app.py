@@ -2,11 +2,16 @@ from flask import Flask, render_template, redirect, request, url_for, session
 from database.connection import init_connection_engine, db
 from sqlalchemy import text
 import os
+import requests
+import random
 import pathlib
 from dotenv import load_dotenv
 from google_auth_oauthlib.flow import Flow
 from google.oauth2 import id_token
 import google.auth.transport.requests
+
+NUM_RESULTS = random.randint(50, 100)
+NUM_SKIP = random.randint(1, 10)
 
 # ---------------- APP SETUP ----------------
 app = Flask(__name__)
@@ -119,8 +124,8 @@ def register():
     return render_template("register.html")
 
 # ---------------- MAIN ----------------
-if __name__ == "__main__":
-    app.run(debug=True)
+# if __name__ == "__main__":
+#     app.run(debug=True, use_reloader=False)
 
 
 
@@ -156,7 +161,7 @@ def search_recipes():
         return {"error": "Server misconfiguration: API_KEY is not set."}, 500
 
     params = {
-        "number": random.randint(10, 20),
+        "number": NUM_RESULTS,
         "includeIngredients": ingredients,
         "cuisine": cuisine,
         "diet": diet,
@@ -165,7 +170,7 @@ def search_recipes():
         "ignorePantry": False,
         "ranking": 2,
         "sort": "min-missing-ingredients",
-        "offset": random.randint(1, 10)
+        "offset": NUM_SKIP,
     }
 
     try:
@@ -222,10 +227,10 @@ def random_joke():
         return {"error": str(e)}, 502
 
 
-@app.route("/")
-def index():
-    user = session.get("user")
-    return render_template("index.html", user=user)
+# @app.route("/")
+# def index():
+#     user = session.get("user")
+#     return render_template("index.html", user=user)
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)
