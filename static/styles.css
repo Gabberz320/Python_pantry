@@ -399,6 +399,63 @@ body {
     font-style: italic;
 }
 
+/* Auth (login/register) styles appended */
+.auth-card{
+    width: 100%;
+    max-width: 420px;
+    background: rgba(255,255,255,0.95);
+    color: #00222e;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    text-align: center;
+}
+
+.centered-page{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 80px);
+}
+
+.auth-form input[type="text"], .auth-form input[type="password"]{
+    width: 100%;
+    padding: 12px 14px;
+    margin-bottom: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+}
+
+.auth-submit{
+    width: 100%;
+    padding: 12px 14px;
+    background: linear-gradient(to right, #00222e, #00131b);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.auth-links{
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.auth-alt{
+    color: #00222e;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.auth-alt:hover{
+    text-decoration: underline;
+}
+
 /* Error state */
 .error-message {
     background-color: #fee;
@@ -408,4 +465,37 @@ body {
     border-radius: 8px;
     text-align: center;
     margin: 1rem 0;
+}
+
+.btn{
+    text-decoration: none;
+    color: #333;
+    padding: 10px 20px;
+    margin-left: 10px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+.btn:active, .btn:hover{
+    background-color: #00222e;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 251, 255, 0.3);
+}
+
+.reg-container{
+    display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column
+}
+
+ .login-container{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
 }

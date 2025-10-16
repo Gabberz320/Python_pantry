@@ -22,7 +22,7 @@
             <div class="nav-links">
                 <a href="#" class="nav-link active" data-section="home">Home</a>
                 <a href="#" class="nav-link" data-section="favorites">Favorites</a>
-                <a href="{{ url_for('userlogin') }}" class="nav-link" data-section="Login">Login</a>
+                <a href="{{ url_for('userlogin') }}" class="btn" data-section="Login">Login</a>
                 
             
                 
@@ -269,21 +269,30 @@
 
         // Attach Event Listeners
         function attachEventListeners(){
-            // Navigation Functionality 
+            // Navigation Functionality: only intercept links that have a data-section and a matching section element
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.addEventListener('click', function(e){
-                    e.preventDefault();
+                    const section = this.getAttribute('data-section');
+                    const sectionId = section ? section + '-section' : null;
+                    const targetSection = sectionId ? document.getElementById(sectionId) : null;
 
-                    // Update nav link
-                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                    this.classList.add('active');
-                    
-                    // Show corresponding section
-                    const sectionId = this.getAttribute('data-section') + '-section';
-                    document.querySelectorAll('.content-section').forEach(section => {
-                        section.classList.remove('active');
-                    });
-                    document.getElementById(sectionId).classList.add('active');
+                    // If the target section exists, perform single-page navigation. Otherwise allow normal navigation.
+                    if (targetSection) {
+                        e.preventDefault();
+
+                        // Update nav link active state
+                        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                        this.classList.add('active');
+
+                        // Show corresponding section
+                        document.querySelectorAll('.content-section').forEach(sectionEl => {
+                            sectionEl.classList.remove('active');
+                        });
+                        targetSection.classList.add('active');
+                        // Optionally scroll to top of the content
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                    // if no matching section, don't intercept (let link behave normally)
                 });
             });
 

@@ -5,20 +5,52 @@
     <title>Login</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <style>
-        /* Temporary centering, your static CSS can override this */
+        /* Temporary centering, your static CSS can override this 
         body {
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             flex-direction: column;
-        }
+        } */
         form {
             text-align: center;
+        } 
+
+        .login-container{
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            flex-direction: column;
         }
     </style>
 </head>
 <body>
+     <nav class="topnav">
+        <div class="nav-container">
+            <div class="logo">
+                <h2>Python Pantry</h2>
+            </div>
+            <div class="search-bar">
+                <form id="search-form">
+                    <input type="text" id="ingredient-input" placeholder="Enter Ingredients (comma seperated)">
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+
+            <div class="nav-links">
+                <a href="#" class="nav-link active" data-section="home">Home</a>
+                <a href="#" class="nav-link" data-section="favorites">Favorites</a>
+                <a href="{{ url_for('userlogin') }}" class="btn" data-section="Login">Login</a>
+                
+            
+                
+            </div>
+        </div>
+    </nav>
+
+    <div class="login-container">
 
     <h2>Login</h2>
 
@@ -32,6 +64,8 @@
     <a href="{{ url_for('google_login') }}">Login with Google</a>
     <br><br>
     <a href="{{ url_for('register') }}">Don’t have an account? Register here</a>
+
+    </div>
 
 </body>
 </html>
