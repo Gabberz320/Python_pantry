@@ -5,6 +5,8 @@ import os
 import requests
 import random
 import pathlib
+import aiohttp
+import asyncio
 from dotenv import load_dotenv
 from google_auth_oauthlib.flow import Flow
 from google.oauth2 import id_token
@@ -149,6 +151,40 @@ if not API_KEY:
     # Helpful runtime message for debugging missing API key (do not log sensitive values)
     print("WARNING: API_KEY environment variable is not set. Requests to the Spoonacular/RapidAPI endpoint will fail with 401 Unauthorized.")
 
+async def is_valid_link(session, url, timeout=1):
+    if not url:
+        return False
+    try:
+        # Use aiohttp's timeout object
+        client_timeout = aiohttp.ClientTimeout(total=timeout)
+        async with session.head(url, timeout=client_timeout, allow_redirects=True) as response:
+             if response.status < 400:
+                 return True
+             else: 
+                 return False
+    # This line is for catching any network errors connecting to a link
+    except (aiohttp.ClientError, asyncio.TimeoutError):
+        return False
+    
+
+async def filter_links(recipes):
+    valid_recipes = []
+    async with aiohttp.ClientSession() as session:
+        # Create a list of tasks, checking the links of each recipe returned from the API
+        tasks = []
+        for recipe in recipes:
+            task = asyncio.create_task(is_valid_link(session, recipe.get("sourceUrl")))
+            tasks.append((task, recipe))
+        
+        # Waits for all the tasks to complete
+        for task, recipe in tasks:
+            is_valid = await task
+            if is_valid:
+                valid_recipes.append(recipe)
+    
+    return valid_recipes
+
+
 @app.route("/search_recipes")
 def search_recipes():
     ingredients = request.args.get("ingredients", "")
@@ -176,7 +212,11 @@ def search_recipes():
     try:
         response = requests.get(SEARCH_URL, headers=headers, params=params, timeout=REQUEST_TIMEOUT)
         response.raise_for_status()
-        return response.json().get("results", [])
+        initial_recipes = response.json().get("results", [])
+        
+        # Uses aiohttp to filter out the API results with bad links, ensures users always get ones that are working 
+        valid_recipes = asyncio.run(filter_links(initial_recipes))
+        return valid_recipes
     except requests.exceptions.Timeout:
         # Upstream timed out
         app.logger.warning("Timeout when calling Spoonacular API for search_recipes")
