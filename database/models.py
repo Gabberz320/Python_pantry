@@ -5,24 +5,24 @@ from sqlalchemy.orm import mapped_column
 from sqlalchemy import String, Integer, DateTime, Text, ForeignKey
 from sqlalchemy.orm import relationship
 
-class User(db.Model):
-    __tablename__ = "users"
+class Oauth_User(db.Model):
+    __tablename__ = "oauth_users"
     
     user_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     
-    oauth_provider: Mapped[str] = mapped_column(String(50), nullable=False)
     oauth_id: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     
-    #Oauth tokens
-    # Table will be completed when login and registration page is designed
+    name: Mapped[str] = mapped_column(String(255))
     
-    saved_recipes = relationship("SavedRecipe", back_populates="user")
+    picture_url: Mapped[str] = mapped_column(String(512), nullable=True)
+    
+    saved_recipes = relationship("SavedRecipe", back_populates="oauth_user", cascade="all, delete-orphan")
     
     
     def __repr__(self):
-        return f'<User {self.email}>'
+        return f'<User {self.user_id} {self.email}>'
     
 class SavedRecipe(db.Model):
     __tablename__ = "saved_recipes"
@@ -37,9 +37,9 @@ class SavedRecipe(db.Model):
     missed_ingredients: Mapped[str] = mapped_column(Text, nullable=True)            
     ingredients: Mapped[str] = mapped_column(Text, nullable=True)
     
-    user = relationship("User", back_populates="saved_recipes")
+    oauth_user = relationship("Oauth_User", back_populates="saved_recipes")
     
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.user_id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("oauth_users.user_id"))
     
     def __repr__(self):
         return f"<Saved recipe {self.recipe_name}>"

@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, request, url_for, session
 from database.connection import init_connection_engine, db
-from sqlalchemy import text
+from database.models import Oauth_User
+from sqlalchemy import select, text
 import os
 import requests
 import random
@@ -73,6 +74,24 @@ def google_callback():
         request_session,
         GOOGLE_CLIENT_ID,
     )
+    
+    oauth_id = user_info.get("sub")
+    
+    user = db.session.execute(select(Oauth_User).where(oauth_id==oauth_id)).scalar()
+    
+    if user:
+        user.name = user_info.get("name")
+        user.picture_url = user_info.get("picture")
+    else:
+        user = Oauth_User(
+            oauth_id=oauth_id,
+            name=user_info.get("name"),
+            email=user_info.get("email"),
+            picture_url=user_info.get("picture")
+        )
+        db.session.add(user)
+
+        db.session.commit()
 
     session["user"] = {
         "id": user_info.get("sub"),

@@ -7,7 +7,7 @@ db = SQLAlchemy()
 url_object = URL.create(
     "mysql+pymysql",
     username="root",
-    password="password",
+    password="Gfj2e_7719",
     host="localhost",
     database="recipe_database"
 )
