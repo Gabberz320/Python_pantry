@@ -22,7 +22,7 @@
             <div class="nav-links">
                 <a href="#" class="nav-link active" data-section="home">Home</a>
                 <a href="#" class="nav-link" data-section="favorites">Favorites</a>
-                <a href="{{ url_for('userlogin') }}" class="btn">Login</a>
+                <a href="{{ url_for('userlogin') }}" class="nav-link" data-section="Login">Login</a>
                 
             
                 
@@ -144,7 +144,7 @@
         ];
 
         // User favorites 
-        let userFavorites = JSON.parse(localStorage.getItem('recipeFavorites')) || mockFavorites;
+        let userFavorites = JSON.parse(localStorage.getItem('recipeFavorites')) || [];
 
         // Currently displayed recipes (either API results or mock)
         let displayedRecipes = [...mockRecipes];
