@@ -269,30 +269,21 @@
 
         // Attach Event Listeners
         function attachEventListeners(){
-            // Navigation Functionality: only intercept links that have a data-section and a matching section element
+            // Navigation Functionality 
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.addEventListener('click', function(e){
-                    const section = this.getAttribute('data-section');
-                    const sectionId = section ? section + '-section' : null;
-                    const targetSection = sectionId ? document.getElementById(sectionId) : null;
+                    e.preventDefault();
 
-                    // If the target section exists, perform single-page navigation. Otherwise allow normal navigation.
-                    if (targetSection) {
-                        e.preventDefault();
-
-                        // Update nav link active state
-                        document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-                        this.classList.add('active');
-
-                        // Show corresponding section
-                        document.querySelectorAll('.content-section').forEach(sectionEl => {
-                            sectionEl.classList.remove('active');
-                        });
-                        targetSection.classList.add('active');
-                        // Optionally scroll to top of the content
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                    // if no matching section, don't intercept (let link behave normally)
+                    // Update nav link
+                    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Show corresponding section
+                    const sectionId = this.getAttribute('data-section') + '-section';
+                    document.querySelectorAll('.content-section').forEach(section => {
+                        section.classList.remove('active');
+                    });
+                    document.getElementById(sectionId).classList.add('active');
                 });
             });
 
