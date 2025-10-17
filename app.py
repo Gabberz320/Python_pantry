@@ -1,7 +1,9 @@
-from flask import Flask, render_template, redirect, request, url_for, session
+from flask import Flask, render_template, redirect, request, url_for, session, flash
+from flask_login import LoginManager, login_user, logout_user
+from flask_bcrypt import Bcrypt
 from database.connection import init_connection_engine, db
-from database.models import Oauth_User
-from sqlalchemy import select, text
+from database.models import ManualUser, Oauth_User
+from sqlalchemy import select
 import os
 import requests
 import random
@@ -27,6 +29,19 @@ init_connection_engine(app)
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
 client_secrets_file = os.path.join(pathlib.Path(__file__).parent, "client_secret.json")
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"
+
+# ---------------- Flask Login Setup ----------------
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "userlogin"
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.get(ManualUser, int(user_id))
+
+# ---------------- Bcrypt Password Hashing ----------------
+bcrypt = Bcrypt()
+bcrypt.init_app(app)
 
 # ---------------- HOME PAGE ----------------
 @app.route("/")
@@ -77,7 +92,7 @@ def google_callback():
     
     oauth_id = user_info.get("sub")
     
-    user = db.session.execute(select(Oauth_User).where(oauth_id==oauth_id)).scalar()
+    user = db.session.execute(select(Oauth_User).where(Oauth_User.oauth_id == oauth_id)).scalar()
     
     if user:
         user.name = user_info.get("name")
@@ -107,40 +122,68 @@ def google_callback():
 @app.route("/logout")
 def logout():
     session.clear()
+    logout_user()
+    flash("I love potatoes", "success")
     return redirect(url_for("index"))
 
 # ---------------- MANUAL LOGIN ----------------
 @app.route("/userlogin", methods=["GET", "POST"])
 def userlogin():
+    # Get the login info from the user
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-
-        # Example DB check
-        query = text("SELECT * FROM users WHERE username = :u AND password = :p")
-        result = db.session.execute(query, {"u": username, "p": password}).fetchone()
-
-        if result:
-            session["username"] = username
+        
+        # If username or password not entered, redirect
+        if not username or not password:
+            flash("Potato must enter both username and password", "danger")
+            return redirect(url_for("userlogin"))
+        
+        # Retrieve the user from the database
+        user = db.session.execute(select(ManualUser).where(ManualUser.username == username)).scalar()
+        
+        # Check for correct username and password, login user if both correct
+        if user and bcrypt.check_password_hash(user.password, password):
+            login_user(user)
+            flash(f"Welcome back potato {username}", "success")
             return redirect(url_for("index"))
         else:
-            return render_template("login.html", error="Invalid username or password")
+            flash("Stop being a stupid potato and enter the right username or password!", "danger")
+            return redirect(url_for("userlogin"))
 
     return render_template("login.html")
 
 # ---------------- REGISTER ----------------
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    # Get username and password
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
-
-        # Example insert into DB
-        query = text("INSERT INTO users (username, password) VALUES (:u, :p)")
-        db.session.execute(query, {"u": username, "p": password})
+        
+        # Find whether a user with that username already exists
+        if db.session.execute(select(ManualUser).where(ManualUser.username == username)).scalar():
+            flash("That potato already exists", "error")
+            return redirect(url_for("register"))
+        
+        # Hash password with bcrypt
+        hashed_password = bcrypt.generate_password_hash(password).decode("utf-8")
+        
+        # Create a user with that entry
+        user = ManualUser(
+            username=username,
+            password=hashed_password
+        )
+        
+        # Commit it to the database
+        db.session.add(user)
         db.session.commit()
+        
+        # Login with login_user function and redirect to index page
+        login_user(user)
 
-        return redirect(url_for("userlogin"))
+        flash("A potato has been registered", "success")
+        return redirect(url_for("index"))
 
     return render_template("register.html")
 
