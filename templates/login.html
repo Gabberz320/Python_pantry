@@ -36,7 +36,11 @@
             <div class="nav-links">
                 <a href="{{ url_for('index') }}#home-section" class="nav-link">Home</a>
                 <a href="{{ url_for('index') }}#favorites-section" class="nav-link">Favorites</a>
-                <a href="{{ url_for('userlogin') }}" class="btn" data-section="Login">Login</a>
+                {% if current_user.is_authenticated or session.get('user') %}
+                    <a href="{{ url_for('logout') }}" class="btn">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('userlogin') }}" class="btn" data-section="Login">Login</a>
+                {% endif %}
                 
             </div>
         </div>
