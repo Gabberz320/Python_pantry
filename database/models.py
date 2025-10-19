@@ -10,7 +10,7 @@ class ManualUser(db.Model, UserMixin):
     __tablename__ = "manual_users"
     
     manual_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    username: Mapped[str] = mapped_column(String(100), nullable=False, unique=True)
+    email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
     
     saved_recipes = relationship("SavedRecipe", back_populates="manual_user", cascade="all, delete-orphan")

@@ -131,21 +131,21 @@ def logout():
 def userlogin():
     # Get the login info from the user
     if request.method == "POST":
-        username = request.form["username"]
+        email = request.form["email"]
         password = request.form["password"]
         
         # If username or password not entered, redirect
-        if not username or not password:
+        if not email or not password:
             flash("Potato must enter both username and password", "danger")
             return redirect(url_for("userlogin"))
         
         # Retrieve the user from the database
-        user = db.session.execute(select(ManualUser).where(ManualUser.username == username)).scalar()
+        user = db.session.execute(select(ManualUser).where(ManualUser.email == email)).scalar()
         
         # Check for correct username and password, login user if both correct
         if user and bcrypt.check_password_hash(user.password, password):
             login_user(user)
-            flash(f"Welcome back potato {username}", "success")
+            flash(f"Welcome back potato {email}", "success")
             return redirect(url_for("index"))
         else:
             flash("Stop being a stupid potato and enter the right username or password!", "danger")
@@ -158,11 +158,11 @@ def userlogin():
 def register():
     # Get username and password
     if request.method == "POST":
-        username = request.form["username"]
+        email = request.form["email"]
         password = request.form["password"]
         
         # Find whether a user with that username already exists
-        if db.session.execute(select(ManualUser).where(ManualUser.username == username)).scalar():
+        if db.session.execute(select(ManualUser).where(ManualUser.email == email)).scalar():
             flash("That potato already exists", "error")
             return redirect(url_for("register"))
         
@@ -171,7 +171,7 @@ def register():
         
         # Create a user with that entry
         user = ManualUser(
-            username=username,
+            email=email,
             password=hashed_password
         )
         
