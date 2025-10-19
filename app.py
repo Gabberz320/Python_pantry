@@ -16,7 +16,7 @@ from google.oauth2 import id_token
 import google.auth.transport.requests
 
 NUM_RESULTS = random.randint(50, 100)
-NUM_SKIP = random.randint(1, 10)
+NUM_SKIP = random.randint(1, 5)
 
 # ---------------- APP SETUP ----------------
 app = Flask(__name__)
@@ -259,18 +259,17 @@ def search_recipes():
         return {"error": "Server misconfiguration: API_KEY is not set."}, 500
 
     params = {
-        "number": NUM_RESULTS,
-        "includeIngredients": ingredients,
-        "cuisine": cuisine,
-        "diet": diet,
-        "intolerances": allergies,
-        "addRecipeInformation": True,
-        "addRecipeNutrition": True,
-        "ignorePantry": False,
-        "ranking": 2,
-        "sort": "min-missing-ingredients",
-        "offset": NUM_SKIP,
-    }
+        'number': NUM_RESULTS,
+        'includeIngredients': ingredients, 
+        'cuisine': cuisine,
+        'diet': diet, 
+        'intolerances': allergies,
+        'ranking': 2,
+        'addRecipeInformation': True, 
+        'ignorePantry': False,
+        'addRecipeNutrition': True,
+        'sort': 'min-missing-ingredients',
+        'offset': NUM_SKIP}
 
     try:
         response = requests.get(SEARCH_URL, headers=headers, params=params, timeout=REQUEST_TIMEOUT)
