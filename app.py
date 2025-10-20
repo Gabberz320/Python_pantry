@@ -15,7 +15,7 @@ from google_auth_oauthlib.flow import Flow
 from google.oauth2 import id_token
 import google.auth.transport.requests
 
-NUM_RESULTS = random.randint(50, 100)
+NUM_RESULTS = 100
 NUM_SKIP = random.randint(1, 5)
 
 # ---------------- APP SETUP ----------------
@@ -278,6 +278,7 @@ def search_recipes():
         
         # Uses aiohttp to filter out the API results with bad links, ensures users always get ones that are working 
         valid_recipes = asyncio.run(filter_links(initial_recipes))
+        random.shuffle(valid_recipes)
         return valid_recipes
     except requests.exceptions.Timeout:
         # Upstream timed out
