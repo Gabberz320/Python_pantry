@@ -499,3 +499,33 @@ body {
             height: 100vh;
             flex-direction: column;
 }
+
+/*bottom bar*/
+.bottombar {
+    background-color: rgba(231, 231, 231, 0.95);
+    box-shadow: 0 -2px 15px rgba(0, 0, 0, 0.1);
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+}
+
+.bottombar .nav-container {
+    justify-content: center;
+    padding: 10px 20px;
+}
+
+.footer-text {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #00222e;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.footer-logo {
+    height: 30px;
+    width: auto;
+}

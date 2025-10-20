@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="{{ url_for('static', filename='script.js') }}"></script>
     <!-- favicon -->
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/picture1.png') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/picture1.png') }}">
 </head>
 <body>
     <nav class="topnav">
@@ -84,5 +84,23 @@
     
     
     </body>
+
+
+<!-- bottom bar -->
+<footer class="bottombar">
+    <div class="nav-container">
+        <!-- <div class="logo">
+            <h2>Python Pantry</h2>
+        </div> -->
+        <div class="footer-text">
+            <img src="{{ url_for('static', filename='images/picture1.png') }}" alt="Logo" class="footer-logo">
+            <span>Cooked Up by Python Pioneers</span>
+            <img src="{{ url_for('static', filename='images/picture1.png') }}" alt="Logo" class="footer-logo">
+        </div>
+    </div>
+</footer>
+
+
+
 
 </html>
