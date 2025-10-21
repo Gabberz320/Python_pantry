@@ -77,12 +77,10 @@ def display_recipes(recipes):
                 print(instructions if instructions else 'N/A')
                 print('Nutrition Information:')
                 nutrients = nutrition.get('nutrients', [])
-                if nutrients:
-                    for nutrient in nutrients:
-                        name = nutrient.get('name', 'N/A')
-                        amount = nutrient.get('amount', 'N/A')
-                        unit = nutrient.get('unit', '')
-                        print(f'  {name}: {amount} {unit}')
+                # print calorie count only
+                for nutrient in nutrients:
+                    if nutrient.get('name') == 'Calories':
+                        print(f"  - {nutrient.get('name','N/A')}: {nutrient.get('amount','N/A')} {nutrient.get('unit','N/A')}")
                 print('\n')
                 
 # Random joke 
