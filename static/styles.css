@@ -569,3 +569,59 @@ body {
   background: #00222e;
   color: #fff;
 }
+
+/*profilepic*/
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid #fff;
+  object-fit: cover;
+}
+
+.user-name {
+  font-weight: 600;
+  color: #d3d3d3;
+  font-size: 16px;
+}
+
+.google-btn {
+  /* background-color: #4285F4; */
+  color: #333;
+  padding: 6px 12px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+.nav-links .btn {
+  background-color: transparent;
+  color: #333;
+  border-radius: 30px;
+  font-weight: 500;
+  padding: 10px 20px;
+  margin-left: 10px;
+  transition: all 0.3s ease;
+}
+
+.nav-links .btn:hover,
+.nav-links .btn.active {
+  background-color: #00222e;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 251, 255, 0.3);
+}
+/* Make Google name match nav link color */
+.nav-links .user-name {
+  color: #333 !important;          /* same as .nav-link */
+  padding: 10px 20px;               /* optional: align spacing with links */
+  border-radius: 30px;
+  font-weight: 500;                 /* match weight of links */
+  transition: all 0.3s ease;
+}
+
