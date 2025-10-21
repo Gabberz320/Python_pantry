@@ -49,9 +49,10 @@ def search_recipes(ingredients, cuisine, diet, allergies):
     
 # Get recipe info with ID for saved recipes    
 def get_recipe_info(recipe_id):
+    params = {'includeNutrition': 'true'}
     try:
-                
-        response = requests.get(RECIPE_INFO_URL.format(id=recipe_id), headers=headers)
+
+        response = requests.get(RECIPE_INFO_URL.format(id=recipe_id), headers=headers, params=params)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.RequestException as e:
@@ -62,26 +63,44 @@ def get_recipe_info(recipe_id):
 def display_recipes(recipes):
     for recipe_summary in recipes[:10]:
             
-            title = recipe_summary.get('title','N/A')
-            cook_time = recipe_summary.get('readyInMinutes','N/A')
-            source_url = recipe_summary.get('sourceUrl', 'N/A')
-            instructions = recipe_summary.get('instructions', 'N/A')
-            nutrition = recipe_summary.get('nutrition', {})
-
-            if recipe_summary:
-
-                print(f'{title}')
-                print(f'Time to cook: {cook_time} minutes')
-                print(f'URL: {source_url}', end = '\n')
-                print('Instructions:')
-                print(instructions if instructions else 'N/A')
-                print('Nutrition Information:')
-                nutrients = nutrition.get('nutrients', [])
-                # print calorie count only
-                for nutrient in nutrients:
-                    if nutrient.get('name') == 'Calories':
-                        print(f"  - {nutrient.get('name','N/A')}: {nutrient.get('amount','N/A')} {nutrient.get('unit','N/A')}")
-                print('\n')
+        recipe_id = recipe_summary.get('id')
+        if not recipe_id:
+            continue
+        # Fetch full recipe details
+        full_recipe = get_recipe_info(recipe_id)
+        if not full_recipe:
+            continue
+            
+        title = full_recipe.get('title','N/A')
+        cook_time = full_recipe.get('readyInMinutes','N/A')
+        source_url = full_recipe.get('sourceUrl', 'N/A')
+        instructions = full_recipe.get('analyzedInstructions', 'N/A')
+        ingredients = full_recipe.get('extendedIngredients', [])  # Now this will be populated
+        nutrition = full_recipe.get('nutrition', {})
+        # ... rest of your display code
+        print(f"Title: {title}")
+        print(f"Cook Time: {cook_time} minutes")
+        print(f"Source URL: {source_url}")
+        print("Nutrition Information:")
+        # display only calories
+        nutrients = nutrition.get('nutrients', [])
+        for nutrient in nutrients:
+            if nutrient.get('name') == 'Calories':
+                amount = nutrient.get('amount', 'N/A')
+                unit = nutrient.get('unit', 'N/A')
+                print(f" - Calories: {amount} {unit}")
+        
+        print("Ingredients:")
+        for ingredient in ingredients:
+            name = ingredient.get('original', 'N/A')
+            print(f" - {name}")
+        print("Instructions:")
+        if instructions and len(instructions) > 0:
+            for step in instructions[0].get('steps', []):
+                number = step.get('number', 'N/A')
+                step_desc = step.get('step', 'N/A')
+                print(f"  Step {number}: {step_desc}")
+        print("\n" + "-"*40 + "\n")
                 
 # Random joke 
 def get_random_joke():

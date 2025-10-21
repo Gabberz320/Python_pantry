@@ -343,8 +343,9 @@ def search_recipes():
     
 @app.route("/get_recipe_info")    
 def get_recipe_info(recipe_id):
+    params = {'includeNutrition': 'true'}
     try:        
-        response = requests.get(RECIPE_INFO_URL.format(id=recipe_id), headers=headers, timeout=REQUEST_TIMEOUT)
+        response = requests.get(RECIPE_INFO_URL.format(id=recipe_id), headers=headers, params=params, timeout=REQUEST_TIMEOUT)
         response.raise_for_status()
         return response.json()
     except requests.exceptions.Timeout:
