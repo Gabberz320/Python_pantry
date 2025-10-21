@@ -15,6 +15,10 @@ from google_auth_oauthlib.flow import Flow
 from google.oauth2 import id_token
 import google.auth.transport.requests
 
+import csv
+from rapidfuzz import process, fuzz
+import re
+
 NUM_RESULTS = 100
 NUM_SKIP = random.randint(1, 5)
 
@@ -245,6 +249,50 @@ async def filter_links(recipes):
                 valid_recipes.append(recipe)
     
     return valid_recipes
+
+
+#---------autocomplete---------
+INGREDIENTS = []
+csv_path = os.path.join(os.path.dirname(__file__), "ingredients-with-possible-units.csv")
+
+try:
+    with open(csv_path, newline='', encoding="utf-8") as f:
+        reader = csv.reader(f)
+        for row in reader:
+            if not row:
+                continue
+            raw_name = row[0].strip().lower()
+            name = re.split(r"[;,:]", raw_name)[0].strip()
+            units = ", ".join([cell.strip() for cell in row[1:] if cell.strip()])
+            if name:
+                INGREDIENTS.append({"name": name, "unit": units})
+    print(f"Loaded {len(INGREDIENTS)} ingredients from CSV.")
+except Exception as e:
+    print("Error loading ingredients CSV:", e)
+
+@app.route("/autocomplete")
+def autocomplete():
+    query = request.args.get("query", "").strip().lower()
+    if not query:
+        return {"error": "Missing query parameter"}, 400
+
+    names = [item["name"] for item in INGREDIENTS]
+
+    results = process.extract(query, names, limit=5, scorer=fuzz.WRatio)
+
+    matches = []
+    for name, score, _ in results:
+        for item in INGREDIENTS:
+            if item["name"] == name:
+                matches.append({
+                    "name": item["name"],
+                    "unit": item["unit"]
+                })
+                break
+
+    return matches
+
+
 
 
 @app.route("/search_recipes")

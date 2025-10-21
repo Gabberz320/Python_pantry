@@ -352,3 +352,97 @@
             if(words.length <= wordLimit) return words.join(' ');
             return words.slice(0, wordLimit).join(' ') + '...';
         }
+
+
+
+
+// autocomplete
+const ingredientInput = document.getElementById("ingredient-input");
+
+//dropdown box
+const suggestionBox = document.createElement("ul");
+suggestionBox.className = "autocomplete-list";
+ingredientInput.parentNode.appendChild(suggestionBox);
+
+let activeIndex = -1;
+
+ingredientInput.addEventListener("input", async () => {
+  const query = ingredientInput.value.trim();
+  suggestionBox.innerHTML = "";
+  suggestionBox.classList.remove("show");
+  activeIndex = -1;
+
+  if (query.length < 2) return;
+
+  try {
+    const res = await fetch(`/autocomplete?query=${encodeURIComponent(query)}`);
+    const data = await res.json();
+
+    if (!Array.isArray(data) || data.length === 0) return;
+
+    suggestionBox.classList.add("show");
+
+    data.slice(0, 5).forEach((item) => {
+      const li = document.createElement("li");
+      li.textContent = item.name;
+      li.addEventListener("click", () => {
+        ingredientInput.value = item.name;
+        suggestionBox.innerHTML = "";
+        suggestionBox.classList.remove("show");
+      });
+      suggestionBox.appendChild(li);
+    });
+
+    //match dropdown width to input
+    const rect = ingredientInput.getBoundingClientRect();
+    suggestionBox.style.width = rect.width + "px";
+  } catch (err) {
+    console.error("Autocomplete error:", err);
+  }
+});
+
+// --- Keyboard navigation ---
+ingredientInput.addEventListener("keydown", (e) => {
+  const items = suggestionBox.querySelectorAll("li");
+  if (!items.length) return;
+
+  switch (e.key) {
+    case "ArrowDown":
+      e.preventDefault();
+      activeIndex = (activeIndex + 1) % items.length;
+      updateActive(items);
+      break;
+    case "ArrowUp":
+      e.preventDefault();
+      activeIndex = (activeIndex - 1 + items.length) % items.length;
+      updateActive(items);
+      break;
+    case "Enter":
+    case "Tab":
+      if (activeIndex >= 0 && activeIndex < items.length) {
+        e.preventDefault();
+        ingredientInput.value = items[activeIndex].textContent;
+        suggestionBox.innerHTML = "";
+        suggestionBox.classList.remove("show");
+      }
+      break;
+    case "Escape":
+      suggestionBox.innerHTML = "";
+      suggestionBox.classList.remove("show");
+      activeIndex = -1;
+      break;
+  }
+});
+
+function updateActive(items) {
+  items.forEach((item, i) => {
+    item.classList.toggle("active", i === activeIndex);
+  });
+}
+
+document.addEventListener("click", (e) => {
+  if (!suggestionBox.contains(e.target) && e.target !== ingredientInput) {
+    suggestionBox.innerHTML = "";
+    suggestionBox.classList.remove("show");
+  }
+});
