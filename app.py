@@ -228,7 +228,7 @@ async def is_valid_link(session, url, timeout=1):
     try:
         # Use aiohttp's timeout object
         client_timeout = aiohttp.ClientTimeout(total=timeout)
-        async with session.head(url, timeout=client_timeout, allow_redirects=True) as response:
+        async with session.get(url, timeout=client_timeout, allow_redirects=True, headers={"Range": "bytes=0-0"}) as response:
              if response.status < 400:
                  return True
              else: 
@@ -253,7 +253,7 @@ async def filter_links(hits):
         for task, recipe in tasks:
             is_valid = await task
             if is_valid:
-                valid_recipes.append(recipe_data)
+                valid_recipes.append(recipe)
     
     return valid_recipes
 
@@ -305,7 +305,7 @@ def autocomplete():
 @app.route("/search_recipes")
 def search_recipes():
     ingredients = request.args.get("ingredients", "")
-    cuisine = request.args.get("cuisine", "")
+    #cuisine = request.args.get("cuisine", "")
     diet = request.args.get("diet", "")
     allergies = request.args.get("allergies", "")
 
@@ -313,7 +313,7 @@ def search_recipes():
     if not EDAMAM_APP_ID or not EDAMAM_APP_KEY:
         return {"error": "Server misconfiguration: API_KEY is not set."}, 500
 
-    health_labels = [f"{allergy.strip()}-free" for allergy in allergies.split(",") if allergy.strip()]
+    
 
     # params = {
     #     'number': NUM_RESULTS,
@@ -335,11 +335,11 @@ def search_recipes():
         }
     if diet:
         params['diet'] = diet
-    if health_labels:
-        params['health'] = health_labels
+    if allergies:
+        params['health'] = allergies
 
     try:
-        response = requests.get(EDAMAM_API_URL, params={k: v for k, v in params.items() if v}, timeout=10)
+        response = requests.get(EDAMAM_API_URL, params={k: v for k, v in params.items() if v})
         response.raise_for_status()
         initial_hits = response.json().get("hits", [])
 
