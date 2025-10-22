@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, url_for, session, flash
+from flask import Flask, render_template, redirect, request, url_for, session, flash, jsonify
 from flask_login import LoginManager, login_user, logout_user
 from flask_bcrypt import Bcrypt
 from database.connection import init_connection_engine, db
@@ -198,24 +198,29 @@ def register():
 
 
 # ---------- SPOONACULAR API SETUP ----------
-API_KEY = os.getenv("API_KEY")
-API_HOST = "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com"
-API_URL = f"https://{API_HOST}"
-SEARCH_URL = f"{API_URL}/recipes/complexSearch"
-RECIPE_INFO_URL = f"{API_URL}/recipes/{{id}}/information"
-JOKE_URL = f"{API_URL}/food/jokes/random"
+# API_KEY = os.getenv("Edamam_APP_KEY")
+# API_HOST = "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com"
+# API_URL = f"https://{API_HOST}"
+# SEARCH_URL = f"{API_URL}/recipes/complexSearch"
+# RECIPE_INFO_URL = f"{API_URL}/recipes/{{id}}/information"
+# JOKE_URL = f"{API_URL}/food/jokes/random"
+
+EDAMAM_APP_ID = os.getenv("EDAMAM_APP_ID")
+EDAMAM_APP_KEY = os.getenv("EDAMAM_APP_KEY")
+
+EDAMAM_API_URL = "https://api.edamam.com/api/recipes/v2"
 
 # Timeout (seconds) for external API calls to avoid hanging the Flask worker
-REQUEST_TIMEOUT = 10
+#REQUEST_TIMEOUT = 10
 
-headers = {
-    "x-rapidapi-key": API_KEY,
-    "x-rapidapi-host": API_HOST,
-}
+# headers = {
+#     "x-rapidapi-key": API_KEY,
+#     "x-rapidapi-host": API_HOST,
+# }
 
-if not API_KEY:
-    # Helpful runtime message for debugging missing API key (do not log sensitive values)
-    print("WARNING: API_KEY environment variable is not set. Requests to the Spoonacular/RapidAPI endpoint will fail with 401 Unauthorized.")
+# if not API_KEY:
+#     # Helpful runtime message for debugging missing API key (do not log sensitive values)
+#     print("WARNING: API_KEY environment variable is not set. Requests to the Spoonacular/RapidAPI endpoint will fail with 401 Unauthorized.")
 
 async def is_valid_link(session, url, timeout=1):
     if not url:
@@ -233,20 +238,22 @@ async def is_valid_link(session, url, timeout=1):
         return False
     
 
-async def filter_links(recipes):
+async def filter_links(hits):
     valid_recipes = []
     async with aiohttp.ClientSession() as session:
         # Create a list of tasks, checking the links of each recipe returned from the API
         tasks = []
-        for recipe in recipes:
-            task = asyncio.create_task(is_valid_link(session, recipe.get("sourceUrl")))
-            tasks.append((task, recipe))
+        for hit in hits:
+            recipe_data = hit.get("recipe", {})
+            source_url = recipe_data.get("url")
+            task = asyncio.create_task(is_valid_link(session, source_url))
+            tasks.append((task, recipe_data))
         
         # Waits for all the tasks to complete
         for task, recipe in tasks:
             is_valid = await task
             if is_valid:
-                valid_recipes.append(recipe)
+                valid_recipes.append(recipe_data)
     
     return valid_recipes
 
@@ -303,31 +310,53 @@ def search_recipes():
     allergies = request.args.get("allergies", "")
 
     # Fail fast if API key missing
-    if not API_KEY:
+    if not EDAMAM_APP_ID or not EDAMAM_APP_KEY:
         return {"error": "Server misconfiguration: API_KEY is not set."}, 500
 
+    health_labels = [f"{allergy.strip()}-free" for allergy in allergies.split(",") if allergy.strip()]
+
+    # params = {
+    #     'number': NUM_RESULTS,
+    #     'includeIngredients': ingredients, 
+    #     'cuisine': cuisine,
+    #     'diet': diet, 
+    #     'intolerances': allergies,
+    #     'ranking': 2,
+    #     'addRecipeInformation': True, 
+    #     'ignorePantry': False,
+    #     'addRecipeNutrition': True,
+    #     'sort': 'min-missing-ingredients',
+    #     'offset': NUM_SKIP}
     params = {
-        'number': NUM_RESULTS,
-        'includeIngredients': ingredients, 
-        'cuisine': cuisine,
-        'diet': diet, 
-        'intolerances': allergies,
-        'ranking': 2,
-        'addRecipeInformation': True, 
-        'ignorePantry': False,
-        'addRecipeNutrition': True,
-        'sort': 'min-missing-ingredients',
-        'offset': NUM_SKIP}
+        'type': 'public',
+        'q': ingredients,
+        'app_id': EDAMAM_APP_ID,
+        'app_key': EDAMAM_APP_KEY,
+        }
+    if diet:
+        params['diet'] = diet
+    if health_labels:
+        params['health'] = health_labels
 
     try:
-        response = requests.get(SEARCH_URL, headers=headers, params=params, timeout=REQUEST_TIMEOUT)
+        response = requests.get(EDAMAM_API_URL, params={k: v for k, v in params.items() if v}, timeout=10)
         response.raise_for_status()
-        initial_recipes = response.json().get("results", [])
-        
-        # Uses aiohttp to filter out the API results with bad links, ensures users always get ones that are working 
-        valid_recipes = asyncio.run(filter_links(initial_recipes))
+        initial_hits = response.json().get("hits", [])
+
+        # Uses aiohttp to filter out the API results with bad links, ensures users always get ones that are working
+        valid_recipes = asyncio.run(filter_links(initial_hits))
         random.shuffle(valid_recipes)
-        return valid_recipes
+
+        unique_recipes = []
+        seen_uris = set()
+        for recipe in valid_recipes:
+            uri = recipe.get("uri")
+            if uri not in seen_uris:
+                seen_uris.add(uri)
+                unique_recipes.append(recipe)
+
+        return unique_recipes
+        #return valid_recipes
     except requests.exceptions.Timeout:
         # Upstream timed out
         app.logger.warning("Timeout when calling Spoonacular API for search_recipes")
@@ -341,42 +370,42 @@ def search_recipes():
         app.logger.warning(f"Error calling Spoonacular: {e}")
         return {"error": str(e)}, 502
     
-@app.route("/get_recipe_info")    
-def get_recipe_info(recipe_id):
-    params = {'includeNutrition': 'true'}
-    try:        
-        response = requests.get(RECIPE_INFO_URL.format(id=recipe_id), headers=headers, params=params, timeout=REQUEST_TIMEOUT)
-        response.raise_for_status()
-        return response.json()
-    except requests.exceptions.Timeout:
-        app.logger.warning(f"Timeout when fetching recipe info for id={recipe_id}")
-        return {"error": "Upstream API request timed out."}, 504
-    except requests.exceptions.HTTPError as e:
-        status = getattr(e.response, 'status_code', 502)
-        app.logger.warning(f"HTTP error from Spoonacular for id={recipe_id}: {status} - {e}")
-        return {"error": f"Upstream service returned HTTP {status}."}, 502
-    except requests.exceptions.RequestException as e:
-        app.logger.warning(f"Error fetching details for recipe ID {recipe_id}: {e}")
-        return {"error": str(e)}, 502
+# @app.route("/get_recipe_info")    
+# def get_recipe_info(recipe_id):
+#     params = {'includeNutrition': 'true'}
+#     try:        
+#         response = requests.get(RECIPE_INFO_URL.format(id=recipe_id), headers=headers, params=params, timeout=REQUEST_TIMEOUT)
+#         response.raise_for_status()
+#         return response.json()
+#     except requests.exceptions.Timeout:
+#         app.logger.warning(f"Timeout when fetching recipe info for id={recipe_id}")
+#         return {"error": "Upstream API request timed out."}, 504
+#     except requests.exceptions.HTTPError as e:
+#         status = getattr(e.response, 'status_code', 502)
+#         app.logger.warning(f"HTTP error from Spoonacular for id={recipe_id}: {status} - {e}")
+#         return {"error": f"Upstream service returned HTTP {status}."}, 502
+#     except requests.exceptions.RequestException as e:
+#         app.logger.warning(f"Error fetching details for recipe ID {recipe_id}: {e}")
+#         return {"error": str(e)}, 502
 
-@app.route("/random_joke")
-def random_joke():
-    try:
-        response = requests.get(JOKE_URL, headers=headers, timeout=REQUEST_TIMEOUT)
-        response.raise_for_status()
-        data = response.json()
-        joke = data.get("text", "Why did the tomato turn red? Because it saw the salad dressing!")
-        return {"joke": joke}
-    except requests.exceptions.Timeout:
-        app.logger.warning("Timeout when fetching random joke from Spoonacular")
-        return {"error": "Upstream API request timed out."}, 504
-    except requests.exceptions.HTTPError as e:
-        status = getattr(e.response, 'status_code', 502)
-        app.logger.warning(f"HTTP error from Spoonacular joke endpoint: {status} - {e}")
-        return {"error": f"Upstream service returned HTTP {status}."}, 502
-    except requests.exceptions.RequestException as e:
-        app.logger.warning(f"Error fetching joke from Spoonacular: {e}")
-        return {"error": str(e)}, 502
+# @app.route("/random_joke")
+# def random_joke():
+#     try:
+#         response = requests.get(JOKE_URL, headers=headers, timeout=REQUEST_TIMEOUT)
+#         response.raise_for_status()
+#         data = response.json()
+#         joke = data.get("text", "Why did the tomato turn red? Because it saw the salad dressing!")
+#         return {"joke": joke}
+#     except requests.exceptions.Timeout:
+#         app.logger.warning("Timeout when fetching random joke from Spoonacular")
+#         return {"error": "Upstream API request timed out."}, 504
+#     except requests.exceptions.HTTPError as e:
+#         status = getattr(e.response, 'status_code', 502)
+#         app.logger.warning(f"HTTP error from Spoonacular joke endpoint: {status} - {e}")
+#         return {"error": f"Upstream service returned HTTP {status}."}, 502
+#     except requests.exceptions.RequestException as e:
+#         app.logger.warning(f"Error fetching joke from Spoonacular: {e}")
+#         return {"error": str(e)}, 502
 
 
 # @app.route("/")

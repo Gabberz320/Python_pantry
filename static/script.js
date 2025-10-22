@@ -236,38 +236,86 @@
                 const recipesGrid = document.getElementById('recipes-grid');
                 recipesGrid.innerHTML = '<div class="loading">Searching recipes...</div>';
 
-                fetch(url)
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.error) {
-                            recipesGrid.innerHTML = `<div class="no-results">Error: ${data.error}</div>`;
-                            return;
-                        }
+            //     fetch(url)
+            //         .then(res => res.json())
+            //         .then(data => {
+            //             if (data.error) {
+            //                 recipesGrid.innerHTML = `<div class="no-results">Error: ${data.error}</div>`;
+            //                 return;
+            //             }
 
-                        // Map API results to UI shape
-                        const results = Array.isArray(data) ? data : [];
-                        displayedRecipes = results.map(r => ({
-                            id: r.id,
-                            title: r.title || r.name || 'Untitled',
-                            cook_time: r.readyInMinutes ? `${r.readyInMinutes} min` : (r.cook_time || 'N/A'),
-                            image: r.image || '',
-                            link: r.sourceUrl || r.spoonacularSourceUrl || '#',
-                            ingredients: (r.extendedIngredients || []).map(i => i.name) || [],
-                            summary: r.summary ? stripHtml(r.summary) : (r.description || '')
-                        }));
+            //             // Map API results to UI shape
+            //             const results = Array.isArray(data) ? data : [];
+            //             displayedRecipes = results.map(r => ({
+            //                 id: r.id,
+            //                 title: r.title || r.name || 'Untitled',
+            //                 cook_time: r.readyInMinutes ? `${r.readyInMinutes} min` : (r.cook_time || 'N/A'),
+            //                 image: r.image || '',
+            //                 link: r.sourceUrl || r.spoonacularSourceUrl || '#',
+            //                 ingredients: (r.extendedIngredients || []).map(i => i.name) || [],
+            //                 summary: r.summary ? stripHtml(r.summary) : (r.description || '')
+            //             }));
 
-                        if(displayedRecipes.length === 0){
-                            recipesGrid.innerHTML = '<div class="no-results">No recipes found with those ingredients. Try different search terms.</div>';
-                            return;
-                        }
+            //             if(displayedRecipes.length === 0){
+            //                 recipesGrid.innerHTML = '<div class="no-results">No recipes found with those ingredients. Try different search terms.</div>';
+            //                 return;
+            //             }
 
-                        displayRecipes(displayedRecipes);
-                    })
-                    .catch(err => {
-                        recipesGrid.innerHTML = `<div class="no-results">Error: ${err.message}</div>`;
-                    });
+            //             displayRecipes(displayedRecipes);
+            //         })
+            //         .catch(err => {
+            //             recipesGrid.innerHTML = `<div class="no-results">Error: ${err.message}</div>`;
+            //         });
+            // });
+            fetch(url)
+            .then(res => {
+                if (!res.ok) {
+                    // Handle non-2xx responses by trying to parse the error message
+                    return res.json().then(err => { throw new Error(err.error || `Request failed with status ${res.status}`) });
+                }
+                return res.json();
+            })
+            .then(data => {
+                // Edamam returns the recipes in an array (already handled by your backend)
+                const results = Array.isArray(data) ? data : [];
+                
+                // NEW MAPPING FOR EDAMAM API
+                displayedRecipes = results.map(r => {
+                    // Edamam's URI is a unique identifier. We extract the ID part from it.
+                    // e.g., "http://www.edamam.com/ontologies/edamam.owl#recipe_b79327d05b8e5b83896cfca2382b0620"
+                    const getRecipeId = (uri) => {
+                        if (!uri) return null;
+                        const parts = uri.split('#recipe_');
+                        return parts.length > 1 ? parts[1] : null;
+                    };
+
+                    const recipeId = getRecipeId(r.uri);
+
+                    return {
+                        id: recipeId,
+                        title: r.label || 'Untitled Recipe',
+                        cook_time: r.totalTime > 0 ? `${r.totalTime} min` : 'N/A',
+                        image: r.image || 'https://via.placeholder.com/400x300.png?text=No+Image', // A fallback image
+                        link: r.url || '#',
+                        ingredients: r.ingredientLines || [],
+                        // Create a simple summary from the first few ingredients
+                        summary: r.ingredientLines ? r.ingredientLines.slice(0, 4).join(', ') : 'No summary available.'
+                    };
+                }).filter(r => r.id); // IMPORTANT: Filter out any recipes that didn't have a valid ID
+
+                if (displayedRecipes.length === 0) {
+                    recipesGrid.innerHTML = '<div class="no-results">No recipes found. Try different ingredients!</div>';
+                    return;
+                }
+
+                displayRecipes(displayedRecipes);
+            })
+            .catch(err => {
+                recipesGrid.innerHTML = `<div class="no-results">An error occurred: ${err.message}</div>`;
+                console.error("Search failed:", err);
             });
-        }
+        });
+    }
 
         // Add to favorites function
         function attachFavoriteListeners(){
