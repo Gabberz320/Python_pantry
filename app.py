@@ -129,6 +129,20 @@ def logout():
     logout_user()
     flash("I love potatoes", "success")
     return redirect(url_for("index"))
+# ---------------- CHECK LOGIN STATUS (ADD THIS HERE) ----------------
+@app.route("/check_login")
+def check_login():
+    """API endpoint to check if user is logged in"""
+    if "user" in session:
+        return jsonify({
+            "logged_in": True,
+            "user": session["user"]
+        })
+    else:
+        return jsonify({
+            "logged_in": False,
+            "user": None
+        })
 
 # ---------------- MANUAL LOGIN ----------------
 @app.route("/userlogin", methods=["GET", "POST"])
