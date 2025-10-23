@@ -45,9 +45,10 @@
                 <!--profile pic-->
                 {% if session.get('user') %}
                 <div class="user-profile">
+                                        <a href="{{ url_for('logout') }}" class="btn logout-btn">Logout</a>
                     <img src="{{ session['user']['picture'] }}" alt="Profile" class="user-avatar">
                     <span class="user-name">{{ session['user']['name'].split(' ')[0] }}</span>
-                    <a href="{{ url_for('logout') }}" class="btn logout-btn">Logout</a>
+
                 </div>
                 {% elif current_user.is_authenticated %}
                 <div class="user-profile">
