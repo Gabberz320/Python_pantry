@@ -239,6 +239,7 @@ def register():
 EDAMAM_APP_ID = os.getenv("EDAMAM_APP_ID")
 EDAMAM_APP_KEY = os.getenv("EDAMAM_APP_KEY")
 
+EDAMAM_BY_URI_URL = "https://api.edamam.com/api/recipes/v2/by-uri"
 EDAMAM_API_URL = "https://api.edamam.com/api/recipes/v2"
 
 # Timeout (seconds) for external API calls to avoid hanging the Flask worker
@@ -401,23 +402,27 @@ def search_recipes():
         app.logger.warning(f"Error calling Spoonacular: {e}")
         return {"error": str(e)}, 502
     
-# @app.route("/get_recipe_info")    
-# def get_recipe_info(recipe_id):
-#     params = {'includeNutrition': 'true'}
-#     try:        
-#         response = requests.get(RECIPE_INFO_URL.format(id=recipe_id), headers=headers, params=params, timeout=REQUEST_TIMEOUT)
-#         response.raise_for_status()
-#         return response.json()
-#     except requests.exceptions.Timeout:
-#         app.logger.warning(f"Timeout when fetching recipe info for id={recipe_id}")
-#         return {"error": "Upstream API request timed out."}, 504
-#     except requests.exceptions.HTTPError as e:
-#         status = getattr(e.response, 'status_code', 502)
-#         app.logger.warning(f"HTTP error from Spoonacular for id={recipe_id}: {status} - {e}")
-#         return {"error": f"Upstream service returned HTTP {status}."}, 502
-#     except requests.exceptions.RequestException as e:
-#         app.logger.warning(f"Error fetching details for recipe ID {recipe_id}: {e}")
-#         return {"error": str(e)}, 502
+@app.route("/get_recipe_info")    
+def get_recipe_info(recipe_uri):
+    params = {'type': 'public',
+              'uri': recipe_uri,
+              'app_id': EDAMAM_APP_ID,
+              'app_key': EDAMAM_APP_KEY}
+    try:
+        response = requests.get(EDAMAM_BY_URI_URL, params=params, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    
+    except requests.exceptions.Timeout:
+        app.logger.warning(f"Timeout when fetching Edamam recipe for uri={recipe_uri}")
+        return {"error": "Request to recipe service timed out."}, 504
+    except requests.exceptions.HTTPError as e:
+        status = getattr(e.response, 'status_code', 502)
+        app.logger.error(f"HTTP error from Edamam for uri={recipe_uri}: {status} - {e}")
+        return {"error": f"Upstream recipe service returned HTTP {status}."}, 502
+    except requests.exceptions.RequestException as e:
+        app.logger.error(f"Error fetching details for recipe uri {recipe_uri}: {e}")
+        return {"error": "Could not connect to recipe service."}, 502
 
 @app.route("/random_joke")
 def random_joke():
