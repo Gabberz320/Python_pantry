@@ -421,7 +421,7 @@ def search_recipes():
 
 @app.route("/random_joke")
 def random_joke():
-    with open("food_jokes.csv", "r") as f:
+    with open("food_jokes.txt", "r") as f:
         jokes = [line.strip() for line in f.readlines()]
     
     return random.choice(jokes)
