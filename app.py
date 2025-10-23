@@ -157,6 +157,18 @@ def userlogin():
 
     return render_template("login.html")
 
+def check_password(password):
+    reg = r"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$#%()])[A-Za-z\d@$#%()]{6,20}$"
+    
+    pattern = re.compile(reg)
+    
+    is_valid = re.search(pattern, password)
+    
+    if is_valid:
+        return True
+    else:
+        return False
+
 # ---------------- REGISTER ----------------
 @app.route("/register", methods=["GET", "POST"])
 def register():
@@ -164,6 +176,11 @@ def register():
     if request.method == "POST":
         email = request.form["email"]
         password = request.form["password"]
+        
+        if not check_password(password):
+            flash("""Password must contain one uppercase letter, one lowercase
+                  letter, one special character ($, @, #, %) and between 6 and 20 characters""", "error")
+            return redirect(url_for("register"))
         
         # Find whether a user with that username already exists
         if db.session.execute(select(ManualUser).where(ManualUser.email == email)).scalar():

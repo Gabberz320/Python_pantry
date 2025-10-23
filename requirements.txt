@@ -9,6 +9,6 @@ flask-login
 flask-bcrypt
 # --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
 
-csv
+# csv
 rapidfuzz
-re
+# re
