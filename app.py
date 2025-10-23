@@ -188,17 +188,12 @@ def check_password(password):
 def register():
     # Get username and password
     if request.method == "POST":
-        email = request.form["email"]
+        username = request.form["username"]  # Changed from email
         password = request.form["password"]
         
-        # if not check_password(password):
-        #     flash("""Password must contain one uppercase letter, one lowercase
-        #           letter, one special character ($, @, #, %) and between 6 and 20 characters""", "error")
-        #     return redirect(url_for("register"))
-        
         # Find whether a user with that username already exists
-        if db.session.execute(select(ManualUser).where(ManualUser.email == email)).scalar():
-            flash("That potato already exists", "error")
+        if db.session.execute(select(ManualUser).where(ManualUser.username == username)).scalar():
+            flash("That username already exists", "error")
             return redirect(url_for("register"))
         
         # Hash password with bcrypt
@@ -206,7 +201,7 @@ def register():
         
         # Create a user with that entry
         user = ManualUser(
-            email=email,
+            username=username,  # Changed from email
             password=hashed_password
         )
         
@@ -217,7 +212,7 @@ def register():
         # Login with login_user function and redirect to index page
         login_user(user)
 
-        flash("A potato has been registered", "success")
+        flash(f"Account created successfully! Welcome {username}", "success")
         return redirect(url_for("index"))
 
     return render_template("register.html")
