@@ -414,24 +414,12 @@ def search_recipes():
 #         app.logger.warning(f"Error fetching details for recipe ID {recipe_id}: {e}")
 #         return {"error": str(e)}, 502
 
-# @app.route("/random_joke")
-# def random_joke():
-#     try:
-#         response = requests.get(JOKE_URL, headers=headers, timeout=REQUEST_TIMEOUT)
-#         response.raise_for_status()
-#         data = response.json()
-#         joke = data.get("text", "Why did the tomato turn red? Because it saw the salad dressing!")
-#         return {"joke": joke}
-#     except requests.exceptions.Timeout:
-#         app.logger.warning("Timeout when fetching random joke from Spoonacular")
-#         return {"error": "Upstream API request timed out."}, 504
-#     except requests.exceptions.HTTPError as e:
-#         status = getattr(e.response, 'status_code', 502)
-#         app.logger.warning(f"HTTP error from Spoonacular joke endpoint: {status} - {e}")
-#         return {"error": f"Upstream service returned HTTP {status}."}, 502
-#     except requests.exceptions.RequestException as e:
-#         app.logger.warning(f"Error fetching joke from Spoonacular: {e}")
-#         return {"error": str(e)}, 502
+@app.route("/random_joke")
+def random_joke():
+    with open("food_jokes.csv", "r") as f:
+        jokes = [line.strip() for line in f.readlines()]
+    
+    return random.choice(jokes)
 
 
 # @app.route("/")
