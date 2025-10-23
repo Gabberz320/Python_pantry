@@ -177,10 +177,10 @@ def register():
         email = request.form["email"]
         password = request.form["password"]
         
-        if not check_password(password):
-            flash("""Password must contain one uppercase letter, one lowercase
-                  letter, one special character ($, @, #, %) and between 6 and 20 characters""", "error")
-            return redirect(url_for("register"))
+        # if not check_password(password):
+        #     flash("""Password must contain one uppercase letter, one lowercase
+        #           letter, one special character ($, @, #, %) and between 6 and 20 characters""", "error")
+        #     return redirect(url_for("register"))
         
         # Find whether a user with that username already exists
         if db.session.execute(select(ManualUser).where(ManualUser.email == email)).scalar():
