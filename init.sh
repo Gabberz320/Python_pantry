@@ -10,6 +10,4 @@ pip install aiohttp
 pip install flask-login
 pip install flask-bcrypt
 pip install rapidfuzz
-pip install re
-pip install csv
 pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
