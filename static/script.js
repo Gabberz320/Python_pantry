@@ -164,10 +164,23 @@
                         <div class="recipe-image">
                             <img src="${recipe.image}" alt="${recipe.title}">
                         </div>
+
                         <div class="recipe-info">
-                            <h3 class="recipe-title">${recipe.title}</h3>
-                            <p class="cook-time"><i class="far fa-clock"></i> ${recipe.cook_time}</p>
-                            ${favoriteButton}
+                        <h3 class="recipe-title">${recipe.title}</h3>
+
+                            <div class="recipe-meta">
+
+                            <p><i class="fas fa-fire"></i> 
+  ${recipe.calories 
+      ? `${recipe.calories} cal${recipe.servings ? ' • ' + Math.round(recipe.calories / recipe.servings) + ' per serving' : ''}` 
+      : ''}
+</p>
+
+
+                                    ${recipe.cook_time && recipe.cook_time !== 'Cook time not available' ? 
+                                `<p><i class="far fa-clock"></i> ${recipe.cook_time}</p>` : ''}
+                            </div>
+
                         </div>
                         <br>
                         <div class="flip-hint">Hover to see details</div>
@@ -279,29 +292,40 @@
                 // Edamam returns the recipes in an array (already handled by your backend)
                 const results = Array.isArray(data) ? data : [];
                 
-                // NEW MAPPING FOR EDAMAM API
-                displayedRecipes = results.map(r => {
-                    // Edamam's URI is a unique identifier. We extract the ID part from it.
-                    // e.g., "http://www.edamam.com/ontologies/edamam.owl#recipe_b79327d05b8e5b83896cfca2382b0620"
-                    const getRecipeId = (uri) => {
-                        if (!uri) return null;
-                        const parts = uri.split('#recipe_');
-                        return parts.length > 1 ? parts[1] : null;
-                    };
+// NEW MAPPING FOR EDAMAM API  (drop-in replacement)
+displayedRecipes = results.map(r => {
+  // works whether backend returns {recipe: {...}} or a flat {...}
+  const recipe = r?.recipe ?? r;
 
-                    const recipeId = getRecipeId(r.uri);
+  // extract Edamam id
+  const getRecipeId = (uri) => {
+    if (!uri) return null;
+    const parts = uri.split('#recipe_');
+    return parts.length > 1 ? parts[1] : null;
+  };
 
-                    return {
-                        id: recipeId,
-                        title: r.label || 'Untitled Recipe',
-                        cook_time: r.totalTime > 0 ? `${r.totalTime} min` : 'N/A',
-                        image: r.image || 'https://via.placeholder.com/400x300.png?text=No+Image', // A fallback image
-                        link: r.url || '#',
-                        ingredients: r.ingredientLines || [],
-                        // Create a simple summary from the first few ingredients
-                        summary: r.ingredientLines ? r.ingredientLines.slice(0, 4).join(', ') : 'No summary available.'
-                    };
-                }).filter(r => r.id); // IMPORTANT: Filter out any recipes that didn't have a valid ID
+  const recipeId = getRecipeId(recipe?.uri);
+
+  return {
+    id: recipeId,
+    title: recipe?.label || recipe?.title || 'Untitled Recipe',
+
+    calories: typeof recipe?.calories === 'number' ? Math.round(recipe.calories) : null,
+    servings: recipe?.yield || null,
+
+    cook_time:
+        recipe?.totalTime && recipe.totalTime !== 0
+        ? `${recipe.totalTime} min`
+        : (recipe?.cookTime || recipe?.total_time || ''),
+    image: recipe?.image || 'https://via.placeholder.com/400x300.png?text=No+Image',
+    link: recipe?.url || recipe?.link || '#',
+    ingredients: recipe?.ingredientLines || recipe?.ingredients || [],
+    summary: recipe?.ingredientLines
+      ? recipe.ingredientLines.slice(0, 4).join(', ')
+      : (recipe?.summary || 'No summary available.')
+  };
+}).filter(r => r.id);
+
 
                 if (displayedRecipes.length === 0) {
                     recipesGrid.innerHTML = '<div class="no-results">No recipes found. Try different ingredients!</div>';
