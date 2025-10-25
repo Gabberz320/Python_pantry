@@ -16,7 +16,7 @@ class ManualUser(db.Model, UserMixin):
     saved_recipes = relationship("SavedRecipe", back_populates="manual_user", cascade="all, delete-orphan")
     
     def __repr__(self):
-        return f'<User {self.manual_id} {self.username}>'
+        return f'<User {self.manual_id} {self.email}>'
     
     def get_id(self):
         return str(self.manual_id)
@@ -42,13 +42,13 @@ class SavedRecipe(db.Model):
     __tablename__ = "saved_recipes"
     
     saved_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    recipe_id: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    recipe_id: Mapped[str] = mapped_column(String(255), nullable=False)
     
     title: Mapped[str] = mapped_column(String(400), nullable=False)
     calories: Mapped[int] = mapped_column(Integer, nullable=True)
     servings: Mapped[int] = mapped_column(Integer, nullable=True)
     cook_time: Mapped[str] = mapped_column(String(50), nullable=True)
-    image: Mapped[str] = mapped_column(String(400), nullable=True)
+    image: Mapped[str] = mapped_column(Text, nullable=True)
     link: Mapped[str] = mapped_column(Text, nullable=True)
     ingredients: Mapped[list] = mapped_column(JSON, nullable=True)
     summary: Mapped[str] = mapped_column(Text, nullable=True)
@@ -60,4 +60,4 @@ class SavedRecipe(db.Model):
     user_id: Mapped[int] = mapped_column(ForeignKey("oauth_users.user_id"), nullable=True)
     
     def __repr__(self):
-        return f"<Saved recipe {self.recipe_name}>"
+        return f"<Saved recipe {self.title}>"

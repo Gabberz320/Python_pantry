@@ -454,7 +454,16 @@ def save_recipe():
     if not recipe_id:
         return jsonify({"error": "Recipe id not found"}), 400
     
-    is_saved = any(r.recipe_id == recipe_id for r in current_user.saved_recipes)
+
+    query = select(SavedRecipe).where(SavedRecipe.recipe_id == recipe_id)
+    if isinstance(current_user, ManualUser):
+        query = query.where(SavedRecipe.manual_id == current_user.manual_id)
+    elif isinstance(current_user, Oauth_User):
+        query = query.where(SavedRecipe.user_id == current_user.user_id)
+    
+    
+    is_saved = db.session.execute(query).scalar_one_or_none() is not None
+    
     if is_saved:
         return jsonify({"error": "Recipe is already saved. I'm a sad potato"}), 409
     
@@ -488,7 +497,7 @@ def delete_saved_recipe():
     if not recipe_id:
         return jsonify({"error": "Missing potato ID dumb dumb"})
     
-    recipe_to_delete = next((r for r in current_user.saved_recipes if r.recipe_id == recipe_id)), None
+    recipe_to_delete = next((r for r in current_user.saved_recipes if r.recipe_id == recipe_id), None)
     
     if recipe_to_delete:
         try:
