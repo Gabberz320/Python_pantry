@@ -65,11 +65,38 @@
             mockRecipes[4]  // Chicken Curry
         ];
 
-        // User favorites 
-        let userFavorites = JSON.parse(localStorage.getItem('recipeFavorites')) || [];
+        // User favorites (loaded from db) 
+        let userFavorites = [];
 
         // Currently displayed recipes (either API results or mock)
         let displayedRecipes = [...mockRecipes];
+
+        // Check if user is logged in
+        function isUserLoggedIn() {
+            // Check if there's a user profile element visible
+            const userProfile = document.querySelector('.user-profile');
+            return userProfile !== null;
+        }
+
+        // Load favorites from database
+        async function loadUserFavorites() {
+            if (!isUserLoggedIn()) {
+                userFavorites = [];
+                return;
+            }
+
+            try {
+                const response = await fetch('/saved_recipes');
+                if (response.ok) {
+                    userFavorites = await response.json();
+                } else {
+                    userFavorites = [];
+                }
+            } catch (error) {
+                console.error('Error loading favorites:', error);
+                userFavorites = [];
+            }
+        }
 
         // Initialize the page
         document.addEventListener('DOMContentLoaded', function(){
@@ -93,7 +120,7 @@
             const recipesToShow = recipes.slice(0, 3);
 
             recipesToShow.forEach(recipe => {
-                const isFavorite = userFavorites.some(fav => fav.id === recipe.id);
+                const isFavorite = userFavorites.some(fav => String(fav.id) === String(recipe.id));
                 const recipeCard = createRecipeCard(recipe, isFavorite);
                 recipesGrid.appendChild(recipeCard);
             });
@@ -230,6 +257,54 @@
                 });
             });
 
+            // Apply filters button - show active filters in sidebar and trigger a search
+            document.getElementById('apply-filters').addEventListener('click', function(e) {
+                e.preventDefault();
+                const ingredients = document.getElementById('ingredient-input').value.trim();
+
+                // Show selected filters in the sidebar
+                const diet = document.getElementById('diet-filter')?.value || '';
+                const allergy = document.getElementById('allergy-filter')?.value || '';
+
+                const activeContainer = document.getElementById('active-filters');
+                const filtersList = document.getElementById('filters-list');
+                if (filtersList) filtersList.innerHTML = '';
+
+                const userFilter = [];
+                if (diet) userFilter.push({ label: ' Diet ', value: diet, string: '' });
+                if (allergy) userFilter.push({ label: ' Allergy ', value: allergy, string: '' });
+
+                if (userFilter.length > 0) {
+                    if (activeContainer) activeContainer.style.display = 'block';
+                    userFilter.forEach(b => {
+                        const span = document.createElement('span');
+                        span.className = 'filter-badge';
+                        span.textContent = `${b.label}: ${b.value}`;
+                        filtersList.appendChild(span);
+                    });
+                } else {
+                    if (activeContainer) activeContainer.style.display = 'none';
+                }
+
+            });
+
+            // Clear filters button
+            document.getElementById('clear-filters').addEventListener('click', function() {
+                document.getElementById('diet-filter').value = '';
+                document.getElementById('allergy-filter').value = '';
+                
+                // If there are ingredients, re-search without filters
+                const ingredients = document.getElementById('ingredient-input').value.trim();
+                // hide/clear active filters UI
+                const activeContainer = document.getElementById('active-filters');
+                const filtersList = document.getElementById('filters-list');
+                if (filtersList) filtersList.innerHTML = '';
+                if (activeContainer) activeContainer.style.display = 'none';
+                if (ingredients) {
+                    document.getElementById('search-form').dispatchEvent(new Event('submit'));
+                }
+            });
+
             // Search functionality 
             document.getElementById('search-form').addEventListener('submit', function(e){
                 e.preventDefault();
@@ -243,7 +318,15 @@
                 }
 
                 // Build query and call Flask backend
+
+                const diet = document.getElementById('diet-filter')?.value || '';
+                const allergies = document.getElementById('allergy-filter')?.value || '';
+                
                 const params = new URLSearchParams({ ingredients });
+
+                if (diet) params.append('diet', diet);
+                if (allergies) params.append('allergies', allergies)
+               
                 const url = `/search_recipes?${params.toString()}`;
 
                 const recipesGrid = document.getElementById('recipes-grid');
@@ -322,7 +405,9 @@ displayedRecipes = results.map(r => {
     ingredients: recipe?.ingredientLines || recipe?.ingredients || [],
     summary: recipe?.ingredientLines
       ? recipe.ingredientLines.slice(0, 4).join(', ')
-      : (recipe?.summary || 'No summary available.')
+      : (recipe?.summary || 'No summary available.'),
+    dietLabels: recipe?.dietLabels || [],
+    healthLabels: recipe?.healthLabels || []
   };
 }).filter(r => r.id);
 
@@ -344,16 +429,32 @@ displayedRecipes = results.map(r => {
         // Add to favorites function
         function attachFavoriteListeners(){
             document.querySelectorAll('.favorite-btn').forEach(button => {
-                button.addEventListener('click', function(e){
+                button.addEventListener('click', async function(e){
                     e.stopPropagation();  // Prevents card flip
 
-                    const recipeId = parseInt(this.getAttribute('data-id'));
+                    // checks if user is logged in (since we arent using local storage anymore)
+                    if (!isUserLoggedIn()) {
+                        alert('Please create an account or log in to save recipes!');
+                        return;
+                    }
+                    const recipeId = this.getAttribute('data-id');
                     // Look up in currently displayed recipes first, then fallback to mock or favorites
-                    let recipe = displayedRecipes.find(r => r.id === recipeId) || mockRecipes.find(r => r.id === recipeId) || userFavorites.find(r => r.id === recipeId);
+                     let recipe = displayedRecipes.find(r => String(r.id) === recipeId) || mockRecipes.find(r => String(r.id) === recipeId) || userFavorites.find(r => String(r.id) === recipeId);
 
-                    if(recipe && !userFavorites.some(fav => fav.id === recipeId)){
-                        userFavorites.push(recipe);
-                        localStorage.setItem('recipeFavorites', JSON.stringify(userFavorites));
+                    if(recipe && !userFavorites.some(fav => String(fav.id) === recipeId)){
+                     try {
+                        // NEW: Call database API
+                        const response = await fetch('/save_recipe', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(recipe)
+                        });
+
+                        if (response.ok) {
+                            // Only add to local array after successful save
+                            userFavorites.push(recipe);
 
                         // Update the button
                         this.innerHTML ='<span class="heart-icon"><i class="fas fa-heart"></i></span> Remove from Favorites';
@@ -363,12 +464,19 @@ displayedRecipes = results.map(r => {
                         displayHomeFavorites();
 
                         // Update favorites section if we're on that page 
-                        if (document.getElementById('favorites-section').classList.contains('active')){
-                            displayFavorites();
+                                if (document.getElementById('favorites-section').classList.contains('active')){
+                                    displayFavorites();
+                                }
+                                attachRemoveFavoriteListeners();
+                            } else {
+                                // NEW: Error handling
+                                const errorData = await response.json();
+                                alert('Error saving recipe: ' + (errorData.error || 'Unknown error'));
+                            }
+                        } catch (error) {
+                            console.error('Error saving recipe:', error);
+                            alert('Error saving recipe. Please try again.');
                         }
-
-                        // Reattach event listeners
-                        attachRemoveFavoriteListeners();
                     }
                 });
             });
@@ -377,34 +485,61 @@ displayedRecipes = results.map(r => {
         // Remove from favorites functionality 
         function attachRemoveFavoriteListeners(){
             document.querySelectorAll('.remove-favorite-btn').forEach(button => {
-                button.addEventListener('click', function(e){
+                button.addEventListener('click', async function(e){
                     e.stopPropagation();  // Prevent card flip
-                    const recipeId = parseInt(this.getAttribute('data-id'));
-                    userFavorites = userFavorites.filter(fav => fav.id !== recipeId);
 
-                    localStorage.setItem('recipeFavorites', JSON.stringify(userFavorites));
+                     if (!isUserLoggedIn()) {
+                        alert('Please create an account or log in to manage favorites!');
+                        return;
+                    }
+
+                    const recipeId = this.getAttribute('data-id');
+
+                     try {
+                    // Call database API
+                    const response = await fetch('/delete_saved_recipe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ id: recipeId })
+                    });
+                    if (response.ok) {
+                    // Only remove from local array after successful delete
+                    userFavorites = userFavorites.filter(fav => String(fav.id) !== recipeId);
+
+                    
 
                     // Update favorites on home page
                     displayHomeFavorites();
 
                     // If we are on favorites page, remove the card
-                    if(document.getElementById('favorites-section').classList.contains('active')){
-                        displayFavorites();
-                    }
+                        if(document.getElementById('favorites-section').classList.contains('active')){
+                            displayFavorites();
+                        }
 
-                    // If we're on the home page, update the button
-                    if (document.getElementById('home-section').classList.contains('active')){
-                        // Find card in recipe suggestions
-                        const recipeCard = document.querySelector(`.flip-card[data-id="${recipeId}"]`);
+                        // If we're on the home page, update the button
+                        if (document.getElementById('home-section').classList.contains('active')){
+                            // Find card in recipe suggestions
+                            const recipeCard = document.querySelector(`.flip-card[data-id="${recipeId}"]`);
 
-                        if (recipeCard) {
-                            const button = recipeCard.querySelector('.remove-favorite-btn');
-                            if(button){
-                                button.innerHTML = '<span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites';
-                                button.className = 'favorite-btn';
-                                attachFavoriteListeners();
+                            if (recipeCard) {
+                                const button = recipeCard.querySelector('.remove-favorite-btn');
+                                if(button){
+                                    button.innerHTML = '<span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites';
+                                    button.className = 'favorite-btn';
+                                    attachFavoriteListeners();
+                                }
                             }
                         }
+                
+                    }else{
+                        const errorData = await response.json();
+                        alert('Error removing recipe: ' + (errorData.error || 'Unknown error'));
+                    }
+                    } catch (error) {
+                        console.error('Error removing recipe:', error);
+                        alert('Error removing recipe. Please try again.');
                     }
                 });
             });
@@ -517,4 +652,19 @@ document.addEventListener("click", (e) => {
     suggestionBox.innerHTML = "";
     suggestionBox.classList.remove("show");
   }
+});
+
+// Sidebar toggle 
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sideMenu = document.getElementById('side-menu');
+    if (!sidebarToggle || !sideMenu) return;
+
+    sidebarToggle.addEventListener('click', function(e) {
+        const opened = document.body.classList.toggle('sidebar-open');
+        sidebarToggle.setAttribute('aria-expanded', opened);
+        sideMenu.setAttribute('aria-hidden', !opened);
+    });
+
+
 });

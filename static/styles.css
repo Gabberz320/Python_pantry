@@ -11,6 +11,8 @@ body {
 
     font-family: Arial, sans-serif;
     color: #fff; /* makes text visible if background is dark */
+    overflow-x: hidden;
+    
 }
 
 * {
@@ -21,10 +23,198 @@ body {
 }
 
 
+
 @keyframes gradient {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
+}
+
+/* Sidebar toggle button (in nav) */
+.sidebar-toggle {
+    background: transparent;
+    border: none;
+    font-size: 1.6rem;
+    margin-right: 12px;
+    cursor: pointer;
+    color: #00222e;
+}
+
+/* Sliding sidebar - hidden offscreen by default */
+.side-menu {
+    position: fixed;
+    top: 78px; 
+    left: -450px; 
+    width: 450px;
+    height: calc(100vh - 78px); 
+    background: rgba(255,255,255,0.98);
+    color: #00222e;
+    padding: 18px;
+    border-radius: 0 10px 10px 0; 
+    box-shadow: 2px 6px 30px rgba(0,0,0,0.15);
+    transition: left 0.28s cubic-bezier(.2,.8,.2,1);
+    z-index: 95;
+    overflow-y: auto;
+    margin: 0; 
+    border: none; 
+}
+
+.sidebar-header h3{
+    color: #00131b;
+    margin-bottom: 5px;
+    border-bottom: 2px solid #e0e0e0;
+    font-size: 1.3rem;
+}
+
+.sidebar-header p{
+    color: #667;
+    font-size: 0.9rem;
+    margin:0;
+}
+
+body.sidebar-open .side-menu {
+    left: 5px;
+}
+
+/*Diet and allergy filter styling*/
+/* Filter Groups */
+.search-filter {
+    margin-bottom: 20px;
+}
+
+.filter-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #00222e;
+    font-size: 0.95rem;
+}
+
+.filter-dropdown {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+    color: #00222e;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.filter-dropdown:focus {
+    outline: none;
+    border-color: #00222e;
+    box-shadow: 0 0 0 3px rgba(0, 34, 46, 0.1);
+}
+
+.filter-dropdown:hover {
+    border-color: #00222e;
+}
+
+/* Filter Buttons */
+.apply-filters-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(to right, #00222e, #00131b);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+}
+
+.apply-filters-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 34, 46, 0.3);
+}
+
+.clear-filters-btn {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    color: #00222e;
+    border: 2px solid #00222e;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clear-filters-btn:hover {
+    background: #00222e;
+    color: white;
+}
+
+/* Active Filters Display */
+.active-filters {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0, 34, 46, 0.05);
+    border-radius: 8px;
+    border-left: 4px solid #00222e;
+}
+
+.active-filters h4 {
+    margin-bottom: 10px;
+    color: #00222e;
+    font-size: 0.9rem;
+}
+
+.filter-tag {
+    display: inline-block;
+    background: #00222e;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    margin: 2px 4px 2px 0;
+}
+
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .side-menu {
+        width: 260px;
+        padding: 15px;
+    }
+}
+
+/* Main content scooting */
+.main-content {
+    transition: transform 0.28s cubic-bezier(.2,.8,.2,1);
+}
+
+body.sidebar-open .main-content {
+    transform: translateX(260px);
+}
+
+.side-menu.active {
+    left: 0; /* Flush to left edge */
+}
+
+.sidebar-header{
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom:15px;
+    border-bottom: 2px solid #00222e
+}
+
+/* Mobile: sidebar takes more space and overlays (no content scoot) */
+@media (max-width: 768px) {
+    .side-menu {
+        left: -100%;
+        width: 80%;
+        top: 60px;
+        height: calc(100vh - 60px);
+        border-radius: 0 8px 8px 0;
+    }
+    body.sidebar-open .side-menu { left: 0; }
+    body.sidebar-open .main-content { transform: none; }
 }
 
 .topnav {
