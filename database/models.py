@@ -19,7 +19,7 @@ class ManualUser(db.Model, UserMixin):
         return f'<User {self.manual_id} {self.email}>'
     
     def get_id(self):
-        return str(self.manual_id)
+        return f"manual_{self.manual_id}"
 
 class Oauth_User(db.Model, UserMixin):
     __tablename__ = "oauth_users"
@@ -36,7 +36,7 @@ class Oauth_User(db.Model, UserMixin):
         return f'<User {self.user_id} {self.email}>'
     
     def get_id(self):
-        return str(self.user_id)
+        return f"oauth_{self.user_id}"
     
 class SavedRecipe(db.Model):
     __tablename__ = "saved_recipes"
