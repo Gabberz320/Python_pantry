@@ -98,8 +98,16 @@
             }
         }
 
-        // Initialize the page
-        document.addEventListener('DOMContentLoaded', function(){
+        // Initialize the page  load user favorites from the server first 
+        document.addEventListener('DOMContentLoaded', async function(){
+            // Ensure we pull saved recipes for the currently logged-in user
+            try {
+                await loadUserFavorites();
+            } catch (err) {
+                console.error('Failed to load user favorites on init:', err);
+            }
+
+            // Now render UI using the freshly-loaded favorites
             displayRecipes(displayedRecipes);
             displayHomeFavorites();
             displayFavorites();
