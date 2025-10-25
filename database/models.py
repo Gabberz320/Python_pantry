@@ -35,6 +35,9 @@ class Oauth_User(db.Model, UserMixin):
     def __repr__(self):
         return f'<User {self.user_id} {self.email}>'
     
+    def get_id(self):
+        return str(self.user_id)
+    
 class SavedRecipe(db.Model):
     __tablename__ = "saved_recipes"
     

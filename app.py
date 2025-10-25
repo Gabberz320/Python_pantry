@@ -1,8 +1,8 @@
 from flask import Flask, render_template, redirect, request, url_for, session, flash, jsonify
-from flask_login import LoginManager, login_user, logout_user
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_bcrypt import Bcrypt
 from database.connection import init_connection_engine, db
-from database.models import ManualUser, Oauth_User
+from database.models import ManualUser, Oauth_User, SavedRecipe
 from sqlalchemy import select
 import os
 import requests
@@ -41,7 +41,10 @@ login_manager.login_view = "userlogin"
 
 @login_manager.user_loader
 def load_user(user_id):
-    return db.session.get(ManualUser, int(user_id))
+    user = db.session.get(ManualUser, int(user_id))
+    if user:
+        return user
+    return db.session.get(Oauth_User, int(user_id))
 
 # ---------------- Bcrypt Password Hashing ----------------
 bcrypt = Bcrypt()
@@ -110,22 +113,16 @@ def google_callback():
         )
         db.session.add(user)
 
-        db.session.commit()
+    db.session.commit()
 
-    session["user"] = {
-        "id": user_info.get("sub"),
-        "name": user_info.get("name"),
-        "email": user_info.get("email"),
-        "picture": user_info.get("picture"),
-    }
+    login_user(user)
 
-    print(session["user"])
+    flash("Welcome my potato!", "success")
     return redirect(url_for("index"))
 
 # ---------------- LOGOUT ----------------
 @app.route("/logout")
 def logout():
-    session.clear()
     logout_user()
     flash("I love potatoes", "success")
     return redirect(url_for("index"))
@@ -423,6 +420,84 @@ def get_recipe_info(recipe_uri):
     except requests.exceptions.RequestException as e:
         app.logger.error(f"Error fetching details for recipe uri {recipe_uri}: {e}")
         return {"error": "Could not connect to recipe service."}, 502
+    
+# ---------------- Saved Recipes ----------------
+@app.route("/saved_recipes", methods=["GET"])
+@login_required
+def saved_recipe():
+    saved_recipes = current_user.saved_recipes
+    
+    recipe_data = []
+    for recipe in saved_recipes:
+        recipe_data.append({
+            "id": recipe.recipe_id,
+            "title": recipe.title,
+            "calories": recipe.calories,
+            "servings": recipe.servings,
+            "cook_time": recipe.cook_time,
+            "image": recipe.image,
+            "link": recipe.link,
+            "ingredients": recipe.ingredients,
+            "summary": recipe.summary
+        })
+        
+    return jsonify(recipe_data)
+
+@app.route("/save_recipe", methods=["POST"])
+@login_required
+def save_recipe():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Saved recipe not found"}), 400
+    
+    recipe_id = data.get("id")
+    if not recipe_id:
+        return jsonify({"error": "Recipe id not found"}), 400
+    
+    is_saved = any(r.recipe_id == recipe_id for r in current_user.saved_recipes)
+    if is_saved:
+        return jsonify({"error": "Recipe is already saved. I'm a sad potato"}), 409
+    
+    new_recipe = SavedRecipe(
+        recipe_id = recipe_id,
+        title = data.get("title"),
+        calories = data.get("calories"),
+        servings = data.get("servings"),
+        cook_time = data.get("cook_time"),
+        image=data.get("image"),
+        link = data.get("link"),
+        ingredients = data.get("ingredients"),
+        summary = data.get("summary")
+    )
+    
+    current_user.saved_recipes.append(new_recipe)
+    
+    try:
+        db.session.commit()
+        return jsonify({"message": "Recipe saved successfully"}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "database error"}), 500
+
+@app.route("/delete_saved_recipe", methods=["POST"])
+@login_required
+def delete_saved_recipe():
+    data = request.get_json()
+    recipe_id = data.get("id")
+    
+    if not recipe_id:
+        return jsonify({"error": "Missing potato ID dumb dumb"})
+    
+    recipe_to_delete = next((r for r in current_user.saved_recipes if r.recipe_id == recipe_id)), None
+    
+    if recipe_to_delete:
+        try:
+            db.session.delete(recipe_to_delete)
+            db.session.commit()
+            return jsonify({"message": "Recipe deleted successfully"}), 200
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": "database error"})
 
 @app.route("/random_joke")
 def random_joke():
