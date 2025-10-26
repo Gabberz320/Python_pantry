@@ -880,3 +880,16 @@ body.sidebar-open .main-content {
   50% { background-color: #fff4cc; }
   100% { background-color: #f0f0f0; }
 }
+
+/*spacing out Ingredients Selected: section*/
+#selected-ingredients-container,
+label[for="selected-ingredients-container"],
+.ingredients-section h4,
+.ingredients-section label {
+    margin-top: 1.5rem; 
+    display: block;
+}
+
+#clear-ingredients {
+    margin-top: 0.75rem; 
+}

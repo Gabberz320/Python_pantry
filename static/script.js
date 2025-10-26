@@ -4,12 +4,14 @@
         const mockRecipes = [
             {
                 id: 1,
-                title: "Spaghetti Carbonara",
-                cook_time: "30 min",
-                image: "https://images.unsplash.com/photo-1588013273468-315fd88ea34c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1169&q=80",
-                link: "https://example.com/recipe1",
-                ingredients: ["pasta", "eggs", "bacon", "cheese"],
-                summary: "A classic Italian pasta dish with a creamy egg sauce, crispy bacon, and Parmesan cheese. Simple ingredients create an incredibly flavorful meal."
+                title: "Meaty Vegan BBQ Ribs (seitan ribs)",
+                cook_time: "50 min",
+                image: "https://www.myplantifulcooking.com/wp-content/uploads/2021/10/vegan-bbq-ribs-chopping-board.jpg",
+                link: "https://www.myplantifulcooking.com/vegan-seitan-ribs/",
+                ingredients: ["BBQ sauce", "vital wheat gluten", "liquid smoke", "tahini", "soy sauce", "nutritional yeast", "spices"],
+                summary: "Packed with flavor and has a succulent, meaty texture. Easy to prepare, these seitan ribs are also packed with protein and incredibly satisfying.",
+                calories: 1560,
+                servings: 6
             },
             {
                 id: 2,
