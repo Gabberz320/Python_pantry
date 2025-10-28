@@ -14,7 +14,8 @@ from dotenv import load_dotenv
 from google_auth_oauthlib.flow import Flow
 from google.oauth2 import id_token
 import google.auth.transport.requests
-
+import uuid
+from mailer import send_reset_email
 import csv
 from rapidfuzz import process, fuzz
 import re
@@ -140,6 +141,44 @@ def check_login():
             "logged_in": False,
             "user": None
         })
+
+# ---------------- RESET PASSWORD ----------------
+#generate the token and send the email
+@app.route("/reset_password", methods=["GET", "POST"])
+def reset_password():
+    if request.method == "POST":
+        email = request.form["email"]
+        user = db.session.execute(select(ManualUser).where(ManualUser.email == email)).scalar()
+        if user:
+            token = str(uuid.uuid4())
+            user.reset_token = token
+            db.session.commit()
+            if send_reset_email(user.email, token):
+                flash("Reset email sent", "success")
+            else:
+                flash("Failed to send reset email")
+        else:
+            flash("Email not found")
+    return render_template("reset_password.html")   #subject to change based on frontend
+
+# ---------------- RESET WITH TOKEN ----------------
+@app.route('/reset/<token>', methods=["GET", "POST"])
+def reset_with_token(token):
+    user = db.session.execute(select(ManualUser).where(ManualUser.reset_token == token)).scalar()
+    if not user:
+        flash("Invalid or expired token")
+        return redirect(url_for("reset_password"))
+    
+    if request.method == "POST":
+        new_password = request.form["password"]
+        hashed_password = bcrypt.generate_password_hash(new_password).decode("utf-8")
+        user.password = hashed_password
+        user.reset_token = None
+        db.session.commit()
+        flash("Password has been reset", "success")
+        return redirect(url_for("userlogin"))
+
+    return render_template("reset_with_token.html") # subject to change based on frontend
 
 # ---------------- MANUAL LOGIN ----------------
 @app.route("/userlogin", methods=["GET", "POST"])
