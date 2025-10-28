@@ -1,8 +1,8 @@
 from flask import Flask, render_template, redirect, request, url_for, session, flash, jsonify
-from flask_login import LoginManager, login_user, logout_user
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_bcrypt import Bcrypt
 from database.connection import init_connection_engine, db
-from database.models import ManualUser, Oauth_User
+from database.models import ManualUser, Oauth_User, SavedRecipe
 from sqlalchemy import select
 import os
 import requests
@@ -14,7 +14,8 @@ from dotenv import load_dotenv
 from google_auth_oauthlib.flow import Flow
 from google.oauth2 import id_token
 import google.auth.transport.requests
-
+import uuid
+from mailer import send_reset_email
 import csv
 from rapidfuzz import process, fuzz
 import re
@@ -41,7 +42,10 @@ login_manager.login_view = "userlogin"
 
 @login_manager.user_loader
 def load_user(user_id):
-    return db.session.get(ManualUser, int(user_id))
+    user = db.session.get(ManualUser, int(user_id))
+    if user:
+        return user
+    return db.session.get(Oauth_User, int(user_id))
 
 # ---------------- Bcrypt Password Hashing ----------------
 bcrypt = Bcrypt()
@@ -110,22 +114,16 @@ def google_callback():
         )
         db.session.add(user)
 
-        db.session.commit()
+    db.session.commit()
 
-    session["user"] = {
-        "id": user_info.get("sub"),
-        "name": user_info.get("name"),
-        "email": user_info.get("email"),
-        "picture": user_info.get("picture"),
-    }
+    login_user(user)
 
-    print(session["user"])
+    flash("Welcome my potato!", "success")
     return redirect(url_for("index"))
 
 # ---------------- LOGOUT ----------------
 @app.route("/logout")
 def logout():
-    session.clear()
     logout_user()
     flash("I love potatoes", "success")
     return redirect(url_for("index"))
@@ -143,6 +141,44 @@ def check_login():
             "logged_in": False,
             "user": None
         })
+
+# ---------------- RESET PASSWORD ----------------
+#generate the token and send the email
+@app.route("/reset_password", methods=["GET", "POST"])
+def reset_password():
+    if request.method == "POST":
+        email = request.form["email"]
+        user = db.session.execute(select(ManualUser).where(ManualUser.email == email)).scalar()
+        if user:
+            token = str(uuid.uuid4())
+            user.reset_token = token
+            db.session.commit()
+            if send_reset_email(user.email, token):
+                flash("Reset email sent", "success")
+            else:
+                flash("Failed to send reset email")
+        else:
+            flash("Email not found")
+    return render_template("reset_password.html")   #subject to change based on frontend
+
+# ---------------- RESET WITH TOKEN ----------------
+@app.route('/reset/<token>', methods=["GET", "POST"])
+def reset_with_token(token):
+    user = db.session.execute(select(ManualUser).where(ManualUser.reset_token == token)).scalar()
+    if not user:
+        flash("Invalid or expired token")
+        return redirect(url_for("reset_password"))
+    
+    if request.method == "POST":
+        new_password = request.form["password"]
+        hashed_password = bcrypt.generate_password_hash(new_password).decode("utf-8")
+        user.password = hashed_password
+        user.reset_token = None
+        db.session.commit()
+        flash("Password has been reset", "success")
+        return redirect(url_for("userlogin"))
+
+    return render_template("reset_with_token.html") # subject to change based on frontend
 
 # ---------------- MANUAL LOGIN ----------------
 @app.route("/userlogin", methods=["GET", "POST"])
@@ -234,6 +270,7 @@ def register():
 EDAMAM_APP_ID = os.getenv("EDAMAM_APP_ID")
 EDAMAM_APP_KEY = os.getenv("EDAMAM_APP_KEY")
 
+EDAMAM_BY_URI_URL = "https://api.edamam.com/api/recipes/v2/by-uri"
 EDAMAM_API_URL = "https://api.edamam.com/api/recipes/v2"
 
 # Timeout (seconds) for external API calls to avoid hanging the Flask worker
@@ -396,27 +433,109 @@ def search_recipes():
         app.logger.warning(f"Error calling Spoonacular: {e}")
         return {"error": str(e)}, 502
     
-# @app.route("/get_recipe_info")    
-# def get_recipe_info(recipe_id):
-#     params = {'includeNutrition': 'true'}
-#     try:        
-#         response = requests.get(RECIPE_INFO_URL.format(id=recipe_id), headers=headers, params=params, timeout=REQUEST_TIMEOUT)
-#         response.raise_for_status()
-#         return response.json()
-#     except requests.exceptions.Timeout:
-#         app.logger.warning(f"Timeout when fetching recipe info for id={recipe_id}")
-#         return {"error": "Upstream API request timed out."}, 504
-#     except requests.exceptions.HTTPError as e:
-#         status = getattr(e.response, 'status_code', 502)
-#         app.logger.warning(f"HTTP error from Spoonacular for id={recipe_id}: {status} - {e}")
-#         return {"error": f"Upstream service returned HTTP {status}."}, 502
-#     except requests.exceptions.RequestException as e:
-#         app.logger.warning(f"Error fetching details for recipe ID {recipe_id}: {e}")
-#         return {"error": str(e)}, 502
+@app.route("/get_recipe_info")    
+def get_recipe_info(recipe_uri):
+    params = {'type': 'public',
+              'uri': recipe_uri,
+              'app_id': EDAMAM_APP_ID,
+              'app_key': EDAMAM_APP_KEY}
+    try:
+        response = requests.get(EDAMAM_BY_URI_URL, params=params, timeout=10)
+        response.raise_for_status()
+        return response.json()
+    
+    except requests.exceptions.Timeout:
+        app.logger.warning(f"Timeout when fetching Edamam recipe for uri={recipe_uri}")
+        return {"error": "Request to recipe service timed out."}, 504
+    except requests.exceptions.HTTPError as e:
+        status = getattr(e.response, 'status_code', 502)
+        app.logger.error(f"HTTP error from Edamam for uri={recipe_uri}: {status} - {e}")
+        return {"error": f"Upstream recipe service returned HTTP {status}."}, 502
+    except requests.exceptions.RequestException as e:
+        app.logger.error(f"Error fetching details for recipe uri {recipe_uri}: {e}")
+        return {"error": "Could not connect to recipe service."}, 502
+    
+# ---------------- Saved Recipes ----------------
+@app.route("/saved_recipes", methods=["GET"])
+@login_required
+def saved_recipe():
+    saved_recipes = current_user.saved_recipes
+    
+    recipe_data = []
+    for recipe in saved_recipes:
+        recipe_data.append({
+            "id": recipe.recipe_id,
+            "title": recipe.title,
+            "calories": recipe.calories,
+            "servings": recipe.servings,
+            "cook_time": recipe.cook_time,
+            "image": recipe.image,
+            "link": recipe.link,
+            "ingredients": recipe.ingredients,
+            "summary": recipe.summary
+        })
+        
+    return jsonify(recipe_data)
+
+@app.route("/save_recipe", methods=["POST"])
+@login_required
+def save_recipe():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Saved recipe not found"}), 400
+    
+    recipe_id = data.get("id")
+    if not recipe_id:
+        return jsonify({"error": "Recipe id not found"}), 400
+    
+    is_saved = any(r.recipe_id == recipe_id for r in current_user.saved_recipes)
+    if is_saved:
+        return jsonify({"error": "Recipe is already saved. I'm a sad potato"}), 409
+    
+    new_recipe = SavedRecipe(
+        recipe_id = recipe_id,
+        title = data.get("title"),
+        calories = data.get("calories"),
+        servings = data.get("servings"),
+        cook_time = data.get("cook_time"),
+        image=data.get("image"),
+        link = data.get("link"),
+        ingredients = data.get("ingredients"),
+        summary = data.get("summary")
+    )
+    
+    current_user.saved_recipes.append(new_recipe)
+    
+    try:
+        db.session.commit()
+        return jsonify({"message": "Recipe saved successfully"}), 201
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"error": "database error"}), 500
+
+@app.route("/delete_saved_recipe", methods=["POST"])
+@login_required
+def delete_saved_recipe():
+    data = request.get_json()
+    recipe_id = data.get("id")
+    
+    if not recipe_id:
+        return jsonify({"error": "Missing potato ID dumb dumb"})
+    
+    recipe_to_delete = next((r for r in current_user.saved_recipes if r.recipe_id == recipe_id)), None
+    
+    if recipe_to_delete:
+        try:
+            db.session.delete(recipe_to_delete)
+            db.session.commit()
+            return jsonify({"message": "Recipe deleted successfully"}), 200
+        except Exception as e:
+            db.session.rollback()
+            return jsonify({"error": "database error"})
 
 @app.route("/random_joke")
 def random_joke():
-    with open("food_jokes.csv", "r") as f:
+    with open("food_jokes.txt", "r") as f:
         jokes = [line.strip() for line in f.readlines()]
     
     return random.choice(jokes)

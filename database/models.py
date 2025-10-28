@@ -2,7 +2,7 @@ from database.connection import db
 from datetime import datetime
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
-from sqlalchemy import String, Integer, DateTime, Text, ForeignKey
+from sqlalchemy import String, Integer, DateTime, Text, ForeignKey, SmallInteger, JSON
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin
 
@@ -35,18 +35,23 @@ class Oauth_User(db.Model, UserMixin):
     def __repr__(self):
         return f'<User {self.user_id} {self.email}>'
     
+    def get_id(self):
+        return str(self.user_id)
+    
 class SavedRecipe(db.Model):
     __tablename__ = "saved_recipes"
     
     saved_id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    recipe_id: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
     
-    recipe_id: Mapped[int] = mapped_column(Integer, nullable=False, unique=True)
-    recipe_name: Mapped[str] = mapped_column(String(400), nullable=False)
-    thumbnail: Mapped[str] = mapped_column(String(400), nullable=True, unique=True)
-    
-    # Will be stored in a comma seperated list
-    missed_ingredients: Mapped[str] = mapped_column(Text, nullable=True)            
-    ingredients: Mapped[str] = mapped_column(Text, nullable=True)
+    title: Mapped[str] = mapped_column(String(400), nullable=False)
+    calories: Mapped[int] = mapped_column(Integer, nullable=True)
+    servings: Mapped[int] = mapped_column(Integer, nullable=True)
+    cook_time: Mapped[str] = mapped_column(String(50), nullable=True)
+    image: Mapped[str] = mapped_column(String(400), nullable=True)
+    link: Mapped[str] = mapped_column(Text, nullable=True)
+    ingredients: Mapped[list] = mapped_column(JSON, nullable=True)
+    summary: Mapped[str] = mapped_column(Text, nullable=True)
     
     manual_user = relationship("ManualUser", back_populates="saved_recipes")
     oauth_user = relationship("Oauth_User", back_populates="saved_recipes")
@@ -56,13 +61,3 @@ class SavedRecipe(db.Model):
     
     def __repr__(self):
         return f"<Saved recipe {self.recipe_name}>"
-    
-class Ingredient(db.Model):
-    __tablename__ = "ingredients"
-    
-    ingredient_id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    
-    ingredient_name: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
-    
-    def __repr__(self):
-        return f"<Ingredient {self.ingredient_name}"
