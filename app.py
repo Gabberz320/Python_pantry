@@ -185,24 +185,24 @@ def reset_with_token(token):
 def userlogin():
     # Get the login info from the user
     if request.method == "POST":
-        email = request.form["email"]
+        username = request.form["username"]     # ← CHANGED to username
         password = request.form["password"]
         
         # If username or password not entered, redirect
-        if not email or not password:
-            flash("Potato must enter both username and password", "danger")
+        if not username or not password:
+            flash("Please enter both username and password", "danger")
             return redirect(url_for("userlogin"))
         
         # Retrieve the user from the database
-        user = db.session.execute(select(ManualUser).where(ManualUser.email == email)).scalar()
+        user = db.session.execute(select(ManualUser).where(ManualUser.username == username)).scalar()
         
         # Check for correct username and password, login user if both correct
         if user and bcrypt.check_password_hash(user.password, password):
             login_user(user)
-            flash(f"Welcome back potato {email}", "success")
+            flash(f"Welcome back {username}", "success")
             return redirect(url_for("index"))
         else:
-            flash("Stop being a stupid potato and enter the right username or password!", "danger")
+            flash("Invalid username or password!", "danger")
             return redirect(url_for("userlogin"))
 
     return render_template("login.html")
@@ -252,7 +252,42 @@ def register():
         return redirect(url_for("index"))
 
     return render_template("register.html")
-
+# ---------------- FORGOT PASSWORD / RESET PASSWORD ----------------
+@app.route("/forgot_password", methods=["GET", "POST"])
+def forgot_password():
+    if request.method == "POST":
+        username = request.form["username"]
+        new_password = request.form["new_password"]
+        confirm_password = request.form["confirm_password"]
+        
+        # Check if passwords match
+        if new_password != confirm_password:
+            flash("Passwords do not match!", "error")
+            return redirect(url_for("forgot_password"))
+        
+        # Check password length
+        if len(new_password) < 6:
+            flash("Password must be at least 6 characters long", "error")
+            return redirect(url_for("forgot_password"))
+        
+        # Find user by username
+        user = db.session.execute(select(ManualUser).where(ManualUser.username == username)).scalar()
+        
+        if not user:
+            flash("Username not found", "error")
+            return redirect(url_for("forgot_password"))
+        
+        # Hash the new password
+        hashed_password = bcrypt.generate_password_hash(new_password).decode("utf-8")
+        
+        # Update user's password
+        user.password = hashed_password
+        db.session.commit()
+        
+        flash("Password reset successfully! You can now login with your new password.", "success")
+        return redirect(url_for("userlogin"))
+    
+    return render_template("forgot_password.html")
 # ---------------- MAIN ----------------
 # if __name__ == "__main__":
 #     app.run(debug=True, use_reloader=False)
