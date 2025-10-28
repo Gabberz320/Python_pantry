@@ -251,14 +251,20 @@ document.addEventListener("click", (e) => {
 
 <!-- bottom bar -->
 <footer class="bottombar">
-    <div class="nav-container">
-        <!-- <div class="logo">
-            <h2>Python Pantry</h2>
-        </div> -->
+    <div class="nav-container footer-container">
         <div class="footer-text">
             <img src="{{ url_for('static', filename='images/picture1.png') }}" alt="Logo" class="footer-logo">
             <span>Cooked Up by Python Pioneers</span>
             <img src="{{ url_for('static', filename='images/picture1.png') }}" alt="Logo" class="footer-logo">
+        </div>
+
+        <div class="footer-credit">
+            <p>
+                Recipe data provided by 
+                <a href="https://developer.edamam.com/" target="_blank" rel="noopener noreferrer">
+                    <img src="{{ url_for('static', filename='images/edamam.png') }}" alt="Edamam" class="edamam-logo">
+                </a>
+            </p>
         </div>
     </div>
 </footer>
