@@ -895,43 +895,59 @@ label[for="selected-ingredients-container"],
 }
 
 
-/*footer credit for edamam*/
+/*footer*/
+.bottombar {
+    background-color: #e8ecef;
+    padding: 10px 30px;
+    width: 100%;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
+
 .footer-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 0 40px;
+    position: relative;
+    width: 100%;
 }
 
 .footer-text {
     display: flex;
     align-items: center;
-    gap: 6px;
-    color: #00222e;
-    font-size: 0.95em;
+    justify-content: center;
+    text-align: center;
 }
 
+.footer-text span {
+    margin: 0 10px;
+    font-weight: bold;
+    color: #2b2b2b;
+}
+
+/* edamam on the right side */
 .footer-credit {
+    position: absolute;
+    right: 30px; 
     display: flex;
     align-items: center;
-    color: #00222e;
-    font-size: 0.9em;
-    gap: 6px;
+    text-align: right;
+    font-size: 14px;
+    color: #444;
 }
 
-.footer-credit p {
-    margin: 0;
-    display: flex;
-    align-items: right;
-    gap: 6px;
+.footer-credit a {
+    text-decoration: none;
+}
+
+.footer-logo {
+    width: 22px;
+    height: 22px;
+    margin: 0 6px;
 }
 
 .edamam-logo {
-    height: 20px;
+    width: 25px;
+    height: 25px;
     vertical-align: middle;
-    transition: transform 0.2s ease-in-out;
-}
-
-.edamam-logo:hover {
-    transform: scale(1.1);
+    margin-left: 5px;
 }
