@@ -11,6 +11,8 @@ body {
 
     font-family: Arial, sans-serif;
     color: #fff; /* makes text visible if background is dark */
+    overflow-x: hidden;
+    
 }
 
 * {
@@ -21,10 +23,210 @@ body {
 }
 
 
+
 @keyframes gradient {
     0% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
     100% { background-position: 0% 50%; }
+}
+
+/* Sidebar toggle button (in nav) */
+.sidebar-toggle {
+    background: transparent;
+    border: none;
+    font-size: 1.6rem;
+    margin-right: 12px;
+    cursor: pointer;
+    color: #00222e;
+}
+
+/* Sliding sidebar - hidden offscreen by default */
+.side-menu {
+    position: fixed;
+    top: 78px; 
+    left: -450px; 
+    width: 450px;
+    height: calc(100vh - 78px); 
+    background: rgba(255,255,255,0.98);
+    color: #00222e;
+    padding: 18px;
+    border-radius: 0 10px 10px 0; 
+    box-shadow: 2px 6px 30px rgba(0,0,0,0.15);
+    transition: left 0.28s cubic-bezier(.2,.8,.2,1);
+    z-index: 95;
+    overflow-y: auto;
+    margin: 0; 
+    border: none; 
+}
+
+/* .side-menu h3 {
+  margin-bottom: 4px;
+} */
+
+.side-menu p {
+  margin-bottom: 5px;       /* remove top gap before the paragraph */
+}
+
+.sidebar-header h3{
+    color: #00131b;
+    margin-bottom: 5px;
+    border-bottom: 2px solid #e0e0e0;
+    font-size: 1.3rem;
+}
+
+.sidebar-header p{
+    color: #667;
+    font-size: 0.9rem;
+    margin:0;
+}
+
+body.sidebar-open .side-menu {
+    left: 1px;
+    width: 280px;
+}
+
+body.sidebar-open {
+  overflow-x: hidden;     /* ensures no horizontal scroll */
+}
+.main-content {
+  transition: none;       /* disable slide effect if you had it */
+}
+
+/*Diet and allergy filter styling*/
+/* Filter Groups */
+.search-filter {
+    margin-bottom: 20px;
+}
+
+.filter-label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #00222e;
+    font-size: 0.95rem;
+}
+
+.filter-dropdown {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+    color: #00222e;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.filter-dropdown:focus {
+    outline: none;
+    border-color: #00222e;
+    box-shadow: 0 0 0 3px rgba(0, 34, 46, 0.1);
+}
+
+.filter-dropdown:hover {
+    border-color: #00222e;
+}
+
+/* Filter Buttons */
+.apply-filters-btn {
+    width: 100%;
+    padding: 12px;
+    background: linear-gradient(to right, #00222e, #00131b);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 10px;
+}
+
+.apply-filters-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 34, 46, 0.3);
+}
+
+.clear-filters-btn {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    color: #00222e;
+    border: 2px solid #00222e;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.clear-filters-btn:hover {
+    background: #00222e;
+    color: white;
+}
+
+/* Active Filters Display */
+.active-filters {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(0, 34, 46, 0.05);
+    border-radius: 8px;
+    border-left: 4px solid #00222e;
+}
+
+.active-filters h4 {
+    margin-bottom: 10px;
+    color: #00222e;
+    font-size: 0.9rem;
+}
+
+.filter-tag {
+    display: inline-block;
+    background: #00222e;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    margin: 2px 4px 2px 0;
+}
+
+
+
+/* Main content scooting */
+.main-content {
+    transition: transform 0.28s cubic-bezier(.2,.8,.2,1);
+}
+
+/* body.sidebar-open .main-content {
+    transform: translateX(260px);
+} */
+
+.side-menu.active {
+    left: 0; /* Flush to left edge */
+}
+
+.sidebar-header{
+    text-align: center;
+    margin-bottom: 20px;
+    padding-bottom:15px;
+    border-bottom: 2px solid #00222e
+}
+
+/* Mobile: sidebar takes more space and overlays (no content scoot) */
+@media (max-width: 768px) {
+    .side-menu {
+        left: -100%;
+        width: 80%;
+        top: 60px;
+        height: calc(100vh - 60px);
+        border-radius: 0 8px 8px 0;
+    }
+    body.sidebar-open .side-menu { left: 0; }
+    body.sidebar-open .main-content { transform: none; }
+    .side-menu-inner {
+        padding-top:140px;
+    }
 }
 
 .topnav {
@@ -519,7 +721,7 @@ body {
 .footer-text {
     display: flex;
     align-items: center;
-    gap: 12px;
+    /* gap: 12px; */
     color: #00222e;
     font-weight: 600;
     font-size: 1rem;
@@ -625,3 +827,165 @@ body {
   transition: all 0.3s ease;
 }
 
+
+
+/*chips*/
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  background-color: #e0e0e0;
+  color: #333;
+  border-radius: 16px;
+  padding: 6px 10px;
+  font-size: 14px;
+  margin: 4px;
+}
+.chip .remove-chip {
+  margin-left: 6px;
+  cursor: pointer;
+  color: #666;
+  font-weight: bold;
+}
+.chip .remove-chip:hover {
+  color: red;
+}
+
+#clear-ingredients {
+  width: 100%;
+  padding: 12px;
+  background: white;
+  color: rgb(0, 34, 46);
+  border: 1px solid #00131b;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-top: 5px;
+}
+
+#clear-ingredients:hover {
+  background: #00131b;
+  color: white;
+}
+
+
+/* hide clear ingredient button by default 
+#clear-ingredients {
+  display: none;
+} */
+
+
+#clear-ingredients.active {
+  opacity: 1;
+  cursor: pointer;
+}
+
+/*chip flashes if they try to readd it*/
+.chip.flash {
+  animation: flashChip 0.6s ease;
+}
+
+@keyframes flashChip {
+  0% { background-color: #00131b; }
+  50% { background-color: #fff4cc; }
+  100% { background-color: #f0f0f0; }
+}
+
+/*spacing out Ingredients Selected: section*/
+#selected-ingredients-container,
+label[for="selected-ingredients-container"],
+.ingredients-section h4,
+.ingredients-section label {
+    margin-top: 1.5rem; 
+    display: block;
+}
+
+#clear-ingredients {
+    margin-top: 0.75rem; 
+}
+
+
+/*footer*/
+.bottombar {
+    background-color: #e8ecef;
+    padding: 10px 30px;
+    width: 100%;
+    box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
+}
+
+.footer-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    width: 100%;
+}
+
+.footer-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.footer-text span {
+    /* margin: 0 10px; */
+    font-weight: bold;
+    color: #2b2b2b;
+}
+
+/* edamam on the right side */
+.footer-credit {
+    position: absolute;
+    right: 30px; 
+    display: flex;
+    align-items: center;
+    text-align: right;
+    font-size: 14px;
+    color: #444;
+}
+
+.footer-credit a {
+    text-decoration: none;
+}
+
+.footer-logo {
+    width: 22px;
+    height: 22px;
+    margin: 0 6px;
+}
+
+.edamam-logo {
+    width: 25px;
+    height: 25px;
+    vertical-align: middle;
+    /* margin-left: 5px; */
+}
+
+.side-menu-inner {
+  padding-top: 10px 10px 100px; /* prevent content cutoff at bottom */
+}
+
+@media (max-width: 768px) {
+  footer, .bottombar {
+    position: static; /* prevent overlap on small screens */
+    margin-top: 20px;
+  }
+    .footer-credit {
+    display: none; /* hide Edamam text/logo */
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1100px) {
+  .side-menu {
+    top: 78px; /* same as navbar height */
+    height: calc(100vh - 78px);
+    z-index: 90; /* below navbar */
+    
+  }
+    .side-menu-inner {
+    padding-top: 15px;
+  }
+}
