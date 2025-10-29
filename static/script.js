@@ -1021,6 +1021,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (!sidebarToggle || !sideMenu) return;
 
     sidebarToggle.addEventListener('click', function(e) {
+        e.preventDefault();
         const opened = document.body.classList.toggle('sidebar-open');
         sidebarToggle.setAttribute('aria-expanded', opened);
         sideMenu.setAttribute('aria-hidden', !opened);
