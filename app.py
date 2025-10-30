@@ -262,7 +262,7 @@ def register():
 
     return render_template("register.html")
 # ---------------- FORGOT PASSWORD ----------------
-@app.route("/forgot_password", methods=["GET", "POST"])
+@app.route("/forgotpassword", methods=["GET", "POST"])
 def forgot_password():
     if request.method == "POST":
         username = request.form["username"]
@@ -284,7 +284,7 @@ def forgot_password():
         
         if not user:
             flash("Username not found", "error")
-            return redirect(url_for("forgot_password"))
+            return redirect(url_for("forgotpassword"))
         
         # Hash the new password
         hashed_password = bcrypt.generate_password_hash(new_password).decode("utf-8")
@@ -296,7 +296,7 @@ def forgot_password():
         flash("Password reset successfully! You can now login with your new password.", "success")
         return redirect(url_for("userlogin"))
     
-    return render_template("forgot_password.html")
+    return render_template("forgotpassword.html")
 # ---------------- MAIN ----------------
 # if __name__ == "__main__":
 #     app.run(debug=True, use_reloader=False)
