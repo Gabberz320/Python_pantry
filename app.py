@@ -471,7 +471,8 @@ def save_recipe():
         query = query.where(SavedRecipe.user_id == current_user.user_id)
     
     
-    is_saved = db.session.execute(query).scalar_one_or_none() is not None
+    # is_saved = db.session.execute(query).scalar_one_or_none() is not None
+    is_saved = db.session.execute(query).first() is not None
     
     if is_saved:
         return jsonify({"error": "Recipe is already saved. I'm a sad potato"}), 409
@@ -516,6 +517,8 @@ def delete_saved_recipe():
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": "database error"})
+        
+    return jsonify({"error": "Recipe not found"})
 
 @app.route("/random_joke")
 def random_joke():
