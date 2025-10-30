@@ -253,6 +253,7 @@ def register():
         # Create a user with that entry
         user = ManualUser(
             email=email,
+            name=name,
             password=hashed_password
         )
         
