@@ -454,6 +454,10 @@ displayedRecipes = results.map(r => {
 
                     if(recipe && !userFavorites.some(fav => String(fav.id) === recipeId)){
                      try {
+
+                        //Disables button to prevent duplication
+                        this.disabled = true;
+                        this.innerHTML = '<span class="heart-icon"><i class="fas fa-spinner fa-spin"></i></span> Saving...';
                         // NEW: Call database API
                         const response = await fetch('/save_recipe', {
                             method: 'POST',
@@ -480,13 +484,18 @@ displayedRecipes = results.map(r => {
                                 }
                                 attachRemoveFavoriteListeners();
                             } else {
-                                // NEW: Error handling
+                                // Error handling
                                 const errorData = await response.json();
                                 alert('Error saving recipe: ' + (errorData.error || 'Unknown error'));
+                                this.disabled = false;
+                                this.innerHTML = '<span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites';
                             }
+
                         } catch (error) {
                             console.error('Error saving recipe:', error);
                             alert('Error saving recipe. Please try again.');
+                            this.disabled = false;
+                            this.innerHTML = '<span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites';
                         }
                     }
                 });
@@ -507,6 +516,10 @@ displayedRecipes = results.map(r => {
                     const recipeId = this.getAttribute('data-id');
 
                      try {
+
+                    this.disabled = true;
+                    this.innerHTML = '<span class="heart-icon"><i class="fas fa-spinner fa-spin"></i></span> Removing...';
+
                     // Call database API
                     const response = await fetch('/delete_saved_recipe', {
                         method: 'POST',
@@ -539,7 +552,9 @@ displayedRecipes = results.map(r => {
                                 if(button){
                                     button.innerHTML = '<span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites';
                                     button.className = 'favorite-btn';
+                                    button.disabled = false; 
                                     attachFavoriteListeners();
+
                                 }
                             }
                         }
@@ -547,10 +562,16 @@ displayedRecipes = results.map(r => {
                     }else{
                         const errorData = await response.json();
                         alert('Error removing recipe: ' + (errorData.error || 'Unknown error'));
+                        this.disabled = false;
+                        this.innerHTML = '<span class="heart-icon"><i class="fas fa-heart"></i></span> Remove from Favorites';
+
                     }
                     } catch (error) {
                         console.error('Error removing recipe:', error);
                         alert('Error removing recipe. Please try again.');
+                        this.disabled = false;
+                        this.innerHTML = '<span class="heart-icon"><i class="fas fa-heart"></i></span> Remove from Favorites';
+
                     }
                 });
             });
