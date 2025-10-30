@@ -88,18 +88,25 @@
             }
 
             try {
-                const response = await fetch('/saved_recipes');
-                if (response.ok) {
-                    userFavorites = await response.json();
-                } else {
+                    const response = await fetch('/saved_recipes');
+                    
+                    if (response.ok) {
+                        userFavorites = await response.json();
+                        console.log(`Loaded ${userFavorites.length} favorites from server`);
+                    } else if (response.status === 401) {
+                        // Session expired
+                        console.warn('Session expired, redirecting to login');
+                        window.location.href = '/userlogin';
+                    } else {
+                        console.error('Failed to load favorites:', response.status);
+                        userFavorites = [];
+                    }
+                } catch (error) {
+                    console.error('Error loading favorites:', error);
                     userFavorites = [];
                 }
-            } catch (error) {
-                console.error('Error loading favorites:', error);
-                userFavorites = [];
-            }
-        }
 
+            }
         // Initialize the page  load user favorites from the server first 
         document.addEventListener('DOMContentLoaded', async function(){
             // Ensure we pull saved recipes for the currently logged-in user
@@ -135,6 +142,8 @@
                 recipesGrid.appendChild(recipeCard);
             });
             attachFavoriteListeners();
+            attachRemoveFavoriteListeners();
+
         }
 
         // Display the favorites in home Section
@@ -443,6 +452,9 @@ displayedRecipes = results.map(r => {
                 button.addEventListener('click', async function(e){
                     e.stopPropagation();  // Prevents card flip
 
+                    // Prevent duplicate clicks
+                    if (this.disabled) return;
+
                     // checks if user is logged in (since we arent using local storage anymore)
                     if (!isUserLoggedIn()) {
                         alert('Please create an account or log in to save recipes!');
@@ -450,7 +462,9 @@ displayedRecipes = results.map(r => {
                     }
                     const recipeId = this.getAttribute('data-id');
                     // Look up in currently displayed recipes first, then fallback to mock or favorites
-                     let recipe = displayedRecipes.find(r => String(r.id) === recipeId) || mockRecipes.find(r => String(r.id) === recipeId) || userFavorites.find(r => String(r.id) === recipeId);
+                     let recipe = displayedRecipes.find(r => String(r.id) === recipeId) || 
+                         mockRecipes.find(r => String(r.id) === recipeId) || 
+                         userFavorites.find(r => String(r.id) === recipeId);
 
                     if(recipe && !userFavorites.some(fav => String(fav.id) === recipeId)){
                      try {
@@ -468,28 +482,40 @@ displayedRecipes = results.map(r => {
                         });
 
                         if (response.ok) {
-                            // Only add to local array after successful save
-                            userFavorites.push(recipe);
-
-                        // Update the button
-                        this.innerHTML ='<span class="heart-icon"><i class="fas fa-heart"></i></span> Remove from Favorites';
-                        this.className = 'remove-favorite-btn';
-
-                        // Update favorites on home
+                        // Reload favorites from server to ensure sync
+                        await loadUserFavorites();
+                        
+                        // Update UI
                         displayHomeFavorites();
-
-                        // Update favorites section if we're on that page 
-                                if (document.getElementById('favorites-section').classList.contains('active')){
-                                    displayFavorites();
-                                }
-                                attachRemoveFavoriteListeners();
-                            } else {
-                                // Error handling
-                                const errorData = await response.json();
-                                alert('Error saving recipe: ' + (errorData.error || 'Unknown error'));
-                                this.disabled = false;
-                                this.innerHTML = '<span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites';
+                        if (document.getElementById('favorites-section').classList.contains('active')){
+                            displayFavorites();
+                        }
+                        
+                        // Update all cards with this recipe ID
+                        document.querySelectorAll(`.flip-card[data-id="${recipeId}"]`).forEach(card => {
+                            const btn = card.querySelector('.favorite-btn, .remove-favorite-btn');
+                            if (btn) {
+                                btn.innerHTML = '<span class="heart-icon"><i class="fas fa-heart"></i></span> Remove from Favorites';
+                                btn.className = 'remove-favorite-btn';
+                                btn.disabled = false;
                             }
+                        });
+                        
+                        
+                         attachRemoveFavoriteListeners();
+                   } else if (response.status === 409) {
+                        // Recipe already exists
+                        const errorData = await response.json();
+                        alert(errorData.error || 'Recipe is already saved');
+                        this.disabled = false;
+                        this.innerHTML = '<span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites';
+                    } else {
+                        // Other error
+                        const errorData = await response.json();
+                        alert('Error saving recipe: ' + (errorData.error || 'Unknown error'));
+                        this.disabled = false;
+                        this.innerHTML = '<span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites';
+                    }
 
                         } catch (error) {
                             console.error('Error saving recipe:', error);
@@ -507,6 +533,9 @@ displayedRecipes = results.map(r => {
             document.querySelectorAll('.remove-favorite-btn').forEach(button => {
                 button.addEventListener('click', async function(e){
                     e.stopPropagation();  // Prevent card flip
+
+                    // Prevent duplicate clicks
+                    if (this.disabled) return;
 
                      if (!isUserLoggedIn()) {
                         alert('Please create an account or log in to manage favorites!');
@@ -528,36 +557,30 @@ displayedRecipes = results.map(r => {
                         },
                         body: JSON.stringify({ id: recipeId })
                     });
+
                     if (response.ok) {
-                    // Only remove from local array after successful delete
-                    userFavorites = userFavorites.filter(fav => String(fav.id) !== recipeId);
+                        await loadUserFavorites();
 
-                    
-
-                    // Update favorites on home page
-                    displayHomeFavorites();
+                        // Update favorites on home page
+                        displayHomeFavorites();
 
                     // If we are on favorites page, remove the card
-                        if(document.getElementById('favorites-section').classList.contains('active')){
+                         if(document.getElementById('favorites-section').classList.contains('active')){
                             displayFavorites();
                         }
 
-                        // If we're on the home page, update the button
-                        if (document.getElementById('home-section').classList.contains('active')){
-                            // Find card in recipe suggestions
-                            const recipeCard = document.querySelector(`.flip-card[data-id="${recipeId}"]`);
-
-                            if (recipeCard) {
-                                const button = recipeCard.querySelector('.remove-favorite-btn');
-                                if(button){
-                                    button.innerHTML = '<span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites';
-                                    button.className = 'favorite-btn';
-                                    button.disabled = false; 
-                                    attachFavoriteListeners();
-
-                                }
+                        // Update ALL cards with this recipe ID across the page
+                        document.querySelectorAll(`.flip-card[data-id="${recipeId}"]`).forEach(card => {
+                            const btn = card.querySelector('.favorite-btn, .remove-favorite-btn');
+                            if (btn) {
+                                btn.innerHTML = '<span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites';
+                                btn.className = 'favorite-btn';
+                                btn.disabled = false;
                             }
-                        }
+                        });
+
+                        // Re-attach listeners
+                        attachFavoriteListeners();
                 
                     }else{
                         const errorData = await response.json();
