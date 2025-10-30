@@ -234,6 +234,7 @@ def register():
     # Get username and password
     if request.method == "POST":
         email = request.form["email"]
+        name = request.form["name"]
         password = request.form["password"]
         
         # if not check_password(password):
@@ -512,8 +513,8 @@ def save_recipe():
         query = query.where(SavedRecipe.user_id == current_user.user_id)
     
     
-    # is_saved = db.session.execute(query).scalar_one_or_none() is not None
-    is_saved = db.session.execute(query).first() is not None
+    is_saved = db.session.execute(query).scalar_one_or_none() is not None
+    # is_saved = db.session.execute(query).first() is not None
     
     if is_saved:
         return jsonify({"error": "Recipe is already saved. I'm a sad potato"}), 409

@@ -2,7 +2,7 @@ from database.connection import db
 from datetime import datetime
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
-from sqlalchemy import String, Integer, DateTime, Text, ForeignKey, SmallInteger, JSON
+from sqlalchemy import String, Integer, Text, ForeignKey, JSON
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin
 
@@ -11,7 +11,9 @@ class ManualUser(db.Model, UserMixin):
     
     manual_id: Mapped[int] = mapped_column(Integer, primary_key=True)
     email: Mapped[str] = mapped_column(String(255), nullable=False, unique=True)
+    name: Mapped[str] = mapped_column(String(128), nullable=True)
     password: Mapped[str] = mapped_column(String(255), nullable=False)
+    reset_token: Mapped[str] = mapped_column(String(36), nullable=True, unique=True)
     
     saved_recipes = relationship("SavedRecipe", back_populates="manual_user", cascade="all, delete-orphan")
     
