@@ -24,7 +24,7 @@
                 </form>
             </div>
             <div class="nav-links">
-                <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('index') }}#home-section" class="nav-link">Home</a>
                 <a href="{{ url_for('index') }}#favorites-section" class="nav-link">Favorites</a>
                 {% if current_user.is_authenticated %}
                 <div class="user-profile">
