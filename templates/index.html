@@ -8,10 +8,12 @@
     <!-- <script src="{{ url_for('static', filename='script.js') }}"></script> -->
     <!-- favicon -->
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/picture1.png') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <nav class="topnav">
         <div class="nav-container">
+            <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Open menu" aria-expanded="false">☰</button>
             <div class="logo">
                 <h2>Python Pantry</h2>
             </div>
@@ -36,35 +38,113 @@
             <div class="nav-links">
                 <a href="#" class="nav-link" data-section="home">Home</a>
                 <a href="#" class="nav-link" data-section="favorites">Favorites</a>
-                <!-- {% if current_user.is_authenticated or session.get('user') %}
-                    <a href="{{ url_for('logout') }}" class="btn">Logout</a>
-                {% else %}
-                    <a href="{{ url_for('userlogin') }}" class="btn" data-section="Login">Login</a>
-                {% endif %} -->
-
-                <!--profile pic-->
-                {% if session.get('user') %}
-                <div class="user-profile">
-                                        <a href="{{ url_for('logout') }}" class="btn logout-btn">Logout</a>
-                    <img src="{{ session['user']['picture'] }}" alt="Profile" class="user-avatar">
-                    <span class="user-name">{{ session['user']['name'].split(' ')[0] }}</span>
-
-                </div>
-                {% elif current_user.is_authenticated %}
+                
+                <!-- UNIFIED LOGIN/PROFILE DISPLAY -->
+                {% if current_user.is_authenticated %}
                 <div class="user-profile">
                     <a href="{{ url_for('logout') }}" class="btn logout-btn">Logout</a>
-                    <img src="{{ url_for('static', filename='images/chef.png') }}" alt="Profile" class="user-avatar">
-                    <span class="user-name">{{ current_user.email.split('@')[0] }}</span>
+                    
+                    {# Check if the user object has a picture_url (for OAuth users) #}
+                    {% if current_user.picture_url %}
+                        <img src="{{ current_user.picture_url }}" alt="Profile" class="user-avatar">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/chef.png') }}" alt="Profile" class="user-avatar">
+                    {% endif %}
+
+                    {# Check if the user object has a name (for OAuth users) #}
+                    {% if current_user.name %}
+                        <span class="user-name">{{ current_user.name.split(' ')[0] }}</span>
+                    {% else %}
+                        <span class="user-name">{{ current_user.email.split('@')[0] }}</span>
+                    {% endif %}
                 </div>
                 {% else %}
                     <a href="{{ url_for('userlogin') }}" class="btn login-btn">Login</a>
                 {% endif %}
-
-
-                
             </div>
         </div>
     </nav>
+
+    <!-- Sidebar (hidden by default, toggled via the button in the nav) -->
+    <div class="side-menu" id="side-menu" aria-hidden="true">
+        <div class="side-menu-inner">
+            <h3>Recipe Filters</h3>
+                <p>Redefine your search results</p>
+            
+        </div>
+
+        <div class="search-filter">
+            <label for = "diet-filter" class="filter-label">Diet Type</label>
+           <select id="diet-filter" class="filter-dropdown">
+                <option value="">All Diets</option>
+                <option value="balanced">Balanced</option>
+                <option value="high-fiber">High-Fiber</option>
+                <option value="high-protein">High-Protein</option>
+                <option value="low-carb">Low-Carb</option>
+                <option value="low-fat">Low-Fat</option>
+                <option value="low-sodium">Low-Sodium</option>
+                <option value="alcohol-free">Alcohol-Free</option>  
+            </select>
+        </div>
+
+        <div class="search-filter">
+        <label for="allergy-filter" class="filter-label">Allergies & Restrictions</label>
+        <select id="allergy-filter" class="filter-dropdown" >
+           <option value="">No Restrictions</option>
+            <option value="alcohol-free">Alcohol-Free</option>
+            <option value="celery-free">Celery-Free</option>
+            <option value="crustacean-free">Crustacean-Free</option>
+            <option value="dairy-free">Dairy-Free</option>
+            <option value="egg-free">Egg-Free</option>
+            <option value="fish-free">Fish-Free</option>
+            <option value="gluten-free">Gluten-Free</option>
+            <option value="keto-friendly">Keto-Friendly</option>
+            <option value="kidney-friendly">Kidney-Friendly</option>
+            <option value="kosher">Kosher</option>
+            <option value="low-potassium">Low-Potassium</option>
+            <option value="lupine-free">Lupine-Free</option>
+            <option value="mustard-free">Mustard-Free</option>
+            <option value="low-fat-abs">Low-Fat</option>
+            <option value="no-oil-added">No Oil Added</option>
+            <option value="low-sugar">Low-Sugar</option>
+            <option value="paleo">Paleo</option>
+            <option value="peanut-free">Peanut-Free</option>
+            <option value="pecatarian">Pescatarian</option>
+            <option value="pork-free">Pork-Free</option>
+            <option value="red-meat-free">Red Meat-Free</option>
+            <option value="sesame-free">Sesame-Free</option>
+            <option value="shellfish-free">Shellfish-Free</option>
+            <option value="soy-free">Soy-Free</option>
+            <option value="sugar-conscious">Sugar-Conscious</option>
+            <option value="tree-nut-free">Tree Nut-Free</option>
+            <option value="vegan">Vegan</option>
+            <option value="vegetarian">Vegetarian</option>
+            <option value="wheat-free">Wheat-Free</option>
+        </select>
+     </div>
+
+                <!-- Apply Filters Button -->
+            <button id="apply-filters" class="apply-filters-btn">Apply Filters</button>
+
+            <!-- Clear Filters Button -->
+            <button id="clear-filters" class="clear-filters-btn">Clear Filters</button>
+    
+                <div id="active-filters" class="active-filters" style="display: none;">
+                    <h4>Active Filters:</h4>
+                    <div id="filters-list"></div>
+                </div>
+
+
+            <!--ingredient chips-->
+            <div class="ingredients-section">
+                <h4>Ingredients Selected:</h4>
+                <div id="selected-ingredients-container" class="chip-container"></div>
+                <button id="clear-ingredients" class="clear-ingredients-btn">Clear Ingredients</button>
+            </div>
+
+
+
+    </div>
     
     <div class="main-content">
         <!-- Home Section -->
@@ -82,6 +162,7 @@
                         </div>
                     </div>
                 </div>
+                
                 
                 <!-- Favorites Section on Home Page -->
                 <div class="home-section">
@@ -107,8 +188,6 @@
                 </div>
             </div>
         </div>
-    </div>
-        
     </div>
     
 
@@ -173,14 +252,20 @@ document.addEventListener("click", (e) => {
 
 <!-- bottom bar -->
 <footer class="bottombar">
-    <div class="nav-container">
-        <!-- <div class="logo">
-            <h2>Python Pantry</h2>
-        </div> -->
+    <div class="nav-container footer-container">
         <div class="footer-text">
             <img src="{{ url_for('static', filename='images/picture1.png') }}" alt="Logo" class="footer-logo">
             <span>Cooked Up by Python Pioneers</span>
             <img src="{{ url_for('static', filename='images/picture1.png') }}" alt="Logo" class="footer-logo">
+        </div>
+
+        <div class="footer-credit">
+            <p>
+                Recipe data provided by 
+                <a href="https://developer.edamam.com/" target="_blank" rel="noopener noreferrer">
+                    <img src="{{ url_for('static', filename='images/edamam.png') }}" alt="Edamam" class="edamam-logo">
+                </a>
+            </p>
         </div>
     </div>
 </footer>

@@ -41,11 +41,20 @@ login_manager.init_app(app)
 login_manager.login_view = "userlogin"
 
 @login_manager.user_loader
-def load_user(user_id):
-    user = db.session.get(ManualUser, int(user_id))
-    if user:
-        return user
-    return db.session.get(Oauth_User, int(user_id))
+def load_user(user_id_str):
+    # Handles both manual and oauth using flask_login
+    try:
+        user_type, user_id = user_id_str.split('_')
+        user_id = int(user_id)
+    except (ValueError, AttributeError):
+        return None
+    
+    if user_type == "manual":
+        return db.session.get(ManualUser, user_id)
+    elif user_type == "oauth":
+        return db.session.get(Oauth_User, user_id)
+    
+    return None
 
 # ---------------- Bcrypt Password Hashing ----------------
 bcrypt = Bcrypt()
@@ -113,8 +122,8 @@ def google_callback():
             picture_url=user_info.get("picture")
         )
         db.session.add(user)
+        db.session.commit()
 
-    db.session.commit()
 
     login_user(user)
 
@@ -523,7 +532,17 @@ def save_recipe():
     if not recipe_id:
         return jsonify({"error": "Recipe id not found"}), 400
     
-    is_saved = any(r.recipe_id == recipe_id for r in current_user.saved_recipes)
+
+    query = select(SavedRecipe).where(SavedRecipe.recipe_id == recipe_id)
+    if isinstance(current_user, ManualUser):
+        query = query.where(SavedRecipe.manual_id == current_user.manual_id)
+    elif isinstance(current_user, Oauth_User):
+        query = query.where(SavedRecipe.user_id == current_user.user_id)
+    
+    
+    # is_saved = db.session.execute(query).scalar_one_or_none() is not None
+    is_saved = db.session.execute(query).first() is not None
+    
     if is_saved:
         return jsonify({"error": "Recipe is already saved. I'm a sad potato"}), 409
     
@@ -557,7 +576,7 @@ def delete_saved_recipe():
     if not recipe_id:
         return jsonify({"error": "Missing potato ID dumb dumb"})
     
-    recipe_to_delete = next((r for r in current_user.saved_recipes if r.recipe_id == recipe_id)), None
+    recipe_to_delete = next((r for r in current_user.saved_recipes if r.recipe_id == recipe_id), None)
     
     if recipe_to_delete:
         try:
@@ -567,6 +586,8 @@ def delete_saved_recipe():
         except Exception as e:
             db.session.rollback()
             return jsonify({"error": "database error"})
+        
+    return jsonify({"error": "Recipe not found"})
 
 @app.route("/random_joke")
 def random_joke():
