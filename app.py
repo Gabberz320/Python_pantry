@@ -382,7 +382,7 @@ def autocomplete():
 @app.route("/search_recipes")
 def search_recipes():
     ingredients = request.args.get("ingredients", "")
-    #cuisine = request.args.get("cuisine", "")
+    cuisine = request.args.get("cuisine", "")
     diet = request.args.get("diet", "")
     allergies = request.args.get("allergies", "")
 
@@ -414,6 +414,8 @@ def search_recipes():
         params['diet'] = diet
     if allergies:
         params['health'] = allergies
+    if cuisine:
+        params['cuisineType'] = cuisine
 
     try:
         response = requests.get(EDAMAM_API_URL, params={k: v for k, v in params.items() if v})
@@ -436,13 +438,13 @@ def search_recipes():
         #return valid_recipes
     except requests.exceptions.Timeout:
         # Upstream timed out
-        app.logger.warning("Timeout when calling Spoonacular API for search_recipes")
+        app.logger.warning("Timeout when calling Edamam API for search_recipes")
         return {"error": "Upstream API request timed out."}, 504
     except requests.exceptions.HTTPError as e:
         # Return the upstream status code & message as a 502-level error
         status = getattr(e.response, 'status_code', 502)
-        app.logger.warning(f"HTTP error from Spoonacular: {status} - {e}")
-        return {"error": f"Upstream service returned HTTP {status}."}, 502
+        app.logger.warning(f"HTTP error from Edamam: {status} - {e}")
+        return {"error": f"Too many API calls. Please wait 60 seconds before searching again."}, 502
     except requests.exceptions.RequestException as e:
         app.logger.warning(f"Error calling Spoonacular: {e}")
         return {"error": str(e)}, 502
@@ -463,7 +465,7 @@ def get_recipe_info(recipe_uri):
         return {"error": "Request to recipe service timed out."}, 504
     except requests.exceptions.HTTPError as e:
         status = getattr(e.response, 'status_code', 502)
-        app.logger.error(f"HTTP error from Edamam for uri={recipe_uri}: {status} - {e}")
+        app.logger.error(f"Too many API calls. Please wait 60 seconds before searching again. - {e}")
         return {"error": f"Upstream recipe service returned HTTP {status}."}, 502
     except requests.exceptions.RequestException as e:
         app.logger.error(f"Error fetching details for recipe uri {recipe_uri}: {e}")
