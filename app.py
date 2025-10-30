@@ -451,18 +451,18 @@ def search_recipes():
         initial_hits = response.json().get("hits", [])
 
         # Uses aiohttp to filter out the API results with bad links, ensures users always get ones that are working
-        valid_recipes = asyncio.run(filter_links(initial_hits))
-        random.shuffle(valid_recipes)
+        #valid_recipes = asyncio.run(filter_links(initial_hits))
+        random.shuffle(initial_hits)
 
-        unique_recipes = []
-        seen_uris = set()
-        for recipe in valid_recipes:
-            uri = recipe.get("uri")
-            if uri not in seen_uris:
-                seen_uris.add(uri)
-                unique_recipes.append(recipe)
+        # unique_recipes = []
+        # seen_uris = set()
+        # for recipe in initial_hits:
+        #     uri = recipe.get("uri")
+        #     if uri not in seen_uris:
+        #         seen_uris.add(uri)
+        #         unique_recipes.append(recipe)
 
-        return unique_recipes
+        return initial_hits
         #return valid_recipes
     except requests.exceptions.Timeout:
         # Upstream timed out
