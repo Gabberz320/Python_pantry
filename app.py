@@ -261,7 +261,7 @@ def register():
         return redirect(url_for("index"))
 
     return render_template("register.html")
-# ---------------- FORGOT PASSWORD / RESET PASSWORD ----------------
+# ---------------- FORGOT PASSWORD ----------------
 @app.route("/forgot_password", methods=["GET", "POST"])
 def forgot_password():
     if request.method == "POST":
