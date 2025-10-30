@@ -412,7 +412,7 @@ def autocomplete():
 @app.route("/search_recipes")
 def search_recipes():
     ingredients = request.args.get("ingredients", "")
-    #cuisine = request.args.get("cuisine", "")
+    cuisine = request.args.get("cuisine", "")
     diet = request.args.get("diet", "")
     allergies = request.args.get("allergies", "")
 
@@ -444,7 +444,8 @@ def search_recipes():
         params['diet'] = diet
     if allergies:
         params['health'] = allergies
-
+    if cuisine:
+        params['cuisineType'] = cuisine
     try:
         response = requests.get(EDAMAM_API_URL, params={k: v for k, v in params.items() if v})
         response.raise_for_status()
