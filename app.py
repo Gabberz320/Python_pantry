@@ -194,24 +194,24 @@ def reset_with_token(token):
 def userlogin():
     # Get the login info from the user
     if request.method == "POST":
-        username = request.form["username"]     # ← CHANGED to username
+        email = request.form["email"]
         password = request.form["password"]
         
         # If username or password not entered, redirect
-        if not username or not password:
-            flash("Please enter both username and password", "danger")
+        if not email or not password:
+            flash("Potato must enter both username and password", "danger")
             return redirect(url_for("userlogin"))
         
         # Retrieve the user from the database
-        user = db.session.execute(select(ManualUser).where(ManualUser.username == username)).scalar()
+        user = db.session.execute(select(ManualUser).where(ManualUser.email == email)).scalar()
         
         # Check for correct username and password, login user if both correct
         if user and bcrypt.check_password_hash(user.password, password):
             login_user(user)
-            flash(f"Welcome back {username}", "success")
+            flash(f"Welcome back potato {email}", "success")
             return redirect(url_for("index"))
         else:
-            flash("Invalid username or password!", "danger")
+            flash("Stop being a stupid potato and enter the right username or password!", "danger")
             return redirect(url_for("userlogin"))
 
     return render_template("login.html")
@@ -233,12 +233,17 @@ def check_password(password):
 def register():
     # Get username and password
     if request.method == "POST":
-        username = request.form["username"]  # Changed from email
+        email = request.form["email"]
         password = request.form["password"]
         
+        # if not check_password(password):
+        #     flash("""Password must contain one uppercase letter, one lowercase
+        #           letter, one special character ($, @, #, %) and between 6 and 20 characters""", "error")
+        #     return redirect(url_for("register"))
+        
         # Find whether a user with that username already exists
-        if db.session.execute(select(ManualUser).where(ManualUser.username == username)).scalar():
-            flash("That username already exists", "error")
+        if db.session.execute(select(ManualUser).where(ManualUser.email == email)).scalar():
+            flash("That potato already exists", "error")
             return redirect(url_for("register"))
         
         # Hash password with bcrypt
@@ -246,7 +251,7 @@ def register():
         
         # Create a user with that entry
         user = ManualUser(
-            username=username,  # Changed from email
+            email=email,
             password=hashed_password
         )
         
@@ -257,46 +262,11 @@ def register():
         # Login with login_user function and redirect to index page
         login_user(user)
 
-        flash(f"Account created successfully! Welcome {username}", "success")
+        flash("A potato has been registered", "success")
         return redirect(url_for("index"))
 
     return render_template("register.html")
-# ---------------- FORGOT PASSWORD ----------------
-@app.route("/forgotpassword", methods=["GET", "POST"])
-def forgot_password():
-    if request.method == "POST":
-        username = request.form["username"]
-        new_password = request.form["new_password"]
-        confirm_password = request.form["confirm_password"]
-        
-        # Check if passwords match
-        if new_password != confirm_password:
-            flash("Passwords do not match!", "error")
-            return redirect(url_for("forgot_password"))
-        
-        # Check password length
-        if len(new_password) < 6:
-            flash("Password must be at least 6 characters long", "error")
-            return redirect(url_for("forgot_password"))
-        
-        # Find user by username
-        user = db.session.execute(select(ManualUser).where(ManualUser.username == username)).scalar()
-        
-        if not user:
-            flash("Username not found", "error")
-            return redirect(url_for("forgotpassword"))
-        
-        # Hash the new password
-        hashed_password = bcrypt.generate_password_hash(new_password).decode("utf-8")
-        
-        # Update user's password
-        user.password = hashed_password
-        db.session.commit()
-        
-        flash("Password reset successfully! You can now login with your new password.", "success")
-        return redirect(url_for("userlogin"))
-    
-    return render_template("forgotpassword.html")
+
 # ---------------- MAIN ----------------
 # if __name__ == "__main__":
 #     app.run(debug=True, use_reloader=False)
@@ -412,7 +382,7 @@ def autocomplete():
 @app.route("/search_recipes")
 def search_recipes():
     ingredients = request.args.get("ingredients", "")
-    cuisine = request.args.get("cuisine", "")
+    #cuisine = request.args.get("cuisine", "")
     diet = request.args.get("diet", "")
     allergies = request.args.get("allergies", "")
 
@@ -444,38 +414,37 @@ def search_recipes():
         params['diet'] = diet
     if allergies:
         params['health'] = allergies
-    if cuisine:
-        params['cuisineType'] = cuisine
+
     try:
         response = requests.get(EDAMAM_API_URL, params={k: v for k, v in params.items() if v})
         response.raise_for_status()
         initial_hits = response.json().get("hits", [])
 
         # Uses aiohttp to filter out the API results with bad links, ensures users always get ones that are working
-        #valid_recipes = asyncio.run(filter_links(initial_hits))
-        random.shuffle(initial_hits)
+        valid_recipes = asyncio.run(filter_links(initial_hits))
+        random.shuffle(valid_recipes)
 
-        # unique_recipes = []
-        # seen_uris = set()
-        # for recipe in initial_hits:
-        #     uri = recipe.get("uri")
-        #     if uri not in seen_uris:
-        #         seen_uris.add(uri)
-        #         unique_recipes.append(recipe)
+        unique_recipes = []
+        seen_uris = set()
+        for recipe in valid_recipes:
+            uri = recipe.get("uri")
+            if uri not in seen_uris:
+                seen_uris.add(uri)
+                unique_recipes.append(recipe)
 
-        return initial_hits
+        return unique_recipes
         #return valid_recipes
     except requests.exceptions.Timeout:
         # Upstream timed out
-        app.logger.warning("Timeout when calling Edamam API for search_recipes")
+        app.logger.warning("Timeout when calling Spoonacular API for search_recipes")
         return {"error": "Upstream API request timed out."}, 504
     except requests.exceptions.HTTPError as e:
         # Return the upstream status code & message as a 502-level error
         status = getattr(e.response, 'status_code', 502)
-        app.logger.warning(f"HTTP error from Edamam: {status} - {e}")
-        return {"error": f"Too many API calls. Please wait 60 seconds before searching again."}, 502
+        app.logger.warning(f"HTTP error from Spoonacular: {status} - {e}")
+        return {"error": f"Upstream service returned HTTP {status}."}, 502
     except requests.exceptions.RequestException as e:
-        app.logger.warning(f"Error calling Edamam: {e}")
+        app.logger.warning(f"Error calling Spoonacular: {e}")
         return {"error": str(e)}, 502
     
 @app.route("/get_recipe_info")    
@@ -494,7 +463,7 @@ def get_recipe_info(recipe_uri):
         return {"error": "Request to recipe service timed out."}, 504
     except requests.exceptions.HTTPError as e:
         status = getattr(e.response, 'status_code', 502)
-        app.logger.error(f"Too many API calls. Please wait 60 seconds before searching again. - {e}")
+        app.logger.error(f"HTTP error from Edamam for uri={recipe_uri}: {status} - {e}")
         return {"error": f"Upstream recipe service returned HTTP {status}."}, 502
     except requests.exceptions.RequestException as e:
         app.logger.error(f"Error fetching details for recipe uri {recipe_uri}: {e}")
