@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Python Pantry</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
@@ -229,6 +230,60 @@
     </style>
 </head>
 <body>
+    <nav class="topnav">
+        <div class="nav-container">
+            <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Open menu" aria-expanded="false">☰</button>
+            <div class="logo">
+                <h2>Python Pantry</h2>
+            </div>
+            <div class="search-bar">
+
+                <!-- <form id="search-form">
+                    <input type="text" id="ingredient-input" placeholder="Enter Ingredients (comma seperated)">
+                    <button type="submit">Search</button>
+                </form> -->
+
+<!--autocomplete-->
+            <form id="search-form" style="position: relative;">
+                <div class="autocomplete-wrapper" style="position: relative; width: 100%;">
+                    <input type="text" id="ingredient-input" placeholder="Enter Ingredients">
+                </div>
+                <button type="submit">Search</button>
+            </form>
+
+
+            </div>
+
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}#home-section" class="nav-link">Home</a>
+                <a href="{{ url_for('index') }}#favorites-section" class="nav-link">Favorites</a>
+                
+                <!-- UNIFIED LOGIN/PROFILE DISPLAY -->
+                {% if current_user.is_authenticated %}
+                <div class="user-profile">
+                    <a href="{{ url_for('logout') }}" class="btn logout-btn">Logout</a>
+                    
+                    {# Check if the user object has a picture_url (for OAuth users) #}
+                    {% if current_user.picture_url %}
+                        <img src="{{ current_user.picture_url }}" alt="Profile" class="user-avatar">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='images/chef.png') }}" alt="Profile" class="user-avatar">
+                    {% endif %}
+
+                    {# Check if the user object has a name (for OAuth users) #}
+                    {% if current_user.name %}
+                        <span class="user-name">{{ current_user.name.split(' ')[0] }}</span>
+                    {% else %}
+                        <span class="user-name">{{ current_user.email.split('@')[0] }}</span>
+                    {% endif %}
+                </div>
+                {% else %}
+                    <a href="{{ url_for('userlogin') }}" class="btn login-btn">Login</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
     <div class="register-container">
         <div class="register-content">
             <h1>Create Account</h1>
