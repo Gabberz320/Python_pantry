@@ -121,6 +121,8 @@
             displayHomeFavorites();
             displayFavorites();
             attachEventListeners();
+            loadDailyJoke();
+            attachJokeListeners();
         });
 
         // Display recipes in the home section
@@ -487,6 +489,8 @@ displayedRecipes = results.map(r => {
                         
                         // Update UI
                         displayHomeFavorites();
+                        displayFavorites();
+
                         if (document.getElementById('favorites-section').classList.contains('active')){
                             displayFavorites();
                         }
@@ -563,6 +567,9 @@ displayedRecipes = results.map(r => {
 
                         // Update favorites on home page
                         displayHomeFavorites();
+
+                        //Update favorites on favorites page
+                        displayFavorites();
 
                     // If we are on favorites page, remove the card
                          if(document.getElementById('favorites-section').classList.contains('active')){
@@ -1087,3 +1094,45 @@ if (clearIngredientsBtn) {
 
 
 });
+
+async function loadDailyJoke() {
+    const jokeContent = document.getElementById('joke-content');
+    
+    try {
+        jokeContent.innerHTML = `
+            <div class="joke-loading">
+                Cooking up a joke...
+            </div>
+        `;
+
+        const response = await fetch('/random_joke');
+        const joke = await response.text();
+
+        if (joke) {
+        jokeContent.innerHTML = `
+            <div class="joke-text">
+                "${joke}"
+            </div>
+        `;
+        } else {
+            throw new Error('No joke received');
+        }
+                } catch (error) {
+                        console.error('Error loading joke:', error);
+                        jokeContent.innerHTML = `
+                            <div class="joke-error">
+                                ERROR: Couldn't fetch a joke
+                            </div>
+                        `;
+                    }
+                }
+
+//  joke listener
+function attachJokeListeners() {
+    const refreshBtn = document.getElementById('refresh-joke');
+    if (refreshBtn) {
+        refreshBtn.addEventListener('click', loadDailyJoke);
+    }
+}
+
+               
