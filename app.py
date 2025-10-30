@@ -162,13 +162,24 @@ def reset_password():
             token = str(uuid.uuid4())
             user.reset_token = token
             db.session.commit()
-            if send_reset_email(user.email, token):
-                flash("Reset email sent", "success")
-            else:
-                flash("Failed to send reset email")
+            
+            # Enhanced email sending with better error handling
+            try:
+                email_sent = send_reset_email(user.email, token)
+                if email_sent:
+                    flash("Password reset email sent! Check your inbox.", "success")
+                    app.logger.info(f"Reset email sent to {user.email}")
+                else:
+                    flash("Failed to send reset email. Please try again later.", "error")
+                    app.logger.error(f"Failed to send reset email to {user.email}")
+            except Exception as e:
+                flash("Error sending reset email. Please contact support.", "error")
+                app.logger.error(f"Exception in send_reset_email: {e}")
         else:
-            flash("Email not found")
-    return render_template("reset_password.html")   #subject to change based on frontend
+            # Don't reveal whether email exists for security
+            flash("If that email exists in our system, a reset link has been sent.", "info")
+            
+    return render_template("reset_password.html")
 
 # ---------------- RESET WITH TOKEN ----------------
 @app.route('/reset/<token>', methods=["GET", "POST"])
@@ -187,7 +198,7 @@ def reset_with_token(token):
         flash("Password has been reset", "success")
         return redirect(url_for("userlogin"))
 
-    return render_template("reset_with_token.html") # subject to change based on frontend
+    return render_template("reset_with_token.html", token=token) # subject to change based on frontend
 
 # ---------------- MANUAL LOGIN ----------------
 @app.route("/userlogin", methods=["GET", "POST"])
