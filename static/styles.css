@@ -978,7 +978,7 @@ label[for="selected-ingredients-container"],
   }
 }
 
-@media (min-width: 769px) and (max-width: 1100px) {
+@media (min-width: 769px) and (max-width: 964px) {
   .side-menu {
     top: 78px; /* same as navbar height */
     height: calc(100vh - 78px);
