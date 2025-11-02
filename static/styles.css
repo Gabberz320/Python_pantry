@@ -218,7 +218,7 @@ body.sidebar-open {
     .side-menu {
         left: -100%;
         width: 80%;
-        top: 60px;
+        top: 90px;      /*padding for text in search bar*/
         height: calc(100vh - 60px);
         border-radius: 0 8px 8px 0;
     }
@@ -969,7 +969,7 @@ label[for="selected-ingredients-container"],
   padding-top: 10px 10px 100px; /* prevent content cutoff at bottom */
 }
 
-@media (max-width: 768px) {
+@media (max-width: 769px) {
   footer, .bottombar {
     position: static; /* prevent overlap on small screens */
     margin-top: 20px;
@@ -979,7 +979,7 @@ label[for="selected-ingredients-container"],
   }
 }
 
-@media (min-width: 769px) and (max-width: 964px) {
+@media (min-width: 770px) and (max-width: 1180px) {
   .side-menu {
     top: 78px; /* same as navbar height */
     height: calc(100vh - 78px);
