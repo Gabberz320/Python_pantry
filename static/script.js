@@ -460,27 +460,27 @@ resetLoadMore(shuffled);
                 e.preventDefault();
                 const ingredients = document.getElementById('ingredient-input').value.trim();
 
-// --- Always switch to the Home section when searching ---
-const homeSection = document.getElementById('home-section');
-if (homeSection) {
-  // Hide all other sections
-  document.querySelectorAll('.content-section').forEach(sectionEl => {
-    sectionEl.classList.remove('active');
-  });
-  homeSection.classList.add('active');
+            // --- Always switch to the Home section when searching ---
+            const homeSection = document.getElementById('home-section');
+            if (homeSection) {
+            // Hide all other sections
+            document.querySelectorAll('.content-section').forEach(sectionEl => {
+                sectionEl.classList.remove('active');
+            });
+            homeSection.classList.add('active');
 
-  // Update nav button highlight
-  document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-  document.querySelector('.nav-link[data-section="home"]')?.classList.add('active');
-}
+            // Update nav button highlight
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            document.querySelector('.nav-link[data-section="home"]')?.classList.add('active');
+            }
 
 
-                // If empty, show mock data
-if (!ingredients) {
-  const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
-  resetLoadMore(shuffled);
-  return;
-}
+                            // If empty, show mock data
+            if (!ingredients) {
+            const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+            resetLoadMore(shuffled);
+            return;
+            }
 
 
                 // Build query and call Flask backend
