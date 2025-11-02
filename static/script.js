@@ -909,7 +909,25 @@ ingredientInput.addEventListener("input", async () => {
     data.slice(0, 5).forEach((item) => {
       const li = document.createElement("li");
       li.textContent = item.name;
-      li.addEventListener("click", () => handleIngredientSelection(item.name));
+
+
+    li.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();  
+
+    handleIngredientSelection(item.name); // this already opens the sidebar when first ingredient is added
+
+    // ensure it opens even if it's not the first chip
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sideMenu = document.getElementById('side-menu');
+
+    if (!document.body.classList.contains('sidebar-open')) {
+        document.body.classList.add('sidebar-open');         // same mechanism the button uses
+        if (sidebarToggle) sidebarToggle.setAttribute('aria-expanded', 'true');
+        if (sideMenu) sideMenu.setAttribute('aria-hidden', 'false');
+    }
+    });
+        
       suggestionBox.appendChild(li);
     });
 
