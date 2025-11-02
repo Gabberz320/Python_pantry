@@ -15,30 +15,36 @@
             },
             {
                 id: 2,
-                title: "Vegetable Stir Fry",
-                cook_time: "20 min",
-                image: "https://images.unsplash.com/photo-1512058564366-18510be2db19?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1172&q=80",
-                link: "https://example.com/recipe2",
-                ingredients: ["vegetables", "soy sauce", "rice", "oil"],
-                summary: "Quick and healthy stir-fry with fresh vegetables in a savory sauce. Perfect for a weeknight dinner and highly customizable."
+                title: "Copycat Panera Broccoli Cheddar Soup",
+                cook_time: "45 min",
+                image: "https://www.allrecipes.com/thmb/d21PJ-fW1EAyM_HYklhGy3XFx5U=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/AR-235874-copycat-panera-broccoli-cheddar-soup-ddmfs-beauty-4x3-f787b66d927d44f18633a4499559611c.jpg",
+                link: "https://www.allrecipes.com/recipe/235874/copycat-panera-broccoli-cheddar-soup/",
+                ingredients: ["butter", "onion", "flour", "milk", "chicken stock", "broccoli", "cheddar cheese", "cellery", "carrots"],
+                summary: "Enjoy classic flavors of fresh broccoli, carrots, and celery in this homemade soup.",
+                calories: 3528,
+                servings: 8
             },
             {
                 id: 3,
-                title: "Chocolate Chip Cookies",
-                cook_time: "25 min",
-                image: "https://images.unsplash.com/photo-1499636136210-6f4ee915583e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=764&q=80",
-                link: "https://example.com/recipe3",
-                ingredients: ["flour", "sugar", "chocolate chips", "butter", "eggs"],
-                summary: "Classic chocolate chip cookies with crispy edges and chewy centers. These will become your go-to cookie recipe!"
+                title: "Chicken Paprikash",
+                cook_time: "55 min",
+                image: "https://www.allrecipes.com/thmb/zd1u3MFZdIjSygE03lQe2BXNokg=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/AR-140555-chicken-paprikash-4x3-11785588966a4fb798c3ecb7e2e67134.jpg",
+                link: "https://www.allrecipes.com/recipe/140555/chicken-paprikash/",
+                ingredients: ["chicken", "onion", "paprika", "sour cream", "butter", "flour", "eggs"],
+                summary: "This authentic chicken paprikash recipe features a rich paprika-sour cream sauce and tender chicken.",
+                calories: 3844,
+                servings: 4
             },
             {
                 id: 4,
-                title: "Greek Salad",
-                cook_time: "15 min",
-                image: "https://images.unsplash.com/photo-1540420773420-3366772f4999?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=684&q=80",
-                link: "https://example.com/recipe4",
-                ingredients: ["tomatoes", "cucumber", "olives", "feta cheese", "olive oil"],
-                summary: "Fresh and vibrant Greek salad with crisp vegetables, briny olives, and creamy feta cheese. Dressed with a simple lemon-olive oil vinaigrette."
+                title: "Instant Pot Vegetarian Southern Greens",
+                cook_time: "45 min",
+                image: "https://meikoandthedish.com/wp-content/uploads/2021/11/vegetarian-greens-2.jpg",
+                link: "https://meikoandthedish.com/vegetarian-southern-greens",
+                ingredients: ["collard greens", "mustard greens", "onion", "picante salsa", " apple cider vinegar", "vegetable stock"],
+                summary: "A combination of collard greens, mustard greens, and turnip greens for that classic Southern flavor without any of the meat. You’ll love this dish whether you’re a vegetarian or not!",
+                calories: 1036,
+                servings: 10
             },
             {
                 id: 5,
@@ -115,6 +121,10 @@
             } catch (err) {
                 console.error('Failed to load user favorites on init:', err);
             }
+
+         // shuffle our recipe picks and show 3 on page load 
+            const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+            displayedRecipes = shuffled.slice(0, 3);
 
             // Now render UI using the freshly-loaded favorites
             displayRecipes(displayedRecipes);
