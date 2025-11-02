@@ -385,11 +385,22 @@ resetLoadMore(shuffled);
                         // Optionally scroll to top of the content
                         window.scrollTo({ top: 0, behavior: 'smooth' });
 
-                    if (section === 'home') {
-                    const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
-                    resetLoadMore(shuffled);
-                    }
+                    // if (section === 'home') {
+                    // const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+                    // resetLoadMore(shuffled);
+                    // }
 
+                    if (section === 'home') {
+                        const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+                        resetLoadMore(shuffled);
+
+                        //---home tab removes ingredients from searchbar and chips(resets)---
+                        const ingredientInput = document.getElementById('ingredient-input');
+                        const selectedIngredientsContainer = document.getElementById('selected-ingredients-container');
+                        if (ingredientInput) ingredientInput.value = '';
+                        if (selectedIngredientsContainer) selectedIngredientsContainer.innerHTML = '';
+                        if (typeof selectedIngredients !== 'undefined') selectedIngredients.clear();
+                        }
                     }
                 });
             });
@@ -471,7 +482,7 @@ resetLoadMore(shuffled);
 
             // Update nav button highlight
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-            document.querySelector('.nav-link[data-section="home"]')?.classList.add('active');
+            // document.querySelector('.nav-link[data-section="home"]')?.classList.add('active');
             }
 
 
