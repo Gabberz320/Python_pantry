@@ -436,9 +436,18 @@ def search_recipes():
         initial_hits = response.json().get("hits", [])
 
         # Uses aiohttp to filter out the API results with bad links, ensures users always get ones that are working
-        valid_recipes = asyncio.run(filter_links(initial_hits))
-        random.shuffle(valid_recipes)
+        
+        # valid_recipes = asyncio.run(filter_links(initial_hits))
+        # random.shuffle(valid_recipes)
+#COMMENTED OUT THE ABOVE TWO LINES AND REPLACED WITH THE BELOW LINES TO WORK ON PYTHONANYWHERE
+        valid_recipes = []
+        for hit in initial_hits:
+            recipe = hit.get("recipe", {})
+            if recipe.get("url", "").startswith("http"):
+                valid_recipes.append(recipe)
 
+        random.shuffle(valid_recipes)
+#END COMMENT
         unique_recipes = []
         seen_uris = set()
         for recipe in valid_recipes:

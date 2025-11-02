@@ -48,21 +48,25 @@
             },
             {
                 id: 5,
-                title: "Chicken Curry",
-                cook_time: "45 min",
-                image: "https://images.unsplash.com/photo-1631452180519-c014fe946bc7?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80",
-                link: "https://example.com/recipe5",
-                ingredients: ["chicken", "curry powder", "coconut milk", "onions", "garlic"],
-                summary: "Aromatic and flavorful chicken curry with tender pieces of chicken in a rich, spiced coconut sauce. Serve with rice or naan bread."
+                title: "Wendy’s Chili Recipe",
+                cook_time: "90 min",
+                image: "https://copykat.com/wp-content/uploads/2023/05/Wendys-Chili-Pin-22.jpg",
+                link: "https://copykat.com/wendys-chili-2/",
+                ingredients: ["ground beef", "tomato puree", "red kidney beans", "pinto beans", "onion", "celery", "chili powder", "green bell pepper", "chili powder", "garlic powder", "sugar"],
+                summary: "Who doesn’t love the iconic Wendy’s Chili? You can recreate this copycat Wendy’s chili at home, like the restaurant.",
+                calories: 2570,
+                servings: 10
             },
             {
                 id: 6,
-                title: "Avocado Toast",
-                cook_time: "10 min",
-                image: "https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=687&q=80",
-                link: "https://example.com/recipe6",
-                ingredients: ["avocado", "bread", "lemon juice", "salt", "pepper"],
-                summary: "Simple yet delicious avocado toast topped with a sprinkle of seasonings. A perfect healthy breakfast or snack that's ready in minutes."
+                title: "Cracker Barrel Grilled Chicken Tenders",
+                cook_time: "15 min",
+                image: "https://insanelygoodrecipes.com/wp-content/uploads/2021/08/Tender-and-Juicy-Cracker-Barrel-Chicken-Tenders.jpg",
+                link: "https://insanelygoodrecipes.com/cracker-barrel-chicken-tenders/",
+                ingredients: ["chicken tenders", "Italian dressing", "lime juice", "honey"],
+                summary: "Looking for a fool-proof way to add nutrition to your family’s diet? These Cracker Barrel chicken tenders are all you need.",
+                calories: 892,
+                servings: 2
             }
         ];
 
