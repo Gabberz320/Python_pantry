@@ -8,11 +8,15 @@
     <!-- <script src="{{ url_for('static', filename='script.js') }}"></script> -->
     <!-- favicon -->
     <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/picture1.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=The+Girl+Next+Door&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <nav class="topnav">
         <div class="nav-container">
+            
             <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Open menu" aria-expanded="false">☰</button>
             <div class="logo">
                 <h2>Python Pantry</h2>
@@ -61,6 +65,15 @@
                 {% else %}
                     <a href="{{ url_for('userlogin') }}" class="btn login-btn">Login</a>
                 {% endif %}
+                
+            </div>
+            <div class="theme-toggle-container">
+                <input type="checkbox" class="checkbox" id="checkbox">
+                <label for="checkbox" class="checkbox-label">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                    <span class="ball"></span>
+                </label>
             </div>
         </div>
     </nav>
@@ -123,6 +136,35 @@
         </select>
      </div>
 
+     <div class="search-filter">
+        <label for="cuisine-filter" class="filter-label">Cuisine</label>
+        <select id="cuisine-filter" class="filter-dropdown" >
+        <option value="">All Cuisines</option>
+        <option value="american">American</option>
+        <option value="asian">Asian</option>
+        <option value="british">British</option>
+        <option value="caribbean">Caribbean</option>
+        <option value="central europe">Central European</option>
+        <option value="chinese">Chinese</option>
+        <option value="eastern europe">Eastern European</option>
+        <option value="french">French</option>
+        <option value="greek">Greek</option>
+        <option value="indian">Indian</option>
+        <option value="italian">Italian</option>
+        <option value="japanese">Japanese</option>
+        <option value="korean">Korean</option>
+        <option value="kosher">Kosher</option>
+        <option value="mediterranean">Mediterranean</option>
+        <option value="mexican">Mexican</option>
+        <option value="middle eastern">Middle Eastern</option>
+        <option value="nordic">Nordic</option>
+        <option value="south american">South American</option>
+        <option value="south east asian">South East Asian</option>
+        <option value="world">World</option>
+
+        </select>
+     </div>
+
                 <!-- Apply Filters Button -->
             <button id="apply-filters" class="apply-filters-btn">Apply Filters</button>
 
@@ -170,6 +212,18 @@
                         <h2><i class="fas fa-heart"></i> Your Favorites</h2>
                         <div id="home-favorites-container" class="recipes-grid">
                             <!-- Favorite recipe cards will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="daily-joke-section">
+                    <div class="joke-header">
+                        <h3>Daily Food Joke</h3>
+                    </div>
+                    <div id="joke-content" class="joke-content">
+                        <div class="joke-loading">
+                            <i class="fas fa-utensils fa-spin"></i>
+                            Cooking up a joke...
                         </div>
                     </div>
                 </div>
@@ -253,6 +307,7 @@ document.addEventListener("click", (e) => {
 <!-- bottom bar -->
 <footer class="bottombar">
     <div class="nav-container footer-container">
+
         <div class="footer-text">
             <img src="{{ url_for('static', filename='images/picture1.png') }}" alt="Logo" class="footer-logo">
             <span>Cooked Up by Python Pioneers</span>

@@ -286,14 +286,16 @@
                 // Show selected filters in the sidebar
                 const diet = document.getElementById('diet-filter')?.value || '';
                 const allergy = document.getElementById('allergy-filter')?.value || '';
+                const cuisine = document.getElementById('cuisine-filter')?.value || '';
 
                 const activeContainer = document.getElementById('active-filters');
                 const filtersList = document.getElementById('filters-list');
                 if (filtersList) filtersList.innerHTML = '';
 
                 const userFilter = [];
-                if (diet) userFilter.push({ label: ' Diet ', value: diet, string: '' });
-                if (allergy) userFilter.push({ label: ' Allergy ', value: allergy, string: '' });
+                if (diet) userFilter.push({ label: '  Diet ', value: diet, string: '' });
+                if (allergy) userFilter.push({ label: '  Allergy ', value: allergy, string: '' });
+                if (cuisine) userFilter.push({ label: '  Cuisine', value: cuisine });
 
                 if (userFilter.length > 0) {
                     if (activeContainer) activeContainer.style.display = 'block';
@@ -313,6 +315,7 @@
             document.getElementById('clear-filters').addEventListener('click', function() {
                 document.getElementById('diet-filter').value = '';
                 document.getElementById('allergy-filter').value = '';
+                document.getElementById('cuisine-filter').value = '';
                 
                 // If there are ingredients, re-search without filters
                 const ingredients = document.getElementById('ingredient-input').value.trim();
@@ -343,11 +346,13 @@
 
                 const diet = document.getElementById('diet-filter')?.value || '';
                 const allergies = document.getElementById('allergy-filter')?.value || '';
+                const cuisine = document.getElementById('cuisine-filter')?.value || ''
                 
                 const params = new URLSearchParams({ ingredients });
 
                 if (diet) params.append('diet', diet);
                 if (allergies) params.append('allergies', allergies)
+                if (cuisine) params.append('cuisine', cuisine);
                
                 const url = `/search_recipes?${params.toString()}`;
 
@@ -1060,11 +1065,6 @@ if (currentValue) {
   document.getElementById("ingredient-input").value = ingredientArray.join(", ");
 });
 
-
-
-
-
-
 // Sidebar toggle 
 document.addEventListener('DOMContentLoaded', function() {
     const sidebarToggle = document.getElementById('sidebar-toggle');
@@ -1078,7 +1078,29 @@ document.addEventListener('DOMContentLoaded', function() {
         sideMenu.setAttribute('aria-hidden', !opened);
     });
 
+    // Close sidebar when clicking outside
+    document.addEventListener('click', function(e) {
+        const isClickInsideSidebar = sideMenu.contains(e.target);
+        const isClickOnToggle = sidebarToggle.contains(e.target);
+        
+        if (!isClickInsideSidebar && !isClickOnToggle && document.body.classList.contains('sidebar-open')) {
+            document.body.classList.remove('sidebar-open');
+            sidebarToggle.setAttribute('aria-expanded', 'false');
+            sideMenu.setAttribute('aria-hidden', 'true');
+        }
+    });
 
+    // Close sidebar when search is submitted
+    const searchForm = document.getElementById('search-form');
+    if (searchForm) {
+        searchForm.addEventListener('submit', function() {
+            if (document.body.classList.contains('sidebar-open')) {
+                document.body.classList.remove('sidebar-open');
+                sidebarToggle.setAttribute('aria-expanded', 'false');
+                sideMenu.setAttribute('aria-hidden', 'true');
+            }
+        });
+    }
 //clear ingredients
 const clearIngredientsBtn = document.getElementById('clear-ingredients');
 if (clearIngredientsBtn) {
@@ -1135,4 +1157,38 @@ function attachJokeListeners() {
     }
 }
 
-               
+// Initialize dark mode from localStorage
+function initDarkMode() {
+    const isDarkMode = localStorage.getItem('darkMode') === 'true';
+    if (isDarkMode) {
+        document.body.classList.add('dark-mode');
+    }
+    
+    // Update checkbox state
+    const checkbox = document.getElementById('checkbox');
+    if (checkbox) {
+        checkbox.checked = isDarkMode;
+    }
+}
+
+// Setup toggle functionality
+function setupDarkModeToggle() {
+    const checkbox = document.getElementById('checkbox');
+    if (!checkbox) return;
+    
+    checkbox.addEventListener('change', function() {
+        const isDarkMode = this.checked;
+        
+        // Toggle dark mode class on body
+        document.body.classList.toggle('dark-mode', isDarkMode);
+        
+        // Save preference
+        localStorage.setItem('darkMode', isDarkMode.toString());
+    });
+}
+
+// Initialize when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    initDarkMode();
+    setupDarkModeToggle();
+});

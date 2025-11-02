@@ -7,27 +7,13 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
 
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
 
         .login-container {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-image: url("/static/images/lighter_background.jpg");
-            background-repeat: no-repeat;
-            background-position: center center;
-            background-size: cover;
-            background-attachment: fixed;
-            padding: 20px;
         }
 
         .login-content {
@@ -358,6 +344,15 @@
                 {% else %}
                     <a href="{{ url_for('userlogin') }}" class="btn login-btn">Login</a>
                 {% endif %}
+            <div class="theme-toggle-container">
+                <input type="checkbox" class="checkbox" id="checkbox">
+                <label for="checkbox" class="checkbox-label">
+                    <i class="fas fa-moon"></i>
+                    <i class="fas fa-sun"></i>
+                    <span class="ball"></span>
+                </label>
+            </div>
+
             </div>
         </div>
     </nav>
@@ -453,5 +448,7 @@
             document.getElementById('loadingSpinner').classList.add('active');
         });
     </script>
+
+        <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

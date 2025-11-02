@@ -245,6 +245,7 @@ body.sidebar-open {
     max-width: 1200px;
     margin: 0 auto;
     padding: 15px 20px;
+    position: relative;
 }
 
 .logo h2 {
@@ -789,7 +790,7 @@ body.sidebar-open {
 
 .user-name {
   font-weight: 600;
-  color: #d3d3d3;
+  color: #c9c9c9;
   font-size: 16px;
 }
 
@@ -820,10 +821,10 @@ body.sidebar-open {
 }
 /* Make Google name match nav link color */
 .nav-links .user-name {
-  color: #333 !important;          /* same as .nav-link */
-  padding: 10px 20px;               /* optional: align spacing with links */
+  color: #333 ;          /* same as .nav-link */
+  padding: 10px 20px;             
   border-radius: 30px;
-  font-weight: 500;                 /* match weight of links */
+  font-weight: 500;               
   transition: all 0.3s ease;
 }
 
@@ -1131,3 +1132,440 @@ label[for="selected-ingredients-container"],
     cursor: pointer;
     transition: transform 0.2s ease;
 }
+
+
+/* Daily Jokes Styling */
+.daily-joke-section {
+  margin: 40px auto;
+  padding: 30px 20px 80px;
+  max-width: 600px;
+  color: rgb(160, 128, 22);
+  text-align: center;
+  border-top: 2px solid rgba(160, 128, 22, 0.3);
+  border-bottom: 2px solid rgba(160, 128, 22, 0.3);
+  position: relative;
+}
+
+
+/* Header styling */
+.joke-header h3 {
+  font-size: 2.1rem;
+  font-weight: 600;
+  color: rgb(160, 128, 22);
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+  position: relative;
+  font-family: "The Girl Next Door", cursive;
+}
+
+
+/* Joke content area */
+.joke-content {
+  
+  font-size: 1.5rem;
+  color: #5a4200;
+  padding: 5px;
+  line-height: 1.6;
+  
+}
+
+.joke-text{
+    font-family: "The Girl Next Door", cursive;
+    font-weight: bold;
+}
+
+
+/* Responsive design */
+@media (max-width: 600px) {
+  .daily-joke-section {
+    padding: 25px 10px 60px;
+  }
+
+  .joke-header h3 {
+    font-size: 1.5rem;
+  }
+
+  .joke-content {
+    font-size: 1rem;
+  }
+}
+
+
+/* theme button css */
+.theme-toggle-container {
+    display: flex;
+    align-items: right;
+}
+
+body.dark {background-color: #292c35;} /* #9b59b6 */
+
+body.dark h1, body.dark .support a {color: #fff;}
+
+.checkbox {
+  opacity: 0;
+  position: absolute;
+}
+
+.checkbox-label {
+  background-color: #111;
+  width: 50px;
+  height: 26px;
+  border-radius: 50px;
+  position: relative;
+  padding: 5px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.fa-moon {color: #f1c40f;}
+
+.fa-sun {color: #f39c12;}
+
+.checkbox-label .ball {
+  background-color: #fff;
+  width: 22px;
+  height: 22px;
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  border-radius: 50%;
+  transition: transform 0.2s linear;
+}
+
+.checkbox:checked + .checkbox-label .ball {
+  transform: translateX(24px);
+}
+
+
+
+/* DARK MODE STYLES SPECIFICALLY */
+body.dark-mode{
+     margin: 0;
+    padding: 0;
+    min-height: 100vh;
+
+    background-image: url("/static/images/website_background.png");
+    background-size: cover;       /* stretch image to fill screen */
+    background-position: center;  /* center the image */
+    background-repeat: no-repeat; /* prevent tiling */
+    background-attachment: fixed; /* stays fixed when scrolling */
+
+    font-family: Arial, sans-serif;
+    color: #fff; /* makes text visible if background is dark */
+    overflow-x: hidden;
+}
+
+.dark-mode .topnav {
+  background-color: rgb(11, 12, 12);
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+  
+}
+
+.dark-mode .side-menu {
+  background-color: rgba(17, 19, 24, 0.993);
+  color: white;
+}
+
+.dark-mode .logo h2{
+    color: rgb(226, 243, 250);
+}
+.dark-mode .sidebar-menu-inner {
+  color: white;
+}
+.dark-mode .filter-dropdown{
+    background-color: rgb(185, 185, 185);
+}
+.dark-mode .sidebar-toggle {
+    color: rgb(0, 102, 133);
+}
+
+.dark-mode .sidebar-menu p {
+  color: white;
+}
+
+.dark-mode .filter-label{
+    color:white;
+}
+.dark-mode .recipes-container {
+    background-color: rgba(59, 55, 55, 0.459);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 40px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    border: 1px solid rgba(255,255,255,0.2);
+}
+
+.dark-mode #ingredient-input {
+  background-color: rgb(22, 34, 34);
+  color: white;
+}
+
+.dark-mode .flip-card-front {
+  background-color: rgb(22, 34, 34);
+  color: white;
+}
+
+.dark-mode .flip-card-back {
+    background: linear-gradient(135deg, rgb(22, 34, 34),rgb(38, 58, 58));
+    color: white;
+    transform: rotateY(180deg);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 20px;
+    text-align: left;
+}
+.dark-mode .recipe-title {
+  color: white;
+}
+
+.dark-mode .nav-link {
+  color: white;
+}
+
+.dark-mode .nav-links .user-name{
+    color: white;
+}
+.dark-mode .bottombar {
+  background-color: #1d1d1d;
+  color: white;
+}
+
+.dark-mode .footer-text {
+  color: white;
+}
+
+.dark-mode .footer-text span{
+color:white;
+}
+
+.dark-mode .footer-credit{
+    color: white;
+}
+
+.dark-mode .no-results,
+.dark-mode .no-favorites {
+    color: white;
+}
+
+.dark-mode .filter-label {
+    color: white;
+}
+
+
+.dark-mode .active-filters {
+    margin-top: 20px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.945);
+    border-radius: 8px;
+    border-left: 4px solid #225a6e;
+}
+
+.dark-mode .active-filters h4 {
+    margin-bottom: 10px;
+    color: #00222e;
+    font-size: 0.9rem;
+}
+
+.dark-mode .filter-badge{
+    color:rgb(3, 10, 22);
+    font-weight: bold;
+}
+
+/* dark mode button styles*/
+
+.dark-mode .logout-btn {
+    color:white;
+}
+
+
+/* .dark-mode .user-name {
+  font-weight: 600;
+  color: #ffffff;
+  font-size: 16px;
+}
+
+.dark-mode .nav-link .user-name{
+    color:white
+} */
+
+.dark-mode .recipe-link {
+    background: rgb(224, 230, 230);
+    color: #123467;
+}
+
+.dark-mode .favorite-btn,
+.dark-mode .remove-favorite-btn {
+    
+    color: #ffffff;
+    border: white 1px solid;
+  
+}
+
+.dark-mode .apply-filters-btn {
+    background: linear-gradient(to right, #013c52, #002230);
+    color: white;
+    border: white;
+    
+}
+
+.dark-mode .clear-filters-btn {
+    background: linear-gradient(to right, #e9e9e91f, #d8d8d817);
+    color: white;
+    border: white;
+}
+
+.dark-mode .clear-filters-btn:hover {
+    background: linear-gradient(to right, #013c52, #002230);
+    color: white;
+    border: white;
+}
+
+.dark-mode .btn{
+    text-decoration: none;
+    color: #ffffff;
+    padding: 10px 20px;
+    margin-left: 10px;
+    border-radius: 30px;
+    transition: all 0.3s ease;
+    font-weight: 500;
+}
+
+
+.theme-toggle-container {
+    display: flex;
+    align-items: center;
+}
+
+
+.dark-mode .joke-header h3 {
+  font-size: 2.1rem;
+  font-weight: 600;
+  color: rgb(212, 175, 41);
+  margin-bottom: 15px;
+  letter-spacing: 1px;
+  position: relative;
+  font-family: "The Girl Next Door", cursive;
+}
+
+
+.dark-mode .joke-content {
+  
+  font-size: 1.5rem;
+  color: #a07809;
+  padding: 5px;
+  line-height: 1.6;
+  
+}
+
+.joke-text{
+    font-family: "The Girl Next Door", cursive;
+    font-weight: bold;
+}
+
+
+/* Dark mode for login and register */ 
+/* Tejas light mode style code is found in html file */ 
+.dark-mode .login-box{
+    background-color: #312f2fbb;
+}
+
+.dark-mode google-btn{
+    background-color: lavenderblush
+}
+
+.dark-mode .divider{
+    color: white;
+}
+
+.dark-mode .form-group input {
+    width: 100%;
+    padding: 12px 15px;
+    border: 2px solid #ebebeb;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.3s ease;
+    background-color: rgb(241, 241, 241);
+}
+
+ .dark-mode .btn-submit{
+    background: linear-gradient(135deg, #062435 0%, #062b3a 100%); }
+
+ .dark-mode .forgot-password a{
+    color: #437a8d;
+ }
+
+
+ .dark-mode .register-link a{
+    color: #437a8d;
+ }
+
+ .dark-mode .back-home a{
+    color: #437a8d;
+ }
+
+ .dark-mode  .register-box{
+    background-color: #312f2fbb;
+ }
+
+ .dark-mode .password-requirements,
+ .dark-mode .form-group label{
+    color: rgb(224, 224, 224);
+ }
+
+.dark-mode .form-group input{
+    background-color: rgb(22, 34, 34);
+    color: white;
+    border-color: #002230;
+}
+
+.dark-mode .google-register-btn{
+    background-color: #2f4952;
+    color: white;
+    border: rgb(102, 145, 161) 1px solid;
+}
+
+.dark-mode .google-register-btn:hover{
+   
+    color: rgb(0, 0, 0);
+    border: rgb(102, 145, 161) 1px solid;
+}
+
+.dark-mode .google-btn{
+    background-color: rgb(228, 228, 228);
+}
+
+/* Reset password dark mode */
+.dark-mode .reset-password-content{
+    background-color: #312f2fbb;
+} 
+
+.dark-mode .reset-password-content h2,
+.dark-mode .reset-password-content h1,
+.dark-mode .reset-password-content p{
+color: white;
+}
+
+.dark-mode .reset-links a{
+    color: rgb(150, 187, 199);
+}
+
+.dark-mode .reset-password-submit{
+    background: linear-gradient(135deg, #062435 0%, #062b3a 100%);
+}
+
+.dark-mode .form-group label{
+    color: white;
+}
+
+.dark-mode .reset-button{
+    background: linear-gradient(135deg, #062435 0%, #062b3a 100%);
+}
+
+.dark-mode .password-hint{
+    color: rgb(255, 255, 255) !important;
+}
+
