@@ -284,9 +284,24 @@
                         targetSection.classList.add('active');
                         // Optionally scroll to top of the content
                         window.scrollTo({ top: 0, behavior: 'smooth' });
+
+                        if (section === 'home') {
+                            const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+                            displayedRecipes = shuffled.slice(0, 3);
+                            displayRecipes(displayedRecipes);
+                        }
                     }
                 });
             });
+
+            //During search, deactivate nav highlights
+            const searchForm = document.getElementById('search-form');
+            if (searchForm) {
+                searchForm.addEventListener('submit', function() {
+            //Remove highlight from all nav links when showing search results
+                    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+                });
+            }
 
             // Apply filters button - show active filters in sidebar and trigger a search
             document.getElementById('apply-filters').addEventListener('click', function(e) {
