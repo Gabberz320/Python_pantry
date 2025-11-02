@@ -1569,3 +1569,45 @@ color: white;
     color: rgb(255, 255, 255) !important;
 }
 
+/* --- Load More Recipes Button --- */
+.load-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: -1px;
+}
+
+.load-more-btn {
+    background: white;
+    color: #00222e;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 600;
+    margin-left: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.load-more-btn:hover::after {
+  transform: translateY(3px);
+}
+
+/* hover: mimic menu glow */
+.load-more-btn:hover {
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+body.dark-mode .load-more-btn {
+  background-color: #00222e;
+  color: white;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+body.dark-mode .load-more-btn:hover {
+  background-color: #11535f;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}

@@ -127,11 +127,19 @@
             }
 
          // shuffle our recipe picks and show 3 on page load 
-            const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
-            displayedRecipes = shuffled.slice(0, 3);
+            // const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+            // displayedRecipes = shuffled.slice(0, 3);
+            // shuffle our recipe picks and show 3 on page load
+            // const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+            // displayedRecipes = [...shuffled]; // store all mock recipes globally
 
-            // Now render UI using the freshly-loaded favorites
-            displayRecipes(displayedRecipes);
+            // // Now render UI using the freshly-loaded favorites
+            // displayRecipes(displayedRecipes);
+
+const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+resetLoadMore(shuffled);
+
+
             displayHomeFavorites();
             displayFavorites();
             attachEventListeners();
@@ -140,27 +148,115 @@
         });
 
         // Display recipes in the home section
-        function displayRecipes(recipes){
-            const recipesGrid = document.getElementById('recipes-grid');
-            recipesGrid.innerHTML = '';
+        // function displayRecipes(recipes){
+        //     const recipesGrid = document.getElementById('recipes-grid');
+        //     recipesGrid.innerHTML = '';
 
-            if (recipes.length === 0){
-                recipesGrid.innerHTML = '<div class="no-results">No recipes found with those ingredients. Try different search terms.</div>';
-                return;
-            }
+        //     if (recipes.length === 0){
+        //         recipesGrid.innerHTML = '<div class="no-results">No recipes found with those ingredients. Try different search terms.</div>';
+        //         return;
+        //     }
 
-            // Show only 3 recipes 
-            const recipesToShow = recipes.slice(0, 3);
+        //     // Show only 3 recipes 
+        //     const recipesToShow = recipes.slice(0, 3);
 
-            recipesToShow.forEach(recipe => {
-                const isFavorite = userFavorites.some(fav => String(fav.id) === String(recipe.id));
-                const recipeCard = createRecipeCard(recipe, isFavorite);
-                recipesGrid.appendChild(recipeCard);
-            });
-            attachFavoriteListeners();
-            attachRemoveFavoriteListeners();
+        //     recipesToShow.forEach(recipe => {
+        //         const isFavorite = userFavorites.some(fav => String(fav.id) === String(recipe.id));
+        //         const recipeCard = createRecipeCard(recipe, isFavorite);
+        //         recipesGrid.appendChild(recipeCard);
+        //     });
+        //     attachFavoriteListeners();
+        //     attachRemoveFavoriteListeners();
 
+        // }
+
+
+        
+        let currentIndex = 0;
+        const RECIPES_PER_PAGE = 3;
+
+        function displayRecipes(recipes) {
+        const recipesGrid = document.getElementById('recipes-grid');
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        recipesGrid.innerHTML = '';
+
+        if (recipes.length === 0) {
+            recipesGrid.innerHTML = '<div class="no-results">No recipes found with those ingredients. Try different search terms.</div>';
+            if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+            return;
         }
+
+        displayedRecipes = recipes; 
+        currentIndex = 0;
+        showNextRecipes(true); // show first page 
+        }
+
+        function showNextRecipes(reset = false) {
+        const recipesGrid = document.getElementById('recipes-grid');
+        const loadMoreBtn = document.getElementById('load-more-btn');
+
+        // Reset index if starting fresh
+        if (reset) currentIndex = 0;
+
+        // Compute which slice to show
+        const nextRecipes = displayedRecipes.slice(currentIndex, currentIndex + RECIPES_PER_PAGE);
+
+        // Replace existing cards instead of appending
+        recipesGrid.innerHTML = '';
+
+        nextRecipes.forEach(recipe => {
+            const isFavorite = userFavorites.some(fav => String(fav.id) === String(recipe.id));
+            const recipeCard = createRecipeCard(recipe, isFavorite);
+            recipesGrid.appendChild(recipeCard);
+        });
+
+     
+
+        attachFavoriteListeners();
+        attachRemoveFavoriteListeners();
+
+        currentIndex += RECIPES_PER_PAGE;
+
+        // Reset to first page if we reach the end (cycle behavior)
+        if (currentIndex >= displayedRecipes.length) {
+            currentIndex = 0;
+        }
+
+        // Always show button (since it cycles)
+        if (loadMoreBtn) loadMoreBtn.style.display = 'block';
+        }
+
+        //---reset load more state---
+
+        function resetLoadMore(recipes, autoDisplay = true) {
+        displayedRecipes = recipes;
+        currentIndex = 0;
+
+        // only draw if told to
+        if (autoDisplay) {
+            showNextRecipes(true);
+        }
+
+        const oldBtn = document.getElementById('load-more-btn');
+        if (oldBtn) {
+            const newBtn = oldBtn.cloneNode(true);
+            oldBtn.replaceWith(newBtn);
+            newBtn.style.display = 'block';
+            newBtn.addEventListener('click', () => showNextRecipes());
+        }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => showNextRecipes());
+            loadMoreBtn.style.display = 'block'; 
+        }
+        });
+
+
+
 
         // Display the favorites in home Section
         function displayHomeFavorites(){
@@ -289,11 +385,11 @@
                         // Optionally scroll to top of the content
                         window.scrollTo({ top: 0, behavior: 'smooth' });
 
-                        if (section === 'home') {
-                            const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
-                            displayedRecipes = shuffled.slice(0, 3);
-                            displayRecipes(displayedRecipes);
-                        }
+                    if (section === 'home') {
+                    const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+                    resetLoadMore(shuffled);
+                    }
+
                     }
                 });
             });
@@ -337,7 +433,7 @@
                 } else {
                     if (activeContainer) activeContainer.style.display = 'none';
                 }
-
+                document.getElementById('search-form').dispatchEvent(new Event('submit'));
             });
 
             // Clear filters button
@@ -365,11 +461,12 @@
                 const ingredients = document.getElementById('ingredient-input').value.trim();
 
                 // If empty, show mock data
-                if(!ingredients){
-                    displayedRecipes = [...mockRecipes];
-                    displayRecipes(displayedRecipes);
-                    return;
-                }
+if (!ingredients) {
+  const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+  resetLoadMore(shuffled);
+  return;
+}
+
 
                 // Build query and call Flask backend
 
