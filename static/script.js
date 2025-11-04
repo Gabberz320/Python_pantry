@@ -67,6 +67,26 @@
                 summary: "Looking for a fool-proof way to add nutrition to your family’s diet? These Cracker Barrel chicken tenders are all you need.",
                 calories: 892,
                 servings: 2
+            },
+                        {
+                id: 7,
+                title: "Paneer Tikka Recipe (Tandoori Paneer Starter Snack)",
+                cook_time: "150 min",
+                image: "https://www.vegrecipesofindia.com/wp-content/uploads/2011/10/grilled-paneer-tikka.jpg",
+                link: "https://www.vegrecipesofindia.com/paneer-tikka-recipe-paneer-tikka/",
+                ingredients: ["Indian cottage cheese", "onion", "Hung Curd", "ginger-garlic", "sweet paprika", "turmeric"],
+                summary: "Paneer Tikka is a popular and delicious tandoori starter and snack where Paneer (Indian cottage cheese cubes) are marinated in a spiced yogurt-based marinade, arranged on skewers and grilled in the oven.",
+                calories: 948,
+                servings: 3
+            },
+                        {
+                id: 8,
+                title: "Chicken Dum Biryani Recipe",
+                cook_time: "150 min",
+                image: "https://www.archanaskitchen.com/_next/image?url=https%3A%2F%2Fimages.archanaskitchen.com%2Fimages%2Frecipes%2Findian%2Fmain-course%2Findian-rice-recipes%2Fbiryani-recipes%2FChicken_Biryani_08bc554215.jpg&w=1200&q=90",
+                link: "https://www.archanaskitchen.com/recipe/chicken-dum-biryani-recipe",
+                ingredients: ["chicken", "Basmati rice", "tomatoes", "onions", "green chillies", "ginger", "red chilli powder"],
+                summary: "Chicken Dum Biryani Recipe is one such recipe which is loved by everyone in the family. Biryani is derived from the Farsi word ‘birian’ originated in Persia, biryani was introduced to India during the British rule."
             }
         ];
 
