@@ -87,6 +87,28 @@
                 link: "https://www.archanaskitchen.com/recipe/chicken-dum-biryani-recipe",
                 ingredients: ["chicken", "Basmati rice", "tomatoes", "onions", "green chillies", "ginger", "red chilli powder"],
                 summary: "Chicken Dum Biryani Recipe is one such recipe which is loved by everyone in the family. Biryani is derived from the Farsi word ‘birian’ originated in Persia, biryani was introduced to India during the British rule."
+            },
+                                    {
+                id: 7,
+                title: "Spaghetti & Meatballs",
+                cook_time: "20 min",
+                image: "https://hips.hearstapps.com/hmg-prod/images/spaghetti-and-meatballs-lead-66bcb984da2f8.jpg",
+                link: "https://www.delish.com/cooking/recipe-ideas/a55764/best-spaghetti-and-meatballs-recipe/",
+                ingredients: ["spaghetti", "ground beef", "bread crumbs", "Parmesan cheese", "egg", "garlic", "onion", "canned tomatoes"],
+                summary: "In the world of pasta dinners, spaghetti and meatballs can be overlooked for more exciting options. I'm here to tell you that this classic Italian pasta deserves a spot back on your weeknight dinner rotation.",
+                calories: 3752,
+                servings: 4
+            },
+                        {
+                id: 8,
+                title: "Philly Cheese Steak",
+                cook_time: "150 min",
+                image: "https://assets.epicurious.com/photos/57d0394f7d2e71cf344f18a8/1:1/w_1280,c_limit/philly-cheese-steak.jpg",
+                link: "https://www.epicurious.com/recipes/food/views/philly-cheese-steak-230291",
+                ingredients: ["beef tenderloin", "onion", "mozzarella cheese", "bell pepper", "olive oil", "salt", "black pepper", "Italian rolls"],
+                summary: "Wish you were here in Philadelphia, eating a cheese steak. No doubt about it, cheese steak is the quintessential Philly food.",
+                calories: 3180,
+                servings: 6
             }
         ];
 
