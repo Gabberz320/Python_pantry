@@ -293,6 +293,9 @@ resetLoadMore(shuffled);
 
             favoritesToShow.forEach(recipe => {
                 const recipeCard = createRecipeCard(recipe, true);
+            //remove cook time and calories if in favorites (db restriction)
+                recipeCard.querySelectorAll('.cook-time, .calories').forEach(el => el.remove());
+
                 homeFavoritesContainer.appendChild(recipeCard);
             });
             attachRemoveFavoriteListeners();
@@ -320,52 +323,47 @@ resetLoadMore(shuffled);
         function createRecipeCard(recipe, isFavorite) {
             const flipCard = document.createElement('div');
             flipCard.className = 'flip-card';
-            // add data-id so we can find cards by recipe id later
             if (recipe && recipe.id !== undefined) {
                 flipCard.setAttribute('data-id', recipe.id);
             }
 
-            // truncate summary for display to ~30 words
             const displaySummary = truncateWords(recipe.summary || '', 30);
-            
-            const favoriteButton = isFavorite ? 
-                `<button class="remove-favorite-btn" data-id="${recipe.id}">
+
+            const favoriteButton = isFavorite
+                ? `<button class="remove-favorite-btn" data-id="${recipe.id}">
                     <span class="heart-icon"><i class="fas fa-heart"></i></span> Remove from Favorites
-                </button>` :
-                `<button class="favorite-btn" data-id="${recipe.id}">
+                </button>`
+                : `<button class="favorite-btn" data-id="${recipe.id}">
                     <span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites
                 </button>`;
-            
+
+            // Create the card HTML
             flipCard.innerHTML = `
                 <div class="flip-card-inner">
                     <div class="flip-card-front">
                         <div class="recipe-image">
                             <img src="${recipe.image}" alt="${recipe.title}">
                         </div>
-
                         <div class="recipe-info">
-                        <h3 class="recipe-title">${recipe.title}</h3>
-
-                            <div class="recipe-meta">
-
-                            <p><i class="fas fa-fire"></i> 
-  ${recipe.calories 
-      ? `${recipe.calories} cal${recipe.servings ? ' • ' + Math.round(recipe.calories / recipe.servings) + ' per serving' : ''}` 
-      : ''}
-</p>
-
-
-                                    ${recipe.cook_time && recipe.cook_time !== 'Cook time not available' ? 
-                                `<p><i class="far fa-clock"></i> ${recipe.cook_time}</p>` : ''}
+                            <h3 class="recipe-title">${recipe.title}</h3>
+                            <div class="recipe-meta" id="meta-${recipe.id}">
+                                ${recipe.calories
+                                    ? `<p class="calories"><i class="fas fa-fire"></i> ${recipe.calories} cal${recipe.servings ? ' • ' + Math.round(recipe.calories / recipe.servings) + ' per serving' : ''}</p>`
+                                    : ''}
+                                ${recipe.cook_time && recipe.cook_time !== 'Cook time not available'
+                                    ? `<p class="cook-time"><i class="far fa-clock"></i> ${recipe.cook_time}</p>`
+                                    : ''}
                             </div>
-
                         </div>
                         <br>
                         <div class="flip-hint">Hover to see details</div>
                     </div>
+
                     <div class="flip-card-back">
                         <h3 class="recipe-title">${recipe.title}</h3>
-                        <p class="cook-time"><i class="far fa-clock"></i> ${recipe.cook_time}</p>
+                        ${recipe.cook_time
+                            ? `<p class="cook-time"><i class="far fa-clock"></i> ${recipe.cook_time}</p>`
+                            : ''}
                         <div class="recipe-summary">
                             <p>${displaySummary}</p>
                         </div>
@@ -376,9 +374,19 @@ resetLoadMore(shuffled);
                     </div>
                 </div>
             `;
-            
+            //if in favorites section, remove cook time and calories
+            const observer = new MutationObserver(() => {
+                const parent = flipCard.parentElement;
+                if (parent && parent.id === 'favorites-container') {
+                    flipCard.querySelectorAll('.cook-time, .calories').forEach(el => el.remove());
+                }
+            });
+
+            observer.observe(document.body, { childList: true, subtree: true });
+
             return flipCard;
         }
+
 
         // Attach Event Listeners
         function attachEventListeners(){
