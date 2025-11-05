@@ -47,13 +47,8 @@ class SavedRecipe(db.Model):
     recipe_id: Mapped[str] = mapped_column(String(255), nullable=False)
     
     title: Mapped[str] = mapped_column(String(400), nullable=False)
-    calories: Mapped[int] = mapped_column(Integer, nullable=True)
-    servings: Mapped[int] = mapped_column(Integer, nullable=True)
-    cook_time: Mapped[str] = mapped_column(String(50), nullable=True)
     image: Mapped[str] = mapped_column(Text, nullable=True)
     link: Mapped[str] = mapped_column(Text, nullable=True)
-    ingredients: Mapped[list] = mapped_column(JSON, nullable=True)
-    summary: Mapped[str] = mapped_column(Text, nullable=True)
     
     manual_user = relationship("ManualUser", back_populates="saved_recipes")
     oauth_user = relationship("Oauth_User", back_populates="saved_recipes")

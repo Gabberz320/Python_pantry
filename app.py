@@ -504,13 +504,8 @@ def saved_recipe():
         recipe_data.append({
             "id": recipe.recipe_id,
             "title": recipe.title,
-            "calories": recipe.calories,
-            "servings": recipe.servings,
-            "cook_time": recipe.cook_time,
             "image": recipe.image,
             "link": recipe.link,
-            "ingredients": recipe.ingredients,
-            "summary": recipe.summary
         })
         
     return jsonify(recipe_data)
@@ -543,13 +538,8 @@ def save_recipe():
     new_recipe = SavedRecipe(
         recipe_id = recipe_id,
         title = data.get("title"),
-        calories = data.get("calories"),
-        servings = data.get("servings"),
-        cook_time = data.get("cook_time"),
         image=data.get("image"),
         link = data.get("link"),
-        ingredients = data.get("ingredients"),
-        summary = data.get("summary")
     )
     
     current_user.saved_recipes.append(new_recipe)
