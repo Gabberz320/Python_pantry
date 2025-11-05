@@ -29,12 +29,15 @@
                 </form> -->
 
 <!--autocomplete-->
-            <form id="search-form" style="position: relative;">
-                <div class="autocomplete-wrapper" style="position: relative; width: 100%;">
-                    <input type="text" id="ingredient-input" placeholder="Enter Ingredients">
-                </div>
-                <button type="submit">Search</button>
-            </form>
+<form id="search-form">
+  <div class="autocomplete-wrapper">
+    <input type="text" id="ingredient-input" placeholder="Enter Ingredients">
+    <span class="shortcut-hint">Press TAB + SPACE to search</span>
+  </div>
+  <button type="submit" tabindex="0">Search</button>
+</form>
+
+
 
 
             </div>
@@ -201,6 +204,9 @@
                         <h2><i class="fas fa-utensils"></i> Recipe Suggestions</h2>
                         <div id="recipes-grid" class="recipes-grid">
                             <!-- Recipe cards will be populated by JavaScript -->
+                        </div>
+                        <div class="load-more-container">
+                            <button id="load-more-btn" class="load-more-btn">Load More Recipes</button>
                         </div>
                     </div>
                 </div>

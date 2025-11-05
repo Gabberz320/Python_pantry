@@ -67,6 +67,48 @@
                 summary: "Looking for a fool-proof way to add nutrition to your family’s diet? These Cracker Barrel chicken tenders are all you need.",
                 calories: 892,
                 servings: 2
+            },
+                        {
+                id: 7,
+                title: "Paneer Tikka Recipe (Tandoori Paneer Starter Snack)",
+                cook_time: "150 min",
+                image: "https://www.vegrecipesofindia.com/wp-content/uploads/2011/10/grilled-paneer-tikka.jpg",
+                link: "https://www.vegrecipesofindia.com/paneer-tikka-recipe-paneer-tikka/",
+                ingredients: ["Indian cottage cheese", "onion", "Hung Curd", "ginger-garlic", "sweet paprika", "turmeric"],
+                summary: "Paneer Tikka is a popular and delicious tandoori starter and snack where Paneer (Indian cottage cheese cubes) are marinated in a spiced yogurt-based marinade, arranged on skewers and grilled in the oven.",
+                calories: 948,
+                servings: 3
+            },
+                        {
+                id: 8,
+                title: "Chicken Dum Biryani Recipe",
+                cook_time: "150 min",
+                image: "https://www.archanaskitchen.com/_next/image?url=https%3A%2F%2Fimages.archanaskitchen.com%2Fimages%2Frecipes%2Findian%2Fmain-course%2Findian-rice-recipes%2Fbiryani-recipes%2FChicken_Biryani_08bc554215.jpg&w=1200&q=90",
+                link: "https://www.archanaskitchen.com/recipe/chicken-dum-biryani-recipe",
+                ingredients: ["chicken", "Basmati rice", "tomatoes", "onions", "green chillies", "ginger", "red chilli powder"],
+                summary: "Chicken Dum Biryani Recipe is one such recipe which is loved by everyone in the family. Biryani is derived from the Farsi word ‘birian’ originated in Persia, biryani was introduced to India during the British rule."
+            },
+                                    {
+                id: 7,
+                title: "Spaghetti & Meatballs",
+                cook_time: "20 min",
+                image: "https://hips.hearstapps.com/hmg-prod/images/spaghetti-and-meatballs-lead-66bcb984da2f8.jpg",
+                link: "https://www.delish.com/cooking/recipe-ideas/a55764/best-spaghetti-and-meatballs-recipe/",
+                ingredients: ["spaghetti", "ground beef", "bread crumbs", "Parmesan cheese", "egg", "garlic", "onion", "canned tomatoes"],
+                summary: "In the world of pasta dinners, spaghetti and meatballs can be overlooked for more exciting options. I'm here to tell you that this classic Italian pasta deserves a spot back on your weeknight dinner rotation.",
+                calories: 3752,
+                servings: 4
+            },
+                        {
+                id: 8,
+                title: "Philly Cheese Steak",
+                cook_time: "150 min",
+                image: "https://assets.epicurious.com/photos/57d0394f7d2e71cf344f18a8/1:1/w_1280,c_limit/philly-cheese-steak.jpg",
+                link: "https://www.epicurious.com/recipes/food/views/philly-cheese-steak-230291",
+                ingredients: ["beef tenderloin", "onion", "mozzarella cheese", "bell pepper", "olive oil", "salt", "black pepper", "Italian rolls"],
+                summary: "Wish you were here in Philadelphia, eating a cheese steak. No doubt about it, cheese steak is the quintessential Philly food.",
+                calories: 3180,
+                servings: 6
             }
         ];
 
@@ -127,11 +169,19 @@
             }
 
          // shuffle our recipe picks and show 3 on page load 
-            const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
-            displayedRecipes = shuffled.slice(0, 3);
+            // const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+            // displayedRecipes = shuffled.slice(0, 3);
+            // shuffle our recipe picks and show 3 on page load
+            // const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+            // displayedRecipes = [...shuffled]; // store all mock recipes globally
 
-            // Now render UI using the freshly-loaded favorites
-            displayRecipes(displayedRecipes);
+            // // Now render UI using the freshly-loaded favorites
+            // displayRecipes(displayedRecipes);
+
+const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+resetLoadMore(shuffled);
+
+
             displayHomeFavorites();
             displayFavorites();
             attachEventListeners();
@@ -140,27 +190,115 @@
         });
 
         // Display recipes in the home section
-        function displayRecipes(recipes){
-            const recipesGrid = document.getElementById('recipes-grid');
-            recipesGrid.innerHTML = '';
+        // function displayRecipes(recipes){
+        //     const recipesGrid = document.getElementById('recipes-grid');
+        //     recipesGrid.innerHTML = '';
 
-            if (recipes.length === 0){
-                recipesGrid.innerHTML = '<div class="no-results">No recipes found with those ingredients. Try different search terms.</div>';
-                return;
-            }
+        //     if (recipes.length === 0){
+        //         recipesGrid.innerHTML = '<div class="no-results">No recipes found with those ingredients. Try different search terms.</div>';
+        //         return;
+        //     }
 
-            // Show only 3 recipes 
-            const recipesToShow = recipes.slice(0, 3);
+        //     // Show only 3 recipes 
+        //     const recipesToShow = recipes.slice(0, 3);
 
-            recipesToShow.forEach(recipe => {
-                const isFavorite = userFavorites.some(fav => String(fav.id) === String(recipe.id));
-                const recipeCard = createRecipeCard(recipe, isFavorite);
-                recipesGrid.appendChild(recipeCard);
-            });
-            attachFavoriteListeners();
-            attachRemoveFavoriteListeners();
+        //     recipesToShow.forEach(recipe => {
+        //         const isFavorite = userFavorites.some(fav => String(fav.id) === String(recipe.id));
+        //         const recipeCard = createRecipeCard(recipe, isFavorite);
+        //         recipesGrid.appendChild(recipeCard);
+        //     });
+        //     attachFavoriteListeners();
+        //     attachRemoveFavoriteListeners();
 
+        // }
+
+
+        
+        let currentIndex = 0;
+        const RECIPES_PER_PAGE = 3;
+
+        function displayRecipes(recipes) {
+        const recipesGrid = document.getElementById('recipes-grid');
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        recipesGrid.innerHTML = '';
+
+        if (recipes.length === 0) {
+            recipesGrid.innerHTML = '<div class="no-results">No recipes found with those ingredients. Try different search terms.</div>';
+            if (loadMoreBtn) loadMoreBtn.style.display = 'none';
+            return;
         }
+
+        displayedRecipes = recipes; 
+        currentIndex = 0;
+        showNextRecipes(true); // show first page 
+        }
+
+        function showNextRecipes(reset = false) {
+        const recipesGrid = document.getElementById('recipes-grid');
+        const loadMoreBtn = document.getElementById('load-more-btn');
+
+        // Reset index if starting fresh
+        if (reset) currentIndex = 0;
+
+        // Compute which slice to show
+        const nextRecipes = displayedRecipes.slice(currentIndex, currentIndex + RECIPES_PER_PAGE);
+
+        // Replace existing cards instead of appending
+        recipesGrid.innerHTML = '';
+
+        nextRecipes.forEach(recipe => {
+            const isFavorite = userFavorites.some(fav => String(fav.id) === String(recipe.id));
+            const recipeCard = createRecipeCard(recipe, isFavorite);
+            recipesGrid.appendChild(recipeCard);
+        });
+
+     
+
+        attachFavoriteListeners();
+        attachRemoveFavoriteListeners();
+
+        currentIndex += RECIPES_PER_PAGE;
+
+        // Reset to first page if we reach the end (cycle behavior)
+        if (currentIndex >= displayedRecipes.length) {
+            currentIndex = 0;
+        }
+
+        // Always show button (since it cycles)
+        if (loadMoreBtn) loadMoreBtn.style.display = 'block';
+        }
+
+        //---reset load more state---
+
+        function resetLoadMore(recipes, autoDisplay = true) {
+        displayedRecipes = recipes;
+        currentIndex = 0;
+
+        // only draw if told to
+        if (autoDisplay) {
+            showNextRecipes(true);
+        }
+
+        const oldBtn = document.getElementById('load-more-btn');
+        if (oldBtn) {
+            const newBtn = oldBtn.cloneNode(true);
+            oldBtn.replaceWith(newBtn);
+            newBtn.style.display = 'block';
+            newBtn.addEventListener('click', () => showNextRecipes());
+        }
+        }
+
+
+        document.addEventListener('DOMContentLoaded', () => {
+        const loadMoreBtn = document.getElementById('load-more-btn');
+        if (loadMoreBtn) {
+            loadMoreBtn.addEventListener('click', () => showNextRecipes());
+            loadMoreBtn.style.display = 'block'; 
+        }
+        });
+
+
+
 
         // Display the favorites in home Section
         function displayHomeFavorites(){
@@ -177,6 +315,9 @@
 
             favoritesToShow.forEach(recipe => {
                 const recipeCard = createRecipeCard(recipe, true);
+            //remove cook time and calories if in favorites (db restriction)
+                recipeCard.querySelectorAll('.cook-time, .calories').forEach(el => el.remove());
+
                 homeFavoritesContainer.appendChild(recipeCard);
             });
             attachRemoveFavoriteListeners();
@@ -204,52 +345,47 @@
         function createRecipeCard(recipe, isFavorite) {
             const flipCard = document.createElement('div');
             flipCard.className = 'flip-card';
-            // add data-id so we can find cards by recipe id later
             if (recipe && recipe.id !== undefined) {
                 flipCard.setAttribute('data-id', recipe.id);
             }
 
-            // truncate summary for display to ~30 words
             const displaySummary = truncateWords(recipe.summary || '', 30);
-            
-            const favoriteButton = isFavorite ? 
-                `<button class="remove-favorite-btn" data-id="${recipe.id}">
+
+            const favoriteButton = isFavorite
+                ? `<button class="remove-favorite-btn" data-id="${recipe.id}">
                     <span class="heart-icon"><i class="fas fa-heart"></i></span> Remove from Favorites
-                </button>` :
-                `<button class="favorite-btn" data-id="${recipe.id}">
+                </button>`
+                : `<button class="favorite-btn" data-id="${recipe.id}">
                     <span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites
                 </button>`;
-            
+
+            // Create the card HTML
             flipCard.innerHTML = `
                 <div class="flip-card-inner">
                     <div class="flip-card-front">
                         <div class="recipe-image">
                             <img src="${recipe.image}" alt="${recipe.title}">
                         </div>
-
                         <div class="recipe-info">
-                        <h3 class="recipe-title">${recipe.title}</h3>
-
-                            <div class="recipe-meta">
-
-                            <p><i class="fas fa-fire"></i> 
-  ${recipe.calories 
-      ? `${recipe.calories} cal${recipe.servings ? ' • ' + Math.round(recipe.calories / recipe.servings) + ' per serving' : ''}` 
-      : ''}
-</p>
-
-
-                                    ${recipe.cook_time && recipe.cook_time !== 'Cook time not available' ? 
-                                `<p><i class="far fa-clock"></i> ${recipe.cook_time}</p>` : ''}
+                            <h3 class="recipe-title">${recipe.title}</h3>
+                            <div class="recipe-meta" id="meta-${recipe.id}">
+                                ${recipe.calories
+                                    ? `<p class="calories"><i class="fas fa-fire"></i> ${recipe.calories} cal${recipe.servings ? ' • ' + Math.round(recipe.calories / recipe.servings) + ' per serving' : ''}</p>`
+                                    : ''}
+                                ${recipe.cook_time && recipe.cook_time !== 'Cook time not available'
+                                    ? `<p class="cook-time"><i class="far fa-clock"></i> ${recipe.cook_time}</p>`
+                                    : ''}
                             </div>
-
                         </div>
                         <br>
                         <div class="flip-hint">Hover to see details</div>
                     </div>
+
                     <div class="flip-card-back">
                         <h3 class="recipe-title">${recipe.title}</h3>
-                        <p class="cook-time"><i class="far fa-clock"></i> ${recipe.cook_time}</p>
+                        ${recipe.cook_time
+                            ? `<p class="cook-time"><i class="far fa-clock"></i> ${recipe.cook_time}</p>`
+                            : ''}
                         <div class="recipe-summary">
                             <p>${displaySummary}</p>
                         </div>
@@ -260,9 +396,19 @@
                     </div>
                 </div>
             `;
-            
+            //if in favorites section, remove cook time and calories
+            const observer = new MutationObserver(() => {
+                const parent = flipCard.parentElement;
+                if (parent && parent.id === 'favorites-container') {
+                    flipCard.querySelectorAll('.cook-time, .calories').forEach(el => el.remove());
+                }
+            });
+
+            observer.observe(document.body, { childList: true, subtree: true });
+
             return flipCard;
         }
+
 
         // Attach Event Listeners
         function attachEventListeners(){
@@ -289,10 +435,21 @@
                         // Optionally scroll to top of the content
                         window.scrollTo({ top: 0, behavior: 'smooth' });
 
-                        if (section === 'home') {
-                            const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
-                            displayedRecipes = shuffled.slice(0, 3);
-                            displayRecipes(displayedRecipes);
+                    // if (section === 'home') {
+                    // const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+                    // resetLoadMore(shuffled);
+                    // }
+
+                    if (section === 'home') {
+                        const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+                        resetLoadMore(shuffled);
+
+                        //---home tab removes ingredients from searchbar and chips(resets)---
+                        const ingredientInput = document.getElementById('ingredient-input');
+                        const selectedIngredientsContainer = document.getElementById('selected-ingredients-container');
+                        if (ingredientInput) ingredientInput.value = '';
+                        if (selectedIngredientsContainer) selectedIngredientsContainer.innerHTML = '';
+                        if (typeof selectedIngredients !== 'undefined') selectedIngredients.clear();
                         }
                     }
                 });
@@ -337,7 +494,7 @@
                 } else {
                     if (activeContainer) activeContainer.style.display = 'none';
                 }
-
+                document.getElementById('search-form').dispatchEvent(new Event('submit'));
             });
 
             // Clear filters button
@@ -364,12 +521,28 @@
                 e.preventDefault();
                 const ingredients = document.getElementById('ingredient-input').value.trim();
 
-                // If empty, show mock data
-                if(!ingredients){
-                    displayedRecipes = [...mockRecipes];
-                    displayRecipes(displayedRecipes);
-                    return;
-                }
+            // --- Always switch to the Home section when searching ---
+            const homeSection = document.getElementById('home-section');
+            if (homeSection) {
+            // Hide all other sections
+            document.querySelectorAll('.content-section').forEach(sectionEl => {
+                sectionEl.classList.remove('active');
+            });
+            homeSection.classList.add('active');
+
+            // Update nav button highlight
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
+            // document.querySelector('.nav-link[data-section="home"]')?.classList.add('active');
+            }
+
+
+                            // If empty, show mock data
+            if (!ingredients) {
+            const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+            resetLoadMore(shuffled);
+            return;
+            }
+
 
                 // Build query and call Flask backend
 
@@ -909,7 +1082,25 @@ ingredientInput.addEventListener("input", async () => {
     data.slice(0, 5).forEach((item) => {
       const li = document.createElement("li");
       li.textContent = item.name;
-      li.addEventListener("click", () => handleIngredientSelection(item.name));
+
+
+    li.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();  
+
+    handleIngredientSelection(item.name); // this already opens the sidebar when first ingredient is added
+
+    // ensure it opens even if it's not the first chip
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sideMenu = document.getElementById('side-menu');
+
+    if (!document.body.classList.contains('sidebar-open')) {
+        document.body.classList.add('sidebar-open');         // same mechanism the button uses
+        if (sidebarToggle) sidebarToggle.setAttribute('aria-expanded', 'true');
+        if (sideMenu) sideMenu.setAttribute('aria-hidden', 'false');
+    }
+    });
+        
       suggestionBox.appendChild(li);
     });
 
