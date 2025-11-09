@@ -4,14 +4,15 @@
         const mockRecipes = [
             {
                 id: 1,
-                title: "Meaty Vegan BBQ Ribs (seitan ribs)",
+                title: "Meaty Vegan BBQ Ribs",
                 cook_time: "50 min",
                 image: "https://www.myplantifulcooking.com/wp-content/uploads/2021/10/vegan-bbq-ribs-chopping-board.jpg",
                 link: "https://www.myplantifulcooking.com/vegan-seitan-ribs/",
                 ingredients: ["BBQ sauce", "vital wheat gluten", "liquid smoke", "tahini", "soy sauce", "nutritional yeast", "spices"],
                 summary: "Packed with flavor and has a succulent, meaty texture. Easy to prepare, these seitan ribs are also packed with protein and incredibly satisfying.",
                 calories: 1560,
-                servings: 6
+                servings: 6,    
+                favoriteOf: "Heather"
             },
             {
                 id: 2,
@@ -22,7 +23,8 @@
                 ingredients: ["butter", "onion", "flour", "milk", "chicken stock", "broccoli", "cheddar cheese", "cellery", "carrots"],
                 summary: "Enjoy classic flavors of fresh broccoli, carrots, and celery in this homemade soup.",
                 calories: 3528,
-                servings: 8
+                servings: 8,
+                favoriteOf: "Gabby"
             },
             {
                 id: 3,
@@ -33,7 +35,8 @@
                 ingredients: ["chicken", "onion", "paprika", "sour cream", "butter", "flour", "eggs"],
                 summary: "This authentic chicken paprikash recipe features a rich paprika-sour cream sauce and tender chicken.",
                 calories: 3844,
-                servings: 4
+                servings: 4,
+                favoriteOf: "Gabby"
             },
             {
                 id: 4,
@@ -44,7 +47,8 @@
                 ingredients: ["collard greens", "mustard greens", "onion", "picante salsa", " apple cider vinegar", "vegetable stock"],
                 summary: "A combination of collard greens, mustard greens, and turnip greens for that classic Southern flavor without any of the meat. You’ll love this dish whether you’re a vegetarian or not!",
                 calories: 1036,
-                servings: 10
+                servings: 10,
+                favoriteOf: "Heather"
             },
             {
                 id: 5,
@@ -55,7 +59,8 @@
                 ingredients: ["ground beef", "tomato puree", "red kidney beans", "pinto beans", "onion", "celery", "chili powder", "green bell pepper", "chili powder", "garlic powder", "sugar"],
                 summary: "Who doesn’t love the iconic Wendy’s Chili? You can recreate this copycat Wendy’s chili at home, like the restaurant.",
                 calories: 2570,
-                servings: 10
+                servings: 10,
+                favoriteOf: "Karigan"
             },
             {
                 id: 6,
@@ -66,7 +71,8 @@
                 ingredients: ["chicken tenders", "Italian dressing", "lime juice", "honey"],
                 summary: "Looking for a fool-proof way to add nutrition to your family’s diet? These Cracker Barrel chicken tenders are all you need.",
                 calories: 892,
-                servings: 2
+                servings: 2,
+                favoriteOf: "Karigan"
             },
                         {
                 id: 7,
@@ -77,7 +83,8 @@
                 ingredients: ["Indian cottage cheese", "onion", "Hung Curd", "ginger-garlic", "sweet paprika", "turmeric"],
                 summary: "Paneer Tikka is a popular and delicious tandoori starter and snack where Paneer (Indian cottage cheese cubes) are marinated in a spiced yogurt-based marinade, arranged on skewers and grilled in the oven.",
                 calories: 948,
-                servings: 3
+                servings: 3,
+                favoriteOf: "Tejasri"
             },
                         {
                 id: 8,
@@ -86,7 +93,8 @@
                 image: "https://www.archanaskitchen.com/_next/image?url=https%3A%2F%2Fimages.archanaskitchen.com%2Fimages%2Frecipes%2Findian%2Fmain-course%2Findian-rice-recipes%2Fbiryani-recipes%2FChicken_Biryani_08bc554215.jpg&w=1200&q=90",
                 link: "https://www.archanaskitchen.com/recipe/chicken-dum-biryani-recipe",
                 ingredients: ["chicken", "Basmati rice", "tomatoes", "onions", "green chillies", "ginger", "red chilli powder"],
-                summary: "Chicken Dum Biryani Recipe is one such recipe which is loved by everyone in the family. Biryani is derived from the Farsi word ‘birian’ originated in Persia, biryani was introduced to India during the British rule."
+                summary: "Chicken Dum Biryani Recipe is one such recipe which is loved by everyone in the family. Biryani is derived from the Farsi word ‘birian’ originated in Persia, biryani was introduced to India during the British rule.",
+                favoriteOf: "Tejasri",
             },
                                     {
                 id: 7,
@@ -97,7 +105,8 @@
                 ingredients: ["spaghetti", "ground beef", "bread crumbs", "Parmesan cheese", "egg", "garlic", "onion", "canned tomatoes"],
                 summary: "In the world of pasta dinners, spaghetti and meatballs can be overlooked for more exciting options. I'm here to tell you that this classic Italian pasta deserves a spot back on your weeknight dinner rotation.",
                 calories: 3752,
-                servings: 4
+                servings: 4,
+                favoriteOf: "Garrett"
             },
                         {
                 id: 8,
@@ -108,7 +117,8 @@
                 ingredients: ["beef tenderloin", "onion", "mozzarella cheese", "bell pepper", "olive oil", "salt", "black pepper", "Italian rolls"],
                 summary: "Wish you were here in Philadelphia, eating a cheese steak. No doubt about it, cheese steak is the quintessential Philly food.",
                 calories: 3180,
-                servings: 6
+                servings: 6,
+                favoriteOf: "Garrett"
             }
         ];
 
@@ -366,7 +376,12 @@ resetLoadMore(shuffled);
                         <div class="recipe-image">
                             <img src="${recipe.image}" alt="${recipe.title}">
                         </div>
+
                         <div class="recipe-info">
+
+                        ${recipe.favoriteOf ? `<p class="mock-owner">❤️ ${recipe.favoriteOf}'s Favorite</p>` : ''}
+
+
                             <h3 class="recipe-title">${recipe.title}</h3>
                             <div class="recipe-meta" id="meta-${recipe.id}">
                                 ${recipe.calories
