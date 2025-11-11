@@ -97,7 +97,7 @@
                 favoriteOf: "Tejasri",
             },
                                     {
-                id: 7,
+                id: 9,
                 title: "Spaghetti & Meatballs",
                 cook_time: "20 min",
                 image: "https://hips.hearstapps.com/hmg-prod/images/spaghetti-and-meatballs-lead-66bcb984da2f8.jpg",
@@ -109,7 +109,7 @@
                 favoriteOf: "Garrett"
             },
                         {
-                id: 8,
+                id: 10,
                 title: "Philly Cheese Steak",
                 cook_time: "150 min",
                 image: "https://assets.epicurious.com/photos/57d0394f7d2e71cf344f18a8/1:1/w_1280,c_limit/philly-cheese-steak.jpg",
@@ -119,6 +119,28 @@
                 calories: 3180,
                 servings: 6,
                 favoriteOf: "Garrett"
+            },            {
+                id: 11,
+                title: "Finnish Salmon Soup (Lohikeitto)",
+                cook_time: "30 min",
+                image: "https://theviewfromgreatisland.com/wp-content/uploads/2017/04/Finnish-Salmon-Soup-6404-March-18-2017-2-760x500.jpg",
+                link: "https://theviewfromgreatisland.com/finnish-salmon-soup-lohikeitto-recipe/",
+                ingredients: ["salmon filet", "butter", "leek", "potatoes", "carrot", "heavy cream", "dill"],
+                summary: "Packed Finnish Salmon Soup, or Lohikeitto, is a simple Nordic salmon chowder and a comforting 30 minute meal made with a light cream broth, melt-in-your-mouth chunks of salmon, and tons of fresh dill!",
+                calories: 2304,
+                servings: 4,    
+                favoriteOf: "Robert"
+            },            {
+                id: 12,
+                title: "Borscht (Beet Soup)",
+                cook_time: "175 min",
+                image: "https://www.simplyrecipes.com/thmb/eWWz4tPo63U8-hRN0wX_uCoXVM8=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/__opt__aboutcom__coeus__resources__content_migration__simply_recipes__uploads__2007__12__borscht-horiz-c-1800-ec20c28c577248739a38ddd6658c2c94.jpg",
+                link: "https://www.simplyrecipes.com/recipes/borscht/",
+                ingredients: ["beets", "cabbage", "carrots", "potatoes", "onion", "garlic", "beef shank", "sour cream", "beef stock"],
+                summary: "This fresh beet soup is drop dead gorgeous, but also incredibly delicious. Here's what you need to know to make it at home.",
+                calories: 2728,
+                servings: 8,    
+                favoriteOf: "Robert"
             }
         ];
 
@@ -188,8 +210,7 @@
             // // Now render UI using the freshly-loaded favorites
             // displayRecipes(displayedRecipes);
 
-const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
-resetLoadMore(shuffled);
+
 
 
             displayHomeFavorites();
@@ -197,6 +218,9 @@ resetLoadMore(shuffled);
             attachEventListeners();
             loadDailyJoke();
             attachJokeListeners();
+    const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+    resetLoadMore(shuffled, false);
+    showNextRecipes(true);
         });
 
         // Display recipes in the home section
@@ -244,6 +268,7 @@ resetLoadMore(shuffled);
         }
 
         function showNextRecipes(reset = false) {
+        console.log("showNextRecipes called. Current index:", currentIndex); //testing
         const recipesGrid = document.getElementById('recipes-grid');
         const loadMoreBtn = document.getElementById('load-more-btn');
 
@@ -281,6 +306,7 @@ resetLoadMore(shuffled);
         //---reset load more state---
 
         function resetLoadMore(recipes, autoDisplay = true) {
+        console.log("resetLoadMore called:", recipes.length, "recipes"); //testing
         displayedRecipes = recipes;
         currentIndex = 0;
 
@@ -298,14 +324,14 @@ resetLoadMore(shuffled);
         }
         }
 
-
-        document.addEventListener('DOMContentLoaded', () => {
-        const loadMoreBtn = document.getElementById('load-more-btn');
-        if (loadMoreBtn) {
-            loadMoreBtn.addEventListener('click', () => showNextRecipes());
-            loadMoreBtn.style.display = 'block'; 
-        }
-        });
+//removed bc it was interfering with cycle thru mock recipes on init page load
+        // document.addEventListener('DOMContentLoaded', () => {
+        // const loadMoreBtn = document.getElementById('load-more-btn');
+        // if (loadMoreBtn) {
+        //     loadMoreBtn.addEventListener('click', () => showNextRecipes());
+        //     loadMoreBtn.style.display = 'block'; 
+        // }
+        // });
 
 
 
@@ -316,7 +342,7 @@ resetLoadMore(shuffled);
             homeFavoritesContainer.innerHTML = '';
 
             if (userFavorites.length === 0 ){
-                homeFavoritesContainer.innerHTML='<div class="no-favorites">You haven\'t added any favorites yet. Browse recipes and favorite them</div>';
+                homeFavoritesContainer.innerHTML='<div class="no-favorites">You haven\'t added any favorites yet. Browse recipes and favorite them.</div>';
                 return;
             }
 
@@ -552,11 +578,11 @@ resetLoadMore(shuffled);
 
 
                             // If empty, show mock data
-            if (!ingredients) {
-            const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
-            resetLoadMore(shuffled);
-            return;
-            }
+            // if (!ingredients) {
+            // const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
+            // resetLoadMore(shuffled);
+            // return;
+            // }
 
 
                 // Build query and call Flask backend
