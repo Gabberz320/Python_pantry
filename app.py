@@ -443,14 +443,9 @@ def search_recipes():
         valid_recipes = []
         for hit in initial_hits:
             recipe = hit.get("recipe", {})
-            url = recipe.get("url", "")
-            if url.startswith("http"):
-                try:
-                    response = requests.head(url, timeout = 5, allow_redirects=True)
-                    if response.ok:
-                        valid_recipes.append(recipe)
-                except requests.exceptions.RequestException:
-                    pass
+            if recipe.get("url", "").startswith("http"):
+                valid_recipes.append(recipe)
+
         random.shuffle(valid_recipes)
 #END COMMENT
         unique_recipes = []
