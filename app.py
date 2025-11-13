@@ -4,6 +4,7 @@ from flask_bcrypt import Bcrypt
 from database.connection import init_connection_engine, db
 from database.models import ManualUser, Oauth_User, SavedRecipe
 from sqlalchemy import select
+from datetime import datetime, date, timedelta, timezone
 import os
 import requests
 import random
@@ -18,6 +19,9 @@ import uuid
 from mailer import send_reset_email
 import csv
 from rapidfuzz import process, fuzz
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_limiter.errors import RateLimitExceeded
 import re
 
 NUM_RESULTS = 100
@@ -25,10 +29,19 @@ NUM_SKIP = random.randint(1, 5)
 
 # ---------------- APP SETUP ----------------
 app = Flask(__name__)
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"
+)
+
 load_dotenv()  # Load environment variables
 
 app.secret_key = os.getenv("SECRET_KEY") or "supersecretkey"
 init_connection_engine(app)
+
 
 # ---------------- GOOGLE OAUTH SETUP ----------------
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -56,6 +69,22 @@ def load_user(user_id_str):
     
     return None
 
+@app.errorhandler(RateLimitExceeded)
+def ratelimit_handler(error):
+    if request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html:
+        return jsonify(error="ratelimit exceeded", description=str(error.description)), 429
+    
+    flash("Too many requests. Please wait a moment and try again.", "danger")
+    
+    template = "index.html"
+    if request.endpoint == "userlogin":
+        template = "userlogin"
+    elif request.endpoint == "register":
+        template = "register"
+    elif request.endpoint == "reset_password":
+        template = "reset_password"
+    
+    return redirect(url_for(template))
 # ---------------- Bcrypt Password Hashing ----------------
 bcrypt = Bcrypt()
 bcrypt.init_app(app)
@@ -154,6 +183,7 @@ def check_login():
 # ---------------- RESET PASSWORD ----------------
 #generate the token and send the email
 @app.route("/reset_password", methods=["GET", "POST"])
+@limiter.limit("5 per minute")
 def reset_password():
     if request.method == "POST":
         email = request.form["email"]
@@ -161,6 +191,7 @@ def reset_password():
         if user:
             token = str(uuid.uuid4())
             user.reset_token = token
+            user.reset_token_expires = datetime.now(timezone.utc) + timedelta(hours=1)
             db.session.commit()
             
             # Enhanced email sending with better error handling
@@ -189,6 +220,13 @@ def reset_with_token(token):
         flash("Invalid or expired token")
         return redirect(url_for("reset_password"))
     
+    if user.reset_token_expires is None or user.reset_token_expires < datetime.now(timezone.utc):
+        flash("This reset link has expired. Please request a new one.", "error")
+        user.reset_token = None
+        user.reset_token_expires = None
+        db.session.commit()
+        return redirect(url_for('reset_password'))
+        
     if request.method == "POST":
         new_password = request.form["password"]
         hashed_password = bcrypt.generate_password_hash(new_password).decode("utf-8")
@@ -202,6 +240,7 @@ def reset_with_token(token):
 
 # ---------------- MANUAL LOGIN ----------------
 @app.route("/userlogin", methods=["GET", "POST"])
+@limiter.limit("10 per minute", methods=["POST"])
 def userlogin():
     # Get the login info from the user
     if request.method == "POST":
@@ -241,6 +280,7 @@ def check_password(password):
 
 # ---------------- REGISTER ----------------
 @app.route("/register", methods=["GET", "POST"])
+@limiter.limit("10 per hour")
 def register():
     # Get username and password
     if request.method == "POST":
