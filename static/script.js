@@ -154,6 +154,11 @@
         // User favorites (loaded from db) 
         let userFavorites = [];
 
+        // Boolean for potato mode
+        let isPotatoMode = false;
+        // Hard coded potato ingredient
+        const POTATO_INGREDIENT = 'potato'; 
+
         // Currently displayed recipes (either API results or mock)
         let displayedRecipes = [...mockRecipes];
 
@@ -249,7 +254,7 @@
 
         
         let currentIndex = 0;
-        const RECIPES_PER_PAGE = 3;
+        let RECIPES_PER_PAGE = 3;
 
         function displayRecipes(recipes) {
         const recipesGrid = document.getElementById('recipes-grid');
@@ -346,8 +351,8 @@
                 return;
             }
 
-            // Show up to 3 favorites
-            const favoritesToShow = userFavorites.slice(0, 3);
+            // Show up to the current per-page favorites 
+            const favoritesToShow = userFavorites.slice(0, RECIPES_PER_PAGE);
 
             favoritesToShow.forEach(recipe => {
                 const recipeCard = createRecipeCard(recipe, true);
@@ -1219,6 +1224,21 @@ function handleIngredientSelection(ingredient) {
 
   if (!name) return;
 
+
+  //if in potato mode, dont remove potato ingredient 
+  if(isPotatoMode && lowerName == POTATO_INGREDIENT){
+    // Flash message
+    const chips = document.querySelectorAll('potato-chip');
+    chips.forEach(chip => {
+        chip.classList.add('flash');
+        setTimeout(() => chip.classList.remove('flash', 600))
+    });
+    ingredientInput.value = ""
+    suggestionBox.innerHTML = "";
+    suggestionBox.classList.remove("show");
+    ingredientInput.focus();
+    return;
+  }
   //if it's already selected, flash the existing chip instead of doing nothing
   if (selectedIngredients.has(lowerName)) {
     const chips = document.querySelectorAll('.chip');
@@ -1366,16 +1386,49 @@ document.addEventListener('DOMContentLoaded', function() {
 const clearIngredientsBtn = document.getElementById('clear-ingredients');
 if (clearIngredientsBtn) {
     clearIngredientsBtn.addEventListener('click', function() {
+        if(isPotatoMode){
+            // Removes all BUT potato
+            const chips = document.querySelectorAll('.chip:not(.potato-chip)');
+            chips.forEach(chip => {
+                const ingredient = chip.textContext.trim().toLowerCase();
+                selectedIngredients.delete(ingredient);
+                chip.remove;
+            });
+        }else{
         selectedIngredients.clear();
         selectedIngredientsContainer.innerHTML = '';
         ingredientInput.value = '';
+        }
         toggleClearIngredientsButton(); //hide clear ingredients button after clearing choices
     });
 }
   toggleClearIngredientsButton();
 
+ const gabbyBtn = document.getElementById('gabby-btn');
+    if (gabbyBtn) {
+        gabbyBtn.addEventListener('click', function() {
+            // Toggle between 3 and 4 recipes per page
+            const isActive = this.getAttribute('aria-pressed') === 'true';
+            if (isActive) {
+                // Switch back to 3 recipes
+                setRecipesPerPage(3, true);
+                this.classList.remove('active');
+                this.setAttribute('aria-pressed', 'false');
+                this.innerHTML = 'Gabby Mode';
+            } else {
+                //  4 recipes
+                setRecipesPerPage(4, true);
+                this.classList.add('active');
+                this.setAttribute('aria-pressed', 'true');
+                this.innerHTML = 'Normal Mode';
+            }
+        });
+    }
 
-
+    const potatoBtn = document.getElementById('potato-btn');
+    if (potatoBtn) {
+        potatoBtn.addEventListener('click', togglePotatoMode);
+    }
 });
 
 async function loadDailyJoke() {
@@ -1418,6 +1471,84 @@ function attachJokeListeners() {
     }
 }
 
+// Potato Mode 
+function togglePotatoMode() {
+    const potatoBtn = document.getElementById('potato-btn');
+    const body = document.body;
+
+    isPotatoMode = !isPotatoMode
+
+    if (isPotatoMode){
+        // Enables ppotato mode
+        body.classList.add("potato-mode");
+        potatoBtn.classList.add('active');
+        potatoBtn.setAttribute('aria-pressed', 'true');
+        if (potatoBtn) potatoBtn.innerHTML = '🥔 Potato Mode ON';
+
+        // Adds hardcoded potato ingredient 
+        if (!selectedIngredients.has(POTATO_INGREDIENT)){
+            selectedIngredients.add(POTATO_INGREDIENT)
+            addPotatoChip()
+        }
+
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const sideMenu = document.getElementById('side-menu');
+        if (!document.body.classList.contains('sidebar-open')){
+            document.body.classList.add('sidebar-open');
+            if (sidebarToggle) sidebarToggle.setAttribute('aria-expanded', 'true');
+            if (sideMenu) sideMenu.setAttribute('aria-hidden', 'false');
+        }
+
+    } else {
+          // Turns off Potato Mode
+          body.classList.remove('potato-mode');
+          potatoBtn.classList.remove('active');
+          potatoBtn.setAttribute('aria-pressed', 'false');  
+          potatoBtn.innerHTML = '🥔 Potato Mode';
+
+                    // When turning off potato mode, remove only the potato ingredient and its chip
+                    if (selectedIngredients.has(POTATO_INGREDIENT)) {
+                        selectedIngredients.delete(POTATO_INGREDIENT);
+                        removePotatoChip();
+                        // Update the ingredient input to reflect remaining selected ingredients
+                        const ingredientArray = Array.from(selectedIngredients);
+                        document.getElementById('ingredient-input').value = ingredientArray.join(', ');
+                    }
+        }
+}
+
+// Adds Hardcoded potato ingredients
+function addPotatoChip(){
+    // Avoid creating duplicate potato chips
+    if (document.querySelector('.potato-chip')) return;
+
+    const chip = document.createElement('div');
+    chip.className = 'chip potato-chip';
+    chip.innerHTML = `
+        ${POTATO_INGREDIENT}
+        <span class="remove-chip" data-ingredient="${POTATO_INGREDIENT}" style="display: none;">&times;</span>
+    `;
+
+    selectedIngredientsContainer.appendChild(chip);
+    toggleClearIngredientsButton();
+}
+
+//Removes potato ingredient
+function removePotatoChip(){
+    const potatoChips = document.querySelectorAll('.potato-chip');
+    potatoChips.forEach(chip => chip.remove());
+
+    // Ensure the ingredient input matches the selectedIngredients set
+    const ingredientArray = Array.from(selectedIngredients);
+    const input = document.getElementById('ingredient-input');
+    if (input) input.value = ingredientArray.join(', ');
+
+    toggleClearIngredientsButton();
+}
+
+
+
+
 // Initialize dark mode from localStorage
 function initDarkMode() {
     const isDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -1453,3 +1584,20 @@ document.addEventListener('DOMContentLoaded', function() {
     initDarkMode();
     setupDarkModeToggle();
 });
+
+function setRecipesPerPage(n, resetDisplay = true) {
+    RECIPES_PER_PAGE = Number(n) || 3;
+    const loadMoreBtn = document.getElementById('load-more-btn');
+    if (loadMoreBtn) {
+        loadMoreBtn.textContent = `Load More Recipes (${RECIPES_PER_PAGE} per page)`;
+    }
+    if (resetDisplay) {
+        resetLoadMore(displayedRecipes, true);
+    }
+    // Reloads the Home favorites to show four recipes
+    try {
+        if (typeof displayHomeFavorites === 'function') displayHomeFavorites();
+    } catch (e) {
+        console.warn('Could not refresh home favorites:', e);
+    }
+}

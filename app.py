@@ -4,6 +4,7 @@ from flask_bcrypt import Bcrypt
 from database.connection import init_connection_engine, db
 from database.models import ManualUser, Oauth_User, SavedRecipe
 from sqlalchemy import select
+from datetime import datetime, date, timedelta, timezone
 import os
 import requests
 import random
@@ -18,17 +19,27 @@ import uuid
 from mailer import send_reset_email
 import csv
 from rapidfuzz import process, fuzz
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from flask_limiter.errors import RateLimitExceeded
 import re
 
-NUM_RESULTS = 100
-NUM_SKIP = random.randint(1, 5)
 
 # ---------------- APP SETUP ----------------
 app = Flask(__name__)
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"],
+    storage_uri="memory://"
+)
+
 load_dotenv()  # Load environment variables
 
 app.secret_key = os.getenv("SECRET_KEY") or "supersecretkey"
 init_connection_engine(app)
+
 
 # ---------------- GOOGLE OAUTH SETUP ----------------
 GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID")
@@ -55,6 +66,23 @@ def load_user(user_id_str):
         return db.session.get(Oauth_User, user_id)
     
     return None
+
+@app.errorhandler(RateLimitExceeded)
+def ratelimit_handler(error):
+    if request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html:
+        return jsonify(error="ratelimit exceeded", description=str(error.description)), 429
+    
+    flash("Too many requests. Please wait a moment and try again.", "danger")
+    
+    template = "index.html"
+    if request.endpoint == "userlogin":
+        template = "userlogin"
+    elif request.endpoint == "register":
+        template = "register"
+    elif request.endpoint == "reset_password":
+        template = "reset_password"
+    
+    return redirect(url_for(template))
 
 # ---------------- Bcrypt Password Hashing ----------------
 bcrypt = Bcrypt()
@@ -136,6 +164,7 @@ def logout():
     logout_user()
     flash("I love potatoes", "success")
     return redirect(url_for("index"))
+
 # ---------------- CHECK LOGIN STATUS (ADD THIS HERE) ----------------
 @app.route("/check_login")
 def check_login():
@@ -154,6 +183,7 @@ def check_login():
 # ---------------- RESET PASSWORD ----------------
 #generate the token and send the email
 @app.route("/reset_password", methods=["GET", "POST"])
+@limiter.limit("5 per minute")
 def reset_password():
     if request.method == "POST":
         email = request.form["email"]
@@ -161,6 +191,7 @@ def reset_password():
         if user:
             token = str(uuid.uuid4())
             user.reset_token = token
+            user.reset_token_expires = datetime.now(timezone.utc) + timedelta(hours=1)
             db.session.commit()
             
             # Enhanced email sending with better error handling
@@ -189,6 +220,13 @@ def reset_with_token(token):
         flash("Invalid or expired token")
         return redirect(url_for("reset_password"))
     
+    if user.reset_token_expires is None or user.reset_token_expires < datetime.now(timezone.utc):
+        flash("This reset link has expired. Please request a new one.", "error")
+        user.reset_token = None
+        user.reset_token_expires = None
+        db.session.commit()
+        return redirect(url_for('reset_password'))
+        
     if request.method == "POST":
         new_password = request.form["password"]
         hashed_password = bcrypt.generate_password_hash(new_password).decode("utf-8")
@@ -202,6 +240,7 @@ def reset_with_token(token):
 
 # ---------------- MANUAL LOGIN ----------------
 @app.route("/userlogin", methods=["GET", "POST"])
+@limiter.limit("10 per minute", methods=["POST"])
 def userlogin():
     # Get the login info from the user
     if request.method == "POST":
@@ -241,6 +280,7 @@ def check_password(password):
 
 # ---------------- REGISTER ----------------
 @app.route("/register", methods=["GET", "POST"])
+@limiter.limit("10 per hour")
 def register():
     # Get username and password
     if request.method == "POST":
@@ -280,38 +320,14 @@ def register():
 
     return render_template("register.html")
 
-# ---------------- MAIN ----------------
-# if __name__ == "__main__":
-#     app.run(debug=True, use_reloader=False)
-
-
-
-# ---------- SPOONACULAR API SETUP ----------
-# API_KEY = os.getenv("Edamam_APP_KEY")
-# API_HOST = "spoonacular-recipe-food-nutrition-v1.p.rapidapi.com"
-# API_URL = f"https://{API_HOST}"
-# SEARCH_URL = f"{API_URL}/recipes/complexSearch"
-# RECIPE_INFO_URL = f"{API_URL}/recipes/{{id}}/information"
-# JOKE_URL = f"{API_URL}/food/jokes/random"
-
+# Edamam API setup
 EDAMAM_APP_ID = os.getenv("EDAMAM_APP_ID")
 EDAMAM_APP_KEY = os.getenv("EDAMAM_APP_KEY")
 
 EDAMAM_BY_URI_URL = "https://api.edamam.com/api/recipes/v2/by-uri"
 EDAMAM_API_URL = "https://api.edamam.com/api/recipes/v2"
 
-# Timeout (seconds) for external API calls to avoid hanging the Flask worker
-#REQUEST_TIMEOUT = 10
-
-# headers = {
-#     "x-rapidapi-key": API_KEY,
-#     "x-rapidapi-host": API_HOST,
-# }
-
-# if not API_KEY:
-#     # Helpful runtime message for debugging missing API key (do not log sensitive values)
-#     print("WARNING: API_KEY environment variable is not set. Requests to the Spoonacular/RapidAPI endpoint will fail with 401 Unauthorized.")
-
+# async to filter out bad links
 async def is_valid_link(session, url, timeout=1):
     if not url:
         return False
@@ -390,7 +406,7 @@ def autocomplete():
     return matches
 
 
-
+# -------API Search------------------
 
 @app.route("/search_recipes")
 def search_recipes():
@@ -403,20 +419,7 @@ def search_recipes():
     if not EDAMAM_APP_ID or not EDAMAM_APP_KEY:
         return {"error": "Server misconfiguration: API_KEY is not set."}, 500
 
-    
-
-    # params = {
-    #     'number': NUM_RESULTS,
-    #     'includeIngredients': ingredients, 
-    #     'cuisine': cuisine,
-    #     'diet': diet, 
-    #     'intolerances': allergies,
-    #     'ranking': 2,
-    #     'addRecipeInformation': True, 
-    #     'ignorePantry': False,
-    #     'addRecipeNutrition': True,
-    #     'sort': 'min-missing-ingredients',
-    #     'offset': NUM_SKIP}
+   # Params for Edamam
     params = {
         'type': 'public',
         'q': ingredients,
@@ -439,6 +442,7 @@ def search_recipes():
         
         # valid_recipes = asyncio.run(filter_links(initial_hits))
         # random.shuffle(valid_recipes)
+
 #COMMENTED OUT THE ABOVE TWO LINES AND REPLACED WITH THE BELOW LINES TO WORK ON PYTHONANYWHERE
         valid_recipes = []
         for hit in initial_hits:
@@ -447,6 +451,7 @@ def search_recipes():
                 valid_recipes.append(recipe)
 
         random.shuffle(valid_recipes)
+
 #END COMMENT
         unique_recipes = []
         seen_uris = set()
@@ -471,27 +476,7 @@ def search_recipes():
         app.logger.warning(f"Error calling Spoonacular: {e}")
         return {"error": str(e)}, 502
     
-@app.route("/get_recipe_info")    
-def get_recipe_info(recipe_uri):
-    params = {'type': 'public',
-              'uri': recipe_uri,
-              'app_id': EDAMAM_APP_ID,
-              'app_key': EDAMAM_APP_KEY}
-    try:
-        response = requests.get(EDAMAM_BY_URI_URL, params=params, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    
-    except requests.exceptions.Timeout:
-        app.logger.warning(f"Timeout when fetching Edamam recipe for uri={recipe_uri}")
-        return {"error": "Request to recipe service timed out."}, 504
-    except requests.exceptions.HTTPError as e:
-        status = getattr(e.response, 'status_code', 502)
-        app.logger.error(f"Too many API calls. Please wait 60 seconds before searching again. - {e}")
-        return {"error": f"Upstream recipe service returned HTTP {status}."}, 502
-    except requests.exceptions.RequestException as e:
-        app.logger.error(f"Error fetching details for recipe uri {recipe_uri}: {e}")
-        return {"error": "Could not connect to recipe service."}, 502
+
     
 # ---------------- Saved Recipes ----------------
 @app.route("/saved_recipes", methods=["GET"])
@@ -586,11 +571,6 @@ def random_joke():
         print("Error loading jokes:", e)
         return "No food jokes available at the moment"
 
-
-# @app.route("/")
-# def index():
-#     user = session.get("user")
-#     return render_template("index.html", user=user)
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)

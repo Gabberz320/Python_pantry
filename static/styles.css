@@ -1174,6 +1174,10 @@ label[for="selected-ingredients-container"],
     font-weight: bold;
 }
 
+.potato-mode .joke-header h3,
+.potato-mode .joke-text{
+    color: black !important;
+}
 
 /* Responsive design */
 @media (max-width: 600px) {
@@ -1659,4 +1663,125 @@ body:not(.dark-mode) .shortcut-hint {
   .shortcut-hint {
     display: none !important;
   }
+}
+
+
+.easter-egg-button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px 0;
+    padding: 20px;
+    margin-bottom: 50px;
+    gap: 3%;
+}
+
+.dark-mode .gabby-btn{
+    background: linear-gradient(135deg, #043046, #064c68);
+    color: white;
+}
+.gabby-btn {
+    background: linear-gradient(135deg, #e4e7e9, #d9dfe2);
+    color: rgb(0, 0, 0);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 13pt;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.486);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 40px;
+}
+
+.gabby-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(17, 16, 16, 0.4);
+    background: linear-gradient(135deg, #81ecec, #00cec9);
+}
+
+.gabby-btn:active {
+    transform: translateY(0);
+}
+
+.dark-mode .gabby-btn.active{
+    background: linear-gradient(135deg, #043761, #032f41);
+    color: WHITE;
+}
+.gabby-btn.active {
+    background: linear-gradient(135deg, #e4e7e9, #d9dfe2);
+    box-shadow: 0 4px 15px rgba(116, 185, 255, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.486);
+    display: flex;
+}
+
+.gabby-btn.active:hover {
+    background: linear-gradient(135deg, #81ecec, #00cec9);
+    box-shadow: 0 6px 20px rgba(116, 185, 255, 0.4);
+}
+
+
+
+.dark-mode .potato-btn{
+    background: linear-gradient(135deg, #043046, #064c68);
+    color: white;
+}
+.potato-btn {
+    background: linear-gradient(135deg, #e4e7e9, #d9dfe2);
+    color: rgb(0, 0, 0);
+    border: none;
+    padding: 12px 24px;
+    border-radius: 50px;
+    font-size: 13pt;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.486);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 40px;
+}
+
+.potato-btn:hover {
+    background: linear-gradient(135deg, #81ecec, #00cec9);
+    box-shadow: 0 6px 20px rgba(116, 185, 255, 0.4);
+}
+
+
+
+.potato-btn.active {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    box-shadow: 0 4px 15px rgba(39, 174, 96, 0.3);
+     cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.486);
+    display: flex;
+}
+
+.potato-btn.active:hover {
+    background: linear-gradient(135deg, #2ecc71, #27ae60);
+    box-shadow: 0 6px 20px rgba(39, 174, 96, 0.4);
+}
+
+/* Potato Mode Background */
+body.potato-mode {
+    background-image: url("/static/images/potato_background.jpg");
+    background-size: cover;       /* stretch image to fill screen */
+    background-position: center;  /* center the image */
+    background-repeat: no-repeat; /* prevent tiling */
+    background-attachment: fixed; /* stays fixed when scrolling */
+}
+
+
+@media (max-width: 768px) {
+    .potato-btn {
+        padding: 10px 20px;
+        font-size: 1rem;
+    }
+    
 }
