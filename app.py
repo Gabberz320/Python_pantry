@@ -575,10 +575,16 @@ def delete_saved_recipe():
 
 @app.route("/random_joke")
 def random_joke():
-    with open("food_jokes.txt", "r") as f:
-        jokes = [line.strip() for line in f.readlines()]
-    
-    return random.choice(jokes)
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    jokes_path = os.path.join(base_dir, "food_jokes.txt")
+
+    try:
+        with open(jokes_path, "r", encoding="utf-8") as f:
+            jokes = [line.strip() for line in f if line.strip()]
+        return random.choice(jokes)
+    except Exception as e:
+        print("Error loading jokes:", e)
+        return "No food jokes available at the moment"
 
 
 # @app.route("/")
