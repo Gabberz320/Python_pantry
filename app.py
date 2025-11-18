@@ -74,7 +74,7 @@ def ratelimit_handler(error):
     
     # flash("Too many requests. Please wait a moment and try again.", "danger")
     
-    template = "index.html"
+    template = "index"
     if request.endpoint == "userlogin":
         template = "userlogin"
     elif request.endpoint == "register":
@@ -411,9 +411,15 @@ def autocomplete():
 @app.route("/search_recipes")
 def search_recipes():
     ingredients = request.args.get("ingredients", "")
+    # cuisine = request.args.get("cuisine", "")
+    # diet = request.args.get("diet", "")
+    # allergies = request.args.get("allergies", "")
     cuisine = request.args.get("cuisine", "")
-    diet = request.args.get("diet", "")
-    allergies = request.args.get("allergies", "")
+
+    # MULTI DIET + MULTI ALLERGY SUPPORT
+    diets = [d for d in request.args.getlist("diet") if d.strip()]
+    allergies = [a for a in request.args.getlist("allergy") if a.strip()]
+
 
     # Fail fast if API key missing
     if not EDAMAM_APP_ID or not EDAMAM_APP_KEY:
@@ -426,10 +432,19 @@ def search_recipes():
         'app_id': EDAMAM_APP_ID,
         'app_key': EDAMAM_APP_KEY,
         }
-    if diet:
-        params['diet'] = diet
+    # if diet:
+    #     params['diet'] = diet
+    # if allergies:
+    #     params['health'] = allergies
+
+    # MULTI DIET SUPPORT
+    if diets:
+        params['diet'] = diets   # Edamam accepts repeated diet params
+
+    # MULTI ALLERGY / HEALTH SUPPORT
     if allergies:
         params['health'] = allergies
+
     if cuisine:
         params['cuisineType'] = cuisine
 

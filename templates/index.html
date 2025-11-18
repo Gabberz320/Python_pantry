@@ -86,25 +86,35 @@
     <div class="side-menu" id="side-menu" aria-hidden="true">
         <div class="side-menu-inner">
             <h3>Recipe Filters</h3>
-                <p>Redefine your search results</p>
+                <p>Define your search results.</p>
             
         </div>
 
-        <div class="search-filter">
-            <label for = "diet-filter" class="filter-label">Diet Type</label>
-           <select id="diet-filter" class="filter-dropdown">
-                <option value="">All Diets</option>
-                <option value="balanced">Balanced</option>
-                <option value="high-fiber">High-Fiber</option>
-                <option value="high-protein">High-Protein</option>
-                <option value="low-carb">Low-Carb</option>
-                <option value="low-fat">Low-Fat</option>
-                <option value="low-sodium">Low-Sodium</option>
-                <option value="alcohol-free">Alcohol-Free</option>  
-            </select>
-        </div>
+<div class="search-filter">
+    <label class="filter-label">Diet Type: </label>
 
-        <div class="search-filter">
+    <div class="multi-dropdown" id="diet-dropdown">
+        <div class="multi-dropdown-btn filter-dropdown">Select Diets</div>
+
+        <div class="multi-dropdown-menu" id="diet-filters">
+
+            <label><input type="checkbox" value=""> All Diets</label>
+            <label><input type="checkbox" value="balanced"> Balanced</label>
+            <label><input type="checkbox" value="high-fiber"> High-Fiber</label>
+            <label><input type="checkbox" value="high-protein"> High-Protein</label>
+            <label><input type="checkbox" value="low-carb"> Low-Carb</label>
+            <label><input type="checkbox" value="low-fat"> Low-Fat</label>
+            <label><input type="checkbox" value="low-sodium"> Low-Sodium</label>
+            <label><input type="checkbox" value="alcohol-free"> Alcohol-Free</label>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+        <!-- <div class="search-filter">
         <label for="allergy-filter" class="filter-label">Allergies & Restrictions</label>
         <select id="allergy-filter" class="filter-dropdown" >
            <option value="">No Restrictions</option>
@@ -138,39 +148,119 @@
             <option value="vegetarian">Vegetarian</option>
             <option value="wheat-free">Wheat-Free</option>
         </select>
-     </div>
+     </div> -->
 
      <div class="search-filter">
-        <label for="cuisine-filter" class="filter-label">Cuisine</label>
-        <select id="cuisine-filter" class="filter-dropdown" >
-        <option value="">All Cuisines</option>
-        <option value="american">American</option>
-        <option value="asian">Asian</option>
-        <option value="british">British</option>
-        <option value="caribbean">Caribbean</option>
-        <option value="central europe">Central European</option>
-        <option value="chinese">Chinese</option>
-        <option value="eastern europe">Eastern European</option>
-        <option value="french">French</option>
-        <option value="greek">Greek</option>
-        <option value="indian">Indian</option>
-        <option value="italian">Italian</option>
-        <option value="japanese">Japanese</option>
-        <option value="korean">Korean</option>
-        <option value="kosher">Kosher</option>
-        <option value="mediterranean">Mediterranean</option>
-        <option value="mexican">Mexican</option>
-        <option value="middle eastern">Middle Eastern</option>
-        <option value="nordic">Nordic</option>
-        <option value="south american">South American</option>
-        <option value="south east asian">South East Asian</option>
-        <option value="world">World</option>
+    <label class="filter-label">Allergies & Restrictions: </label>
 
+    <div class="multi-dropdown" id="allergy-dropdown">
+        <div class="multi-dropdown-btn filter-dropdown">Select Allergies</div>
+
+        <div class="multi-dropdown-menu" id="allergy-filters">
+
+            <label><input type="checkbox" value="alcohol-free"> Alcohol-Free</label>
+            <label><input type="checkbox" value="celery-free"> Celery-Free</label>
+            <label><input type="checkbox" value="crustacean-free"> Crustacean-Free</label>
+            <label><input type="checkbox" value="dairy-free"> Dairy-Free</label>
+            <label><input type="checkbox" value="egg-free"> Egg-Free</label>
+            <label><input type="checkbox" value="fish-free"> Fish-Free</label>
+            <label><input type="checkbox" value="gluten-free"> Gluten-Free</label>
+            <label><input type="checkbox" value="keto-friendly"> Keto-Friendly</label>
+            <label><input type="checkbox" value="kidney-friendly"> Kidney-Friendly</label>
+            <label><input type="checkbox" value="kosher"> Kosher</label>
+            <label><input type="checkbox" value="low-potassium"> Low-Potassium</label>
+            <label><input type="checkbox" value="lupine-free"> Lupine-Free</label>
+            <label><input type="checkbox" value="mustard-free"> Mustard-Free</label>
+            <label><input type="checkbox" value="no-oil-added"> No Oil Added</label>
+            <label><input type="checkbox" value="low-sugar"> Low-Sugar</label>
+            <label><input type="checkbox" value="paleo"> Paleo</label>
+            <label><input type="checkbox" value="peanut-free"> Peanut-Free</label>
+            <label><input type="checkbox" value="pescatarian"> Pescatarian</label>
+            <label><input type="checkbox" value="pork-free"> Pork-Free</label>
+            <label><input type="checkbox" value="red-meat-free"> Red Meat-Free</label>
+            <label><input type="checkbox" value="sesame-free"> Sesame-Free</label>
+            <label><input type="checkbox" value="shellfish-free"> Shellfish-Free</label>
+            <label><input type="checkbox" value="soy-free"> Soy-Free</label>
+            <label><input type="checkbox" value="sugar-conscious"> Sugar-Conscious</label>
+            <label><input type="checkbox" value="tree-nut-free"> Tree Nut-Free</label>
+            <label><input type="checkbox" value="vegan"> Vegan</label>
+            <label><input type="checkbox" value="vegetarian"> Vegetarian</label>
+            <label><input type="checkbox" value="wheat-free"> Wheat-Free</label>
+
+        </div>
+    </div>
+</div>
+
+<div class="search-filter">
+    <label for="cuisine-filter" class="filter-label">Cuisine: </label>
+
+    <div class="select-wrapper">
+        <select id="cuisine-filter" class="filter-dropdown">
+            <option value="">All Cuisines</option>
+            <option value="american">American</option>
+            <option value="asian">Asian</option>
+            <option value="british">British</option>
+            <option value="caribbean">Caribbean</option>
+            <option value="central europe">Central European</option>
+            <option value="chinese">Chinese</option>
+            <option value="eastern europe">Eastern European</option>
+            <option value="french">French</option>
+            <option value="greek">Greek</option>
+            <option value="indian">Indian</option>
+            <option value="italian">Italian</option>
+            <option value="japanese">Japanese</option>
+            <option value="korean">Korean</option>
+            <option value="kosher">Kosher</option>
+            <option value="mediterranean">Mediterranean</option>
+            <option value="mexican">Mexican</option>
+            <option value="middle eastern">Middle Eastern</option>
+            <option value="nordic">Nordic</option>
+            <option value="south american">South American</option>
+            <option value="south east asian">South East Asian</option>
+            <option value="world">World</option>
         </select>
-     </div>
+    </div>
+</div>
+
+
+    <!-- <div class="search-filter">
+    <label class="filter-label">Cuisine</label> -->
+
+    <!-- <div class="multi-dropdown" id="cuisine-dropdown">
+        <div class="multi-dropdown-btn">Select Cuisines ▼</div>
+
+        <div class="multi-dropdown-menu" id="cuisine-filters">
+
+            <label><input type="checkbox" value="american"> American</label>
+            <label><input type="checkbox" value="asian"> Asian</label>
+            <label><input type="checkbox" value="british"> British</label>
+            <label><input type="checkbox" value="caribbean"> Caribbean</label>
+            <label><input type="checkbox" value="central europe"> Central European</label>
+            <label><input type="checkbox" value="chinese"> Chinese</label>
+            <label><input type="checkbox" value="eastern europe"> Eastern European</label>
+            <label><input type="checkbox" value="french"> French</label>
+            <label><input type="checkbox" value="greek"> Greek</label>
+            <label><input type="checkbox" value="indian"> Indian</label>
+            <label><input type="checkbox" value="italian"> Italian</label>
+            <label><input type="checkbox" value="japanese"> Japanese</label>
+            <label><input type="checkbox" value="korean"> Korean</label>
+            <label><input type="checkbox" value="kosher"> Kosher</label>
+            <label><input type="checkbox" value="mediterranean"> Mediterranean</label>
+            <label><input type="checkbox" value="mexican"> Mexican</label>
+            <label><input type="checkbox" value="middle eastern"> Middle Eastern</label>
+            <label><input type="checkbox" value="nordic"> Nordic</label>
+            <label><input type="checkbox" value="south american"> South American</label>
+            <label><input type="checkbox" value="south east asian"> South East Asian</label>
+            <label><input type="checkbox" value="world"> World</label>
+
+        </div>
+    </div>
+</div>
+ -->
+
 
                 <!-- Apply Filters Button -->
-            <button id="apply-filters" class="apply-filters-btn">Apply Filters</button>
+            <!-- <button id="apply-filters" class="apply-filters-btn">Apply Filters</button> -->
 
             <!-- Clear Filters Button -->
             <button id="clear-filters" class="clear-filters-btn">Clear Filters</button>
@@ -180,7 +270,6 @@
                     <div id="filters-list"></div>
                 </div>
 
-
             <!--ingredient chips-->
             <div class="ingredients-section">
                 <h4>Ingredients Selected:</h4>
@@ -189,6 +278,8 @@
             </div>
 
 
+            <!-- Search Recipes Button -->
+            <button id="apply-filters-btn" class="apply-filters-btn">Search</button>
 
     </div>
     

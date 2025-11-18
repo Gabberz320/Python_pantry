@@ -100,7 +100,7 @@ body.sidebar-open {
 
 .filter-label {
     display: block;
-    margin-bottom: 8px;
+    margin-bottom: 5px;
     font-weight: 600;
     color: #00222e;
     font-size: 0.95rem;
@@ -141,6 +141,7 @@ body.sidebar-open {
     cursor: pointer;
     transition: all 0.3s ease;
     margin-bottom: 10px;
+    margin-top: 10px;
 }
 
 .apply-filters-btn:hover {
@@ -155,7 +156,7 @@ body.sidebar-open {
     color: #00222e;
     border: 2px solid #00222e;
     border-radius: 8px;
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -899,7 +900,7 @@ body.sidebar-open {
 label[for="selected-ingredients-container"],
 .ingredients-section h4,
 .ingredients-section label {
-    margin-top: 1.5rem; 
+    margin-top: 1rem; 
     display: block;
 }
 
@@ -1785,3 +1786,93 @@ body.potato-mode {
     }
     
 }
+
+/* Container */
+.multi-dropdown {
+    position: relative;
+    width: 100%;
+}
+
+
+/* The dropdown panel (hidden by default) */
+.multi-dropdown-menu {
+    display: none;
+    position: absolute;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 10px;
+    margin-top: 5px;
+    width: 100%;
+    z-index: 9999;
+    max-height: 220px;
+    overflow-y: auto;
+    background-color: white;
+}
+
+/* When dropdown is open */
+.multi-dropdown.open .multi-dropdown-menu {
+    display: block;
+}
+
+/* Items inside */
+.multi-dropdown-menu label {
+  display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 6px;
+    margin: 2px 0;
+    border-radius: 4px;
+
+    font-size: 0.9rem;
+    color: #00222e;
+    cursor: pointer;
+
+    transition: background 0.2s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.multi-dropdown-btn {
+    width: 100%;
+    padding: 10px;
+    background: transparent;
+    color: #00222e;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.multi-dropdown-btn:hover {
+    border-color: #00222e;
+}
+
+.multi-dropdown-btn::after {
+    content: "";
+    position: absolute;
+    right: 3px;
+    top: 55%; /* lowered to match native select arrow position */
+    width: 14px;   /* bigger */
+    height: 14px;  /* bigger */
+    transform: translateY(-50%);
+    pointer-events: none;
+
+    background-image: url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'> <polyline points='5 7 10 12 15 7' fill='none' stroke='%2300222e' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/> </svg>");
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+/* When open, rotate arrow */
+/* .multi-dropdown.open .multi-dropdown-btn::after {
+    transform: translateY(-50%) rotate(180deg);
+} */
+
+.multi-dropdown-menu input[type="checkbox"] {
+    accent-color: #00222e !important;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+}
+

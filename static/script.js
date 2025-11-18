@@ -510,56 +510,131 @@
                 });
             }
 
-            // Apply filters button - show active filters in sidebar and trigger a search
-            document.getElementById('apply-filters').addEventListener('click', function(e) {
-                e.preventDefault();
-                const ingredients = document.getElementById('ingredient-input').value.trim();
+//filters
 
-                // Show selected filters in the sidebar
-                const diet = document.getElementById('diet-filter')?.value || '';
-                const allergy = document.getElementById('allergy-filter')?.value || '';
-                const cuisine = document.getElementById('cuisine-filter')?.value || '';
+    const dropdowns = document.querySelectorAll(".multi-dropdown");
 
-                const activeContainer = document.getElementById('active-filters');
-                const filtersList = document.getElementById('filters-list');
-                if (filtersList) filtersList.innerHTML = '';
+    dropdowns.forEach(dropdown => {
+        const btn = dropdown.querySelector(".multi-dropdown-btn");
+        const menu = dropdown.querySelector(".multi-dropdown-menu");
 
-                const userFilter = [];
-                if (diet) userFilter.push({ label: '  Diet ', value: diet, string: '' });
-                if (allergy) userFilter.push({ label: '  Allergy ', value: allergy, string: '' });
-                if (cuisine) userFilter.push({ label: '  Cuisine', value: cuisine });
+        btn.addEventListener("click", function (e) {
+            e.stopPropagation();
 
-                if (userFilter.length > 0) {
-                    if (activeContainer) activeContainer.style.display = 'block';
-                    userFilter.forEach(b => {
-                        const span = document.createElement('span');
-                        span.className = 'filter-badge';
-                        span.textContent = `${b.label}: ${b.value}`;
-                        filtersList.appendChild(span);
-                    });
-                } else {
-                    if (activeContainer) activeContainer.style.display = 'none';
-                }
-                document.getElementById('search-form').dispatchEvent(new Event('submit'));
+            // close other dropdowns
+            dropdowns.forEach(d => {
+                if (d !== dropdown) d.classList.remove("open");
             });
+
+            // toggle current dropdown
+            dropdown.classList.toggle("open");
+        });
+
+        // click inside menu should NOT close it
+        menu.addEventListener("click", (e) => {
+            e.stopPropagation();
+        });
+    });
+
+    // clicking outside closes all dropdowns
+    document.addEventListener("click", function () {
+        dropdowns.forEach(d => d.classList.remove("open"));
+    });
+
+
+
+
+            // Apply filters button - show active filters in sidebar and trigger a search
+            // document.getElementById('apply-filters').addEventListener('click', function(e) {
+            //     e.preventDefault();
+            //     const ingredients = document.getElementById('ingredient-input').value.trim();
+
+            //     // Show selected filters in the sidebar
+            //     const diet = document.getElementById('diet-filter')?.value || '';
+            //     const allergy = document.getElementById('allergy-filter')?.value || '';
+            //     const cuisine = document.getElementById('cuisine-filter')?.value || '';
+
+            //     const activeContainer = document.getElementById('active-filters');
+            //     const filtersList = document.getElementById('filters-list');
+            //     if (filtersList) filtersList.innerHTML = '';
+
+            //     const userFilter = [];
+            //     if (diet) userFilter.push({ label: '  Diet ', value: diet, string: '' });
+            //     if (allergy) userFilter.push({ label: '  Allergy ', value: allergy, string: '' });
+            //     if (cuisine) userFilter.push({ label: '  Cuisine', value: cuisine });
+
+            //     if (userFilter.length > 0) {
+            //         if (activeContainer) activeContainer.style.display = 'block';
+            //         userFilter.forEach(b => {
+            //             const span = document.createElement('span');
+            //             span.className = 'filter-badge';
+            //             span.textContent = `${b.label}: ${b.value}`;
+            //             filtersList.appendChild(span);
+            //         });
+            //     } else {
+            //         if (activeContainer) activeContainer.style.display = 'none';
+            //     }
+            //     document.getElementById('search-form').dispatchEvent(new Event('submit'));
+            // });
 
             // Clear filters button
-            document.getElementById('clear-filters').addEventListener('click', function() {
-                document.getElementById('diet-filter').value = '';
-                document.getElementById('allergy-filter').value = '';
-                document.getElementById('cuisine-filter').value = '';
+            // document.getElementById('clear-filters').addEventListener('click', function() {
+            //     document.getElementById('diet-filter').value = '';
+            //     document.getElementById('allergy-filter').value = '';
+            //     document.getElementById('cuisine-filter').value = '';
                 
-                // If there are ingredients, re-search without filters
-                const ingredients = document.getElementById('ingredient-input').value.trim();
-                // hide/clear active filters UI
-                const activeContainer = document.getElementById('active-filters');
-                const filtersList = document.getElementById('filters-list');
-                if (filtersList) filtersList.innerHTML = '';
-                if (activeContainer) activeContainer.style.display = 'none';
-                if (ingredients) {
+            //     // If there are ingredients, re-search without filters
+            //     const ingredients = document.getElementById('ingredient-input').value.trim();
+            //     // hide/clear active filters UI
+            //     const activeContainer = document.getElementById('active-filters');
+            //     const filtersList = document.getElementById('filters-list');
+            //     if (filtersList) filtersList.innerHTML = '';
+            //     if (activeContainer) activeContainer.style.display = 'none';
+            //     if (ingredients) {
+            //         document.getElementById('search-form').dispatchEvent(new Event('submit'));
+            //     }
+            // });
+
+            const clearFiltersBtn = document.getElementById('clear-filters');
+
+
+            const applyFiltersBtn = document.getElementById('apply-filters-btn');
+            if (applyFiltersBtn) {
+                applyFiltersBtn.addEventListener('click', function () {
                     document.getElementById('search-form').dispatchEvent(new Event('submit'));
-                }
-            });
+                });
+            }
+
+// Clear filters button
+if (clearFiltersBtn) {
+    clearFiltersBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+
+        // uncheck all 
+        document.querySelectorAll(
+            '#diet-filters input[type="checkbox"], ' +
+            '#allergy-filters input[type="checkbox"], ' +
+            '#cuisine-filters input[type="checkbox"]'
+        ).forEach(cb => {
+            cb.checked = false;
+        });
+        
+        const cuisineSelect = document.getElementById('cuisine-filter');
+        if (cuisineSelect) cuisineSelect.value = "";
+
+        // hide/clear active filters UI
+        const activeContainer = document.getElementById('active-filters');
+        const filtersList = document.getElementById('filters-list');
+        if (filtersList) filtersList.innerHTML = '';
+        if (activeContainer) activeContainer.style.display = 'none';
+
+        // if there are ingredients, re-search without filters
+        const ingredients = document.getElementById('ingredient-input').value.trim();
+        if (ingredients) {
+            document.getElementById('search-form').dispatchEvent(new Event('submit'));
+        }
+    });
+}
 
 
             // Search functionality 
@@ -592,20 +667,50 @@
 
                 // Build query and call Flask backend
 
-                const diet = document.getElementById('diet-filter')?.value || '';
-                const allergies = document.getElementById('allergy-filter')?.value || '';
-                const cuisine = document.getElementById('cuisine-filter')?.value || ''
-                
-                const params = new URLSearchParams({ ingredients });
+// Build query and call Flask backend
 
-                if (diet) params.append('diet', diet);
-                if (allergies) params.append('allergies', allergies)
-                if (cuisine) params.append('cuisine', cuisine);
-               
-                const url = `/search_recipes?${params.toString()}`;
+// Build query and call Flask backend
 
-                const recipesGrid = document.getElementById('recipes-grid');
-                recipesGrid.innerHTML = '<div class="loading">Searching recipes...</div>';
+// Diets
+const selectedDiets = Array.from(
+    document.querySelectorAll('#diet-filters input[type="checkbox"]:checked')
+)
+.map(cb => cb.value)
+.filter(v => v !== ""); // ignore empty "All Diets"
+
+// Allergies
+const selectedAllergies = Array.from(
+    document.querySelectorAll('#allergy-filters input[type="checkbox"]:checked')
+).map(cb => cb.value);
+
+// Cuisines  <-- You were missing this
+const selectedCuisines = Array.from(
+    document.querySelectorAll('#cuisine-filters input[type="checkbox"]:checked')
+).map(cb => cb.value);
+
+// Build params
+const params = new URLSearchParams({ ingredients });
+
+// Diet params
+// selectedDiets.forEach(d => params.append('diet', d));
+selectedDiets
+    .filter(d => d.trim() !== "")   // FILTER OUT EMPTY VALUES
+    .forEach(d => params.append('diet', d));
+
+// Allergy params
+selectedAllergies.forEach(a => params.append('allergy', a));
+
+// Cuisine params
+// selectedCuisines.forEach(c => params.append('cuisine', c));
+
+const cuisine = document.getElementById('cuisine-filter').value;
+if (cuisine) params.append('cuisine', cuisine);
+
+const url = `/search_recipes?${params.toString()}`;
+
+const recipesGrid = document.getElementById('recipes-grid');
+recipesGrid.innerHTML = '<div class="loading">Searching recipes...</div>';
+
 
             //     fetch(url)
             //         .then(res => res.json())
@@ -1361,10 +1466,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Close sidebar when clicking outside
     document.addEventListener('click', function(e) {
+        // const isClickInsideSidebar = sideMenu.contains(e.target);
+        // const isClickOnToggle = sidebarToggle.contains(e.target);
+        
+        // if (!isClickInsideSidebar && !isClickOnToggle && document.body.classList.contains('sidebar-open')) {
+        //     document.body.classList.remove('sidebar-open');
+        //     sidebarToggle.setAttribute('aria-expanded', 'false');
+        //     sideMenu.setAttribute('aria-hidden', 'true');
+        // }
         const isClickInsideSidebar = sideMenu.contains(e.target);
         const isClickOnToggle = sidebarToggle.contains(e.target);
-        
-        if (!isClickInsideSidebar && !isClickOnToggle && document.body.classList.contains('sidebar-open')) {
+
+        // if open, and click is NOT inside the sidebar OR on the toggle button → close it
+        if (
+            document.body.classList.contains('sidebar-open') &&
+            !isClickInsideSidebar &&
+            !isClickOnToggle
+        ) {
             document.body.classList.remove('sidebar-open');
             sidebarToggle.setAttribute('aria-expanded', 'false');
             sideMenu.setAttribute('aria-hidden', 'true');
@@ -1601,3 +1719,31 @@ function setRecipesPerPage(n, resetDisplay = true) {
         console.warn('Could not refresh home favorites:', e);
     }
 }
+
+// document.addEventListener("DOMContentLoaded", function () {
+//     const multiDropdowns = document.querySelectorAll(".multi-dropdown");
+
+//     multiDropdowns.forEach(dropdown => {
+//         const btn = dropdown.querySelector(".multi-dropdown-btn");
+//         const menu = dropdown.querySelector(".multi-dropdown-menu");
+
+//         // Toggle dropdown open/close
+//         btn.addEventListener("click", function (e) {
+//             e.stopPropagation();
+//             dropdown.classList.toggle("open");
+//         });
+//     });
+
+//     // Close dropdowns when clicking outside
+//     document.addEventListener("click", function () {
+//         document.querySelectorAll(".multi-dropdown.open")
+//             .forEach(dd => dd.classList.remove("open"));
+//     });
+//     // Prevent dropdown from closing when clicking inside menu
+// document.querySelectorAll(".multi-dropdown-menu").forEach(menu => {
+//     menu.addEventListener("click", function (e) {
+//         e.stopPropagation(); 
+//     });
+// });
+
+// });
