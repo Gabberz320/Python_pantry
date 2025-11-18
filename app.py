@@ -72,7 +72,7 @@ def ratelimit_handler(error):
     if request.accept_mimetypes.accept_json and not request.accept_mimetypes.accept_html:
         return jsonify(error="ratelimit exceeded", description=str(error.description)), 429
     
-    flash("Too many requests. Please wait a moment and try again.", "danger")
+    # flash("Too many requests. Please wait a moment and try again.", "danger")
     
     template = "index.html"
     if request.endpoint == "userlogin":
@@ -155,14 +155,14 @@ def google_callback():
 
     login_user(user)
 
-    flash("Welcome my potato!", "success")
+    # flash("Welcome my potato!", "success")
     return redirect(url_for("index"))
 
 # ---------------- LOGOUT ----------------
 @app.route("/logout")
 def logout():
     logout_user()
-    flash("I love potatoes", "success")
+    # flash("I love potatoes", "success")
     return redirect(url_for("index"))
 
 # ---------------- CHECK LOGIN STATUS (ADD THIS HERE) ----------------
