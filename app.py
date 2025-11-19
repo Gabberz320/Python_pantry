@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, url_for, session, flash, jsonify
+from flask import Flask, render_template, redirect, request, url_for, session, flash, jsonify, Response
 from flask_login import LoginManager, login_user, logout_user, current_user, login_required
 from flask_bcrypt import Bcrypt
 from database.connection import init_connection_engine, db
@@ -502,10 +502,16 @@ def saved_recipe():
     recipe_data = []
     for recipe in saved_recipes:
         recipe_data.append({
+            "saved_id": recipe.saved_id, # Add the saved_id
             "id": recipe.recipe_id,
             "title": recipe.title,
             "image": recipe.image,
             "link": recipe.link,
+            "calories": recipe.calories,
+            "servings": recipe.servings,
+            "cook_time": recipe.cook_time,
+            "summary": recipe.summary,
+            "date_saved": recipe.date_saved.isoformat()
         })
         
     return jsonify(recipe_data)
@@ -535,11 +541,29 @@ def save_recipe():
     if is_saved:
         return jsonify({"error": "Recipe is already saved. I'm a sad potato"}), 409
     
+    image_url = data.get("image")
+    image_blob = None
+    image_mime = None
+    if image_url:
+        try:
+            response = requests.get(image_url, timeout=5)
+            response.raise_for_status() 
+            image_blob = response.content
+            image_mime = response.headers.get("Content-Type")
+        except requests.exceptions.RequestException as e:
+            app.logger.warning(f"Could not download image from {image_url}: {e}")
+
     new_recipe = SavedRecipe(
         recipe_id = recipe_id,
         title = data.get("title"),
-        image=data.get("image"),
+        image=image_url, 
         link = data.get("link"),
+        calories = data.get("calories"),
+        servings = data.get("servings"),
+        cook_time = data.get("cook_time"),
+        summary = data.get("summary"),
+        image_blob=image_blob,
+        image_mime=image_mime
     )
     
     current_user.saved_recipes.append(new_recipe)
@@ -558,20 +582,45 @@ def delete_saved_recipe():
     recipe_id = data.get("id")
     
     if not recipe_id:
-        return jsonify({"error": "Missing potato ID dumb dumb"})
+        return jsonify({"error": "Missing recipe ID"}), 400
+
+    query = select(SavedRecipe).where(SavedRecipe.recipe_id == str(recipe_id))
+    if isinstance(current_user, ManualUser):
+        query = query.where(SavedRecipe.manual_id == current_user.manual_id)
+    elif isinstance(current_user, Oauth_User):
+        query = query.where(SavedRecipe.user_id == current_user.user_id)
     
-    recipe_to_delete = next((r for r in current_user.saved_recipes if r.recipe_id == recipe_id), None)
-    
+    recipe_to_delete = db.session.execute(query).scalar_one_or_none()
+
     if recipe_to_delete:
         try:
             db.session.delete(recipe_to_delete)
             db.session.commit()
-            return jsonify({"message": "Recipe deleted successfully"}), 200
+            return jsonify({"message": "Recipe removed successfully"}), 200
         except Exception as e:
             db.session.rollback()
-            return jsonify({"error": "database error"})
-        
-    return jsonify({"error": "Recipe not found"})
+            app.logger.error(f"Error deleting recipe: {e}")
+            return jsonify({"error": "Database error while deleting recipe"}), 500
+    else:
+        return jsonify({"error": "Recipe not found or you don't have permission to delete it"}), 404
+
+
+@app.route("/recipe_image/<int:saved_id>")
+@login_required
+def recipe_image(saved_id):
+    # Find the recipe ensuring it belongs to the current user
+    recipe = next((r for r in current_user.saved_recipes if r.saved_id == saved_id), None)
+
+    if not recipe:
+        return "Not Found", 404
+
+    if recipe.image_blob and recipe.image_mime:
+        return Response(recipe.image_blob, mimetype=recipe.image_mime)
+    
+    if recipe.image:
+        return redirect(recipe.image)
+
+    return "Image not found", 404
 
 @app.route("/random_joke")
 def random_joke():

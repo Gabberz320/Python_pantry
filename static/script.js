@@ -1,5 +1,4 @@
-
-    // JavaScript Code
+// JavaScript Code
     // Mock recipe data
         const mockRecipes = [
             {
@@ -390,6 +389,10 @@
                 flipCard.setAttribute('data-id', recipe.id);
             }
 
+            // Determine the image source: use the blob endpoint for saved recipes, otherwise use the original URL
+            const imageUrl = recipe.saved_id ? `/recipe_image/${recipe.saved_id}` : recipe.image;
+
+            // truncate summary for display to ~30 words
             const displaySummary = truncateWords(recipe.summary || '', 30);
 
             const favoriteButton = isFavorite
@@ -405,7 +408,7 @@
                 <div class="flip-card-inner">
                     <div class="flip-card-front">
                         <div class="recipe-image">
-                            <img src="${recipe.image}" alt="${recipe.title}">
+                            <img src="${imageUrl}" alt="${recipe.title}">
                         </div>
 
                         <div class="recipe-info">
@@ -1158,9 +1161,9 @@ displayedRecipes = results.map(r => {
 
 // function handleIngredientSelection(ingredient) {
 //   const name = ingredient.trim();
-//   if (!name || selectedIngredients.has(name)) return;
+//   if (!name || selectedIngredients.has(name.toLowerCase())) return;
 
-//   selectedIngredients.add(name);
+//   selectedIngredients.add(name.toLowerCase());
 //   addIngredientChip(name);
 //   ingredientInput.value = "";
 //   suggestionBox.innerHTML = "";
@@ -1177,7 +1180,7 @@ displayedRecipes = results.map(r => {
 //   selectedIngredientsContainer.appendChild(chip);
 
 //   chip.querySelector(".remove-chip").addEventListener("click", () => {
-//     selectedIngredients.delete(ingredient);
+//     selectedIngredients.delete(ingredient.toLowerCase());
 //     chip.remove();
 //   });
 // }

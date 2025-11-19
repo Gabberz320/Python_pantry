@@ -2,7 +2,7 @@ from database.connection import db
 from datetime import datetime, timezone
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
-from sqlalchemy import String, Integer, Text, ForeignKey, DateTime
+from sqlalchemy import String, Integer, Text, ForeignKey, DateTime, LargeBinary
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin
 
@@ -50,8 +50,16 @@ class SavedRecipe(db.Model):
     title: Mapped[str] = mapped_column(String(400), nullable=False)
     image: Mapped[str] = mapped_column(Text, nullable=True)
     link: Mapped[str] = mapped_column(Text, nullable=True)
+    calories: Mapped[int] = mapped_column(Integer, nullable=True)
+    servings: Mapped[int] = mapped_column(Integer, nullable=True)
+    cook_time: Mapped[str] = mapped_column(String(50), nullable=True)
+    summary: Mapped[str] = mapped_column(Text, nullable=True)
     date_saved: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
     
+    # Add columns for the image blob and its MIME type
+    image_blob: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
+    image_mime: Mapped[str] = mapped_column(String(64), nullable=True)
+
     manual_user = relationship("ManualUser", back_populates="saved_recipes")
     oauth_user = relationship("Oauth_User", back_populates="saved_recipes")
     
