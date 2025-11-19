@@ -23,6 +23,65 @@ body {
 }
 
 
+/* Hide images and adjust card layout in favorites sections */
+#home-favorites-container .recipe-image,
+#favorites-container .recipe-image {
+    display: none !important;
+}
+
+/* Adjust flip card layout when image is removed */
+#home-favorites-container .flip-card,
+#favorites-container .flip-card {
+    height: auto !important;
+    min-height: 200px !important;
+}
+
+#home-favorites-container .flip-card-inner,
+#favorites-container .flip-card-inner {
+    height: auto !important;
+    min-height: 200px !important;
+}
+
+#home-favorites-container .flip-card-front,
+#favorites-container .flip-card-front {
+    height: auto !important;
+    min-height: 200px !important;
+    padding: 20px !important;
+    justify-content: center !important;
+    align-items: center !important;
+}
+
+#home-favorites-container .flip-card-back,
+#favorites-container .flip-card-back {
+    height: auto !important;
+    min-height: 200px !important;
+    padding: 20px !important;
+}
+
+
+
+/* Make sure cards in favorites sections have consistent sizing */
+#home-favorites-container .flip-card,
+#favorites-container .flip-card {
+    width: 100% !important;
+    max-width: 350px !important;
+    margin: 0 auto !important;
+}
+
+/* Adjust grid layout for favorites to be more compact */
+#home-favorites-container,
+#favorites-container {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
+    gap: 20px !important;
+}
+
+/* Remove any margins/padding that might be causing layout issues */
+#home-favorites-container .flip-card-front .recipe-info,
+#favorites-container .flip-card-front .recipe-info {
+    margin: 0 !important;
+    padding: 0 !important;
+}
 
 @keyframes gradient {
     0% { background-position: 0% 50%; }
