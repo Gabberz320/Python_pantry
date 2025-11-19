@@ -1477,6 +1477,12 @@ document.addEventListener('DOMContentLoaded', function() {
         const isClickInsideSidebar = sideMenu.contains(e.target);
         const isClickOnToggle = sidebarToggle.contains(e.target);
 
+        //prevent closing sidebar when chips removed
+        const isChipRemove = e.target.classList.contains("remove-chip") ||
+                        e.target.closest(".chip");
+
+    if (isChipRemove) return;
+
         // if open, and click is NOT inside the sidebar OR on the toggle button → close it
         if (
             document.body.classList.contains('sidebar-open') &&
