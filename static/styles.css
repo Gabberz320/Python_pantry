@@ -291,7 +291,7 @@ body.sidebar-open {
     padding: 12px 10px;
     border-radius: 30px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     margin-left: 10px;
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
@@ -1658,7 +1658,11 @@ body:not(.dark-mode) .shortcut-hint {
     text-align: center;
     font-size: 9px;
   }
+  #search-form button {
+    font-size: .8rem;
+  }
 }
+
 /* shouldnt show on mobile?? */
 @media (hover: none) and (pointer: coarse) {
   .shortcut-hint {
@@ -1782,7 +1786,7 @@ body.potato-mode {
 @media (max-width: 768px) {
     .potato-btn {
         padding: 10px 20px;
-        font-size: 1rem;
+        font-size: .7rem;
     }
     
 }
