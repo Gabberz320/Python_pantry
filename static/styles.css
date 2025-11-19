@@ -1659,7 +1659,7 @@ body:not(.dark-mode) .shortcut-hint {
     font-size: 9px;
   }
   #search-form button {
-    font-size: .8rem;
+    font-size: .75rem;
   }
 }
 
