@@ -16,7 +16,7 @@
 </head>
 <body>
     <nav class="topnav">
-        <div class="nav-container">
+        <div class="nav-container flex">
             
             <button id="sidebar-toggle" class="sidebar-toggle" aria-label="Open menu" aria-expanded="false">☰</button>
             <div class="logo">
@@ -31,14 +31,14 @@
 
             <!--autocomplete-->
             <form id="search-form">
-            <div class="autocomplete-wrapper">
+            <div class="autocomplete-wrapper flex">
                 <input type="text" id="ingredient-input" placeholder="Enter Ingredients">
                 <span class="shortcut-hint">Press TAB + SPACE to search</span>
             </div>
             <button type="submit" tabindex="0">Search</button>
 
             <!-- I'm Feeling Hungry Button -->
-                <button id="hungry-btn" class="feeling-hungry-btn">I'm Feeling Hungry</button>
+                <button id="hungry-btn" class="feeling-hungry-btn">I'm Feeling Hangry</button>
 
             </form>
 
@@ -99,7 +99,7 @@
 
         <div class="multi-dropdown-menu" id="diet-filters">
 
-            <label><input type="checkbox" value=""> All Diets</label>
+            <!-- <label><input type="checkbox" value=""> All Diets</label> -->
             <label><input type="checkbox" value="balanced"> Balanced</label>
             <label><input type="checkbox" value="high-fiber"> High-Fiber</label>
             <label><input type="checkbox" value="high-protein"> High-Protein</label>

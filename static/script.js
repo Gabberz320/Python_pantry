@@ -1716,7 +1716,8 @@ function setRecipesPerPage(n, resetDisplay = true) {
     RECIPES_PER_PAGE = Number(n) || 3;
     const loadMoreBtn = document.getElementById('load-more-btn');
     if (loadMoreBtn) {
-        loadMoreBtn.textContent = `Load More Recipes (${RECIPES_PER_PAGE} per page)`;
+        // loadMoreBtn.textContent = `Load More Recipes (${RECIPES_PER_PAGE} per page)`;
+        loadMoreBtn.textContent = `Load More Recipes`;
     }
     if (resetDisplay) {
         resetLoadMore(displayedRecipes, true);
@@ -1779,4 +1780,14 @@ document.getElementById("hungry-btn").addEventListener("click", function () {
 
     document.getElementById("search-form").dispatchEvent(new Event("submit"));
 
+});
+
+document.querySelector("form.register-form").addEventListener("submit", function (e) {
+    const pass = document.getElementById("password").value;
+    const confirm = document.getElementById("confirm_password").value;
+
+    if (pass !== confirm) {
+        e.preventDefault();
+        alert("Passwords do not match!");
+    }
 });

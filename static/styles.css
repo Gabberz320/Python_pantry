@@ -1864,11 +1864,6 @@ body.potato-mode {
     background-repeat: no-repeat;
 }
 
-/* When open, rotate arrow */
-/* .multi-dropdown.open .multi-dropdown-btn::after {
-    transform: translateY(-50%) rotate(180deg);
-} */
-
 .multi-dropdown-menu input[type="checkbox"] {
     accent-color: #00222e !important;
     width: 16px;
@@ -1890,4 +1885,9 @@ body.potato-mode {
 
 .logo-link.nav-link {
     all: unset;
+}
+
+
+body.dark-mode .user-avatar {
+    content: url("/static/images/darkchef.png");
 }
