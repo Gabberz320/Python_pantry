@@ -1895,3 +1895,23 @@ body.potato-mode {
 body.dark-mode .user-avatar {
     content: url("/static/images/darkchef.png");
 }
+
+
+
+
+.gabby-mode #recipes-grid,
+.gabby-mode #home-favorites-container {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.gabby-mode .flip-card .recipe-title {
+    font-size: 1.1rem;
+}
+
+.gabby-mode .flip-card .recipe-meta {
+    font-size: 0.8rem;
+}
+
+.gabby-mode .flip-card-back .recipe-summary {
+    font-size: 0.85rem;
+}

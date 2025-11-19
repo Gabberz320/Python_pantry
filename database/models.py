@@ -56,7 +56,7 @@ class SavedRecipe(db.Model):
     summary: Mapped[str] = mapped_column(Text, nullable=True)
     date_saved: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, default=lambda: datetime.now(timezone.utc))
     
-    # Add columns for the image blob and its MIME type
+    
     image_blob: Mapped[bytes] = mapped_column(LargeBinary, nullable=True)
     image_mime: Mapped[str] = mapped_column(String(64), nullable=True)
 

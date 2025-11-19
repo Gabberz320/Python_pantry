@@ -1542,12 +1542,14 @@ if (clearIngredientsBtn) {
                 this.classList.remove('active');
                 this.setAttribute('aria-pressed', 'false');
                 this.innerHTML = 'Gabby Mode';
+                document.body.classList.remove('gabby-mode');
             } else {
                 //  4 recipes
                 setRecipesPerPage(4, true);
                 this.classList.add('active');
                 this.setAttribute('aria-pressed', 'true');
                 this.innerHTML = 'Normal Mode';
+                document.body.classList.add('gabby-mode');
             }
         });
     }
