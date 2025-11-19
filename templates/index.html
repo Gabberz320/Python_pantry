@@ -29,17 +29,18 @@
                     <button type="submit">Search</button>
                 </form> -->
 
-<!--autocomplete-->
-<form id="search-form">
-  <div class="autocomplete-wrapper">
-    <input type="text" id="ingredient-input" placeholder="Enter Ingredients">
-    <span class="shortcut-hint">Press TAB + SPACE to search</span>
-  </div>
-  <button type="submit" tabindex="0">Search</button>
-</form>
+            <!--autocomplete-->
+            <form id="search-form">
+            <div class="autocomplete-wrapper">
+                <input type="text" id="ingredient-input" placeholder="Enter Ingredients">
+                <span class="shortcut-hint">Press TAB + SPACE to search</span>
+            </div>
+            <button type="submit" tabindex="0">Search</button>
 
+            <!-- I'm Feeling Hungry Button -->
+                <button id="hungry-btn" class="feeling-hungry-btn">I'm Feeling Hungry</button>
 
-
+            </form>
 
             </div>
 
@@ -110,45 +111,6 @@
         </div>
     </div>
 </div>
-
-
-
-
-        <!-- <div class="search-filter">
-        <label for="allergy-filter" class="filter-label">Allergies & Restrictions</label>
-        <select id="allergy-filter" class="filter-dropdown" >
-           <option value="">No Restrictions</option>
-            <option value="alcohol-free">Alcohol-Free</option>
-            <option value="celery-free">Celery-Free</option>
-            <option value="crustacean-free">Crustacean-Free</option>
-            <option value="dairy-free">Dairy-Free</option>
-            <option value="egg-free">Egg-Free</option>
-            <option value="fish-free">Fish-Free</option>
-            <option value="gluten-free">Gluten-Free</option>
-            <option value="keto-friendly">Keto-Friendly</option>
-            <option value="kidney-friendly">Kidney-Friendly</option>
-            <option value="kosher">Kosher</option>
-            <option value="low-potassium">Low-Potassium</option>
-            <option value="lupine-free">Lupine-Free</option>
-            <option value="mustard-free">Mustard-Free</option>
-            <option value="low-fat-abs">Low-Fat</option>
-            <option value="no-oil-added">No Oil Added</option>
-            <option value="low-sugar">Low-Sugar</option>
-            <option value="paleo">Paleo</option>
-            <option value="peanut-free">Peanut-Free</option>
-            <option value="pecatarian">Pescatarian</option>
-            <option value="pork-free">Pork-Free</option>
-            <option value="red-meat-free">Red Meat-Free</option>
-            <option value="sesame-free">Sesame-Free</option>
-            <option value="shellfish-free">Shellfish-Free</option>
-            <option value="soy-free">Soy-Free</option>
-            <option value="sugar-conscious">Sugar-Conscious</option>
-            <option value="tree-nut-free">Tree Nut-Free</option>
-            <option value="vegan">Vegan</option>
-            <option value="vegetarian">Vegetarian</option>
-            <option value="wheat-free">Wheat-Free</option>
-        </select>
-     </div> -->
 
      <div class="search-filter">
     <label class="filter-label">Allergies & Restrictions: </label>
@@ -221,42 +183,6 @@
         </select>
     </div>
 </div>
-
-
-    <!-- <div class="search-filter">
-    <label class="filter-label">Cuisine</label> -->
-
-    <!-- <div class="multi-dropdown" id="cuisine-dropdown">
-        <div class="multi-dropdown-btn">Select Cuisines ▼</div>
-
-        <div class="multi-dropdown-menu" id="cuisine-filters">
-
-            <label><input type="checkbox" value="american"> American</label>
-            <label><input type="checkbox" value="asian"> Asian</label>
-            <label><input type="checkbox" value="british"> British</label>
-            <label><input type="checkbox" value="caribbean"> Caribbean</label>
-            <label><input type="checkbox" value="central europe"> Central European</label>
-            <label><input type="checkbox" value="chinese"> Chinese</label>
-            <label><input type="checkbox" value="eastern europe"> Eastern European</label>
-            <label><input type="checkbox" value="french"> French</label>
-            <label><input type="checkbox" value="greek"> Greek</label>
-            <label><input type="checkbox" value="indian"> Indian</label>
-            <label><input type="checkbox" value="italian"> Italian</label>
-            <label><input type="checkbox" value="japanese"> Japanese</label>
-            <label><input type="checkbox" value="korean"> Korean</label>
-            <label><input type="checkbox" value="kosher"> Kosher</label>
-            <label><input type="checkbox" value="mediterranean"> Mediterranean</label>
-            <label><input type="checkbox" value="mexican"> Mexican</label>
-            <label><input type="checkbox" value="middle eastern"> Middle Eastern</label>
-            <label><input type="checkbox" value="nordic"> Nordic</label>
-            <label><input type="checkbox" value="south american"> South American</label>
-            <label><input type="checkbox" value="south east asian"> South East Asian</label>
-            <label><input type="checkbox" value="world"> World</label>
-
-        </div>
-    </div>
-</div>
- -->
 
 
                 <!-- Apply Filters Button -->
@@ -342,58 +268,6 @@
         </div>
     </div>
     
-
-<!--autocomplete(moved to js file)-->
-<!-- <script>
-const ingredientInput = document.getElementById("ingredient-input");
-
-const suggestionBox = document.createElement("ul");
-suggestionBox.className = "autocomplete-list";
-ingredientInput.parentNode.appendChild(suggestionBox);
-
-ingredientInput.addEventListener("input", async () => {
-  const query = ingredientInput.value.trim();
-  suggestionBox.innerHTML = "";
-  if (query.length < 2) return;
-
-  try {
-    const res = await fetch(`/autocomplete?query=${encodeURIComponent(query)}`);
-    const data = await res.json();
-
-    if (!Array.isArray(data) || data.length === 0) return;
-
-    data.slice(0, 5).forEach((item) => {
-      const li = document.createElement("li");
-      li.textContent = item.name;
-      li.addEventListener("click", () => {
-        ingredientInput.value = item.name;
-        suggestionBox.innerHTML = "";
-      });
-      suggestionBox.appendChild(li);
-    });
-
-    const rect = ingredientInput.getBoundingClientRect();
-    suggestionBox.style.width = rect.width + "px";
-
-  } catch (err) {
-    console.error("Autocomplete error:", err);
-  }
-});
-
-document.addEventListener("click", (e) => {
-  if (!suggestionBox.contains(e.target) && e.target !== ingredientInput) {
-    suggestionBox.innerHTML = "";
-  }
-});
-</script> -->
-
-
-
-
-
-
-
-
 
 <!--moved this to the bottom to resolve loading error-->
     <script src="{{ url_for('static', filename='script.js') }}"></script>
