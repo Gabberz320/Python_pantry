@@ -1753,3 +1753,27 @@ function setRecipesPerPage(n, resetDisplay = true) {
 // });
 
 // });
+
+// IM HUNGRY BUTTON functionality
+document.getElementById("hungry-btn").addEventListener("click", function () {
+
+    const cuisines = [
+        "american", "asian", "british", "caribbean", "central europe", "chinese",
+        "eastern europe", "french", "greek", "indian", "italian", "japanese",
+        "korean", "kosher", "mediterranean", "mexican", "middle eastern",
+        "nordic", "south american", "south east asian", "world"
+    ];
+
+    // random cuisince
+    const randomCuisine = cuisines[Math.floor(Math.random() * cuisines.length)];
+
+    //shown in pop out so you can see what it was
+    const cuisineSelect = document.getElementById("cuisine-filter");
+    cuisineSelect.value = randomCuisine;
+
+    // make sure allergies and diet cleared 
+    document.querySelectorAll("#diet-filters input, #allergy-filters input").forEach(cb => cb.checked = false);
+
+    document.getElementById("search-form").dispatchEvent(new Event("submit"));
+
+});

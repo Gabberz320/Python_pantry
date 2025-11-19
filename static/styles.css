@@ -288,7 +288,7 @@ body.sidebar-open {
     background: linear-gradient(to right, #00222e, #00131b);
     color: white;
     border: none;
-    padding: 12px 25px;
+    padding: 12px 10px;
     border-radius: 30px;
     cursor: pointer;
     font-size: 16px;
@@ -310,7 +310,7 @@ body.sidebar-open {
 .nav-link {
     text-decoration: none;
     color: #333;
-    padding: 10px 20px;
+    padding: 10px 15px;
     margin-left: 10px;
     border-radius: 30px;
     transition: all 0.3s ease;
@@ -1876,3 +1876,18 @@ body.potato-mode {
     border-radius: 4px;
 }
 
+/*trying to force one line txt for im hungry button */
+.feeling-hungry-btn {
+    white-space: nowrap;       
+}
+
+.logo-link {
+    text-decoration: none;
+    color: #00222e;
+    font-size: 1.7rem;
+    font-weight: 700;
+}
+
+.logo-link.nav-link {
+    all: unset;
+}
