@@ -1603,6 +1603,11 @@ function togglePotatoMode() {
     const potatoBtn = document.getElementById('potato-btn');
     const body = document.body;
 
+    const cuisineFilter = document.getElementById("cuisine-filter");
+    if (cuisineFilter) {
+        cuisineFilter.value = "";
+    }
+
     isPotatoMode = !isPotatoMode
 
     if (isPotatoMode){
