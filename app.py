@@ -219,8 +219,8 @@ def reset_with_token(token):
     if not user:
         flash("Invalid or expired token")
         return redirect(url_for("reset_password"))
-    
-    if user.reset_token_expires is None or user.reset_token_expires < datetime.now(timezone.utc):
+    current_time = datetime.now(timezone.utc)
+    if user.reset_token_expires is None or user.reset_token_expires.replace(tzinfo=timezone.utc) < current_time:
         flash("This reset link has expired. Please request a new one.", "error")
         user.reset_token = None
         user.reset_token_expires = None
