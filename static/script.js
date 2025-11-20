@@ -1,4 +1,7 @@
-// JavaScript Code
+// site redirect for bad sites in list, can be added to as needed
+REDIRECT_SITES = [
+    "recipezaar.com"
+];
     // Mock recipe data
         const mockRecipes = [
             {
@@ -1789,12 +1792,53 @@ document.getElementById("hungry-btn").addEventListener("click", function () {
 
 });
 
-document.querySelector("form.register-form").addEventListener("submit", function (e) {
-    const pass = document.getElementById("password").value;
-    const confirm = document.getElementById("confirm_password").value;
+//matching pw s on register form
+const registerForm = document.querySelector("form.register-form");
+if (registerForm) {
+    registerForm.addEventListener("submit", function (e) {
+        const pass = document.getElementById("password").value;
+        const confirm = document.getElementById("confirm_password").value;
 
-    if (pass !== confirm) {
-        e.preventDefault();
-        alert("Passwords do not match!");
+        if (pass !== confirm) {
+            e.preventDefault();
+            alert("Passwords do not match!");
+        }
+    });
+}
+
+// site redirect for bad sites in list REDIRECT_SITES 
+
+document.addEventListener("click", function (e) {
+    const link = e.target.closest(".recipe-link");
+    if (!link) return;
+
+    const url = link.getAttribute("href");
+
+    let hostname;
+    try {
+        hostname = new URL(url).hostname.replace(/^www\./, "");
+    } catch (err) {
+        console.warn("[redirect] invalid URL", url, err); //testing
+        return;
     }
+
+    const shouldRedirect = REDIRECT_SITES.some(site => hostname.includes(site));
+    if (!shouldRedirect) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    alert("This link is bad, so we’re giving you a Google search instead.");
+
+    //get the title for the search
+    const titleEl = link.closest(".flip-card").querySelector(".recipe-title");
+    const title = titleEl
+        ? titleEl.textContent.trim()
+        : (link.dataset.title || link.textContent || "").trim();
+
+    const googleSearch = `https://www.google.com/search?q=${encodeURIComponent(title)}`;
+
+    console.log("[redirect] redirecting to:", googleSearch);
+    window.open(googleSearch, "_blank");
 });
+

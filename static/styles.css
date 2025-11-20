@@ -499,6 +499,11 @@ body.sidebar-open {
     text-align: center;
 }
 
+.recipe-link * {
+    pointer-events: none;
+}
+
+
 .recipe-link:hover {
     background: #f8f9fa;
     transform: translateY(-2px);
@@ -1915,3 +1920,4 @@ body.dark-mode .user-avatar {
 .gabby-mode .flip-card-back .recipe-summary {
     font-size: 0.85rem;
 }
+
