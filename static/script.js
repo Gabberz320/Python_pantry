@@ -14,7 +14,8 @@ REDIRECT_SITES = [
                 summary: "Packed with flavor and has a succulent, meaty texture. Easy to prepare, these seitan ribs are also packed with protein and incredibly satisfying.",
                 calories: 1560,
                 servings: 6,    
-                favoriteOf: "Heather"
+                favoriteOf: "Heather",
+                isHardcoded: true
             },
             {
                 id: 2,
@@ -26,7 +27,8 @@ REDIRECT_SITES = [
                 summary: "Enjoy classic flavors of fresh broccoli, carrots, and celery in this homemade soup.",
                 calories: 3528,
                 servings: 8,
-                favoriteOf: "Gabby"
+                favoriteOf: "Gabby",
+                isHardcoded: true
             },
             {
                 id: 3,
@@ -38,7 +40,8 @@ REDIRECT_SITES = [
                 summary: "This authentic chicken paprikash recipe features a rich paprika-sour cream sauce and tender chicken.",
                 calories: 3844,
                 servings: 4,
-                favoriteOf: "Gabby"
+                favoriteOf: "Gabby",        
+                isHardcoded: true
             },
             {
                 id: 4,
@@ -50,7 +53,8 @@ REDIRECT_SITES = [
                 summary: "A combination of collard greens, mustard greens, and turnip greens for that classic Southern flavor without any of the meat. You’ll love this dish whether you’re a vegetarian or not!",
                 calories: 1036,
                 servings: 10,
-                favoriteOf: "Heather"
+                favoriteOf: "Heather",
+                isHardcoded: true
             },
             {
                 id: 5,
@@ -62,7 +66,8 @@ REDIRECT_SITES = [
                 summary: "Who doesn’t love the iconic Wendy’s Chili? You can recreate this copycat Wendy’s chili at home, like the restaurant.",
                 calories: 2570,
                 servings: 10,
-                favoriteOf: "Karigan"
+                favoriteOf: "Karigan",
+                isHardcoded: true
             },
             {
                 id: 6,
@@ -74,7 +79,8 @@ REDIRECT_SITES = [
                 summary: "Looking for a fool-proof way to add nutrition to your family’s diet? These Cracker Barrel chicken tenders are all you need.",
                 calories: 892,
                 servings: 2,
-                favoriteOf: "Karigan"
+                favoriteOf: "Karigan",
+                isHardcoded: true
             },
                         {
                 id: 7,
@@ -86,7 +92,8 @@ REDIRECT_SITES = [
                 summary: "Paneer Tikka is a popular and delicious tandoori starter and snack where Paneer (Indian cottage cheese cubes) are marinated in a spiced yogurt-based marinade, arranged on skewers and grilled in the oven.",
                 calories: 948,
                 servings: 3,
-                favoriteOf: "Tejasri"
+                favoriteOf: "Tejasri",
+                isHardcoded: true
             },
                         {
                 id: 8,
@@ -97,6 +104,7 @@ REDIRECT_SITES = [
                 ingredients: ["chicken", "Basmati rice", "tomatoes", "onions", "green chillies", "ginger", "red chilli powder"],
                 summary: "Chicken Dum Biryani Recipe is one such recipe which is loved by everyone in the family. Biryani is derived from the Farsi word ‘birian’ originated in Persia, biryani was introduced to India during the British rule.",
                 favoriteOf: "Tejasri",
+                isHardcoded: true
             },
                                     {
                 id: 9,
@@ -108,7 +116,8 @@ REDIRECT_SITES = [
                 summary: "In the world of pasta dinners, spaghetti and meatballs can be overlooked for more exciting options. I'm here to tell you that this classic Italian pasta deserves a spot back on your weeknight dinner rotation.",
                 calories: 3752,
                 servings: 4,
-                favoriteOf: "Garrett"
+                favoriteOf: "Garrett",
+                isHardcoded: true   
             },
                         {
                 id: 10,
@@ -120,7 +129,8 @@ REDIRECT_SITES = [
                 summary: "Wish you were here in Philadelphia, eating a cheese steak. No doubt about it, cheese steak is the quintessential Philly food.",
                 calories: 3180,
                 servings: 6,
-                favoriteOf: "Garrett"
+                favoriteOf: "Garrett",
+                isHardcoded: true   
             },            {
                 id: 11,
                 title: "Finnish Salmon Soup (Lohikeitto)",
@@ -131,7 +141,8 @@ REDIRECT_SITES = [
                 summary: "Packed Finnish Salmon Soup, or Lohikeitto, is a simple Nordic salmon chowder and a comforting 30 minute meal made with a light cream broth, melt-in-your-mouth chunks of salmon, and tons of fresh dill!",
                 calories: 2304,
                 servings: 4,    
-                favoriteOf: "Robert"
+                favoriteOf: "Robert",
+                isHardcoded: true   
             },            {
                 id: 12,
                 title: "Borscht (Beet Soup)",
@@ -142,7 +153,8 @@ REDIRECT_SITES = [
                 summary: "This fresh beet soup is drop dead gorgeous, but also incredibly delicious. Here's what you need to know to make it at home.",
                 calories: 2728,
                 servings: 8,    
-                favoriteOf: "Robert"
+                favoriteOf: "Robert",
+                isHardcoded: true   
             }
         ];
 
@@ -398,13 +410,26 @@ REDIRECT_SITES = [
             // truncate summary for display to ~30 words
             const displaySummary = truncateWords(recipe.summary || '', 30);
 
-            const favoriteButton = isFavorite
-                ? `<button class="remove-favorite-btn" data-id="${recipe.id}">
-                    <span class="heart-icon"><i class="fas fa-heart"></i></span> Remove from Favorites
-                </button>`
-                : `<button class="favorite-btn" data-id="${recipe.id}">
-                    <span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites
-                </button>`;
+            // const favoriteButton = isFavorite
+            //     ? `<button class="remove-favorite-btn" data-id="${recipe.id}">
+            //         <span class="heart-icon"><i class="fas fa-heart"></i></span> Remove from Favorites
+            //     </button>`
+            //     : `<button class="favorite-btn" data-id="${recipe.id}">
+            //         <span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites
+            //     </button>`;
+
+            let favoriteButton = "";
+
+                if (!recipe.isHardcoded) {
+                    favoriteButton = isFavorite
+                        ? `<button class="remove-favorite-btn" data-id="${recipe.id}">
+                            <span class="heart-icon"><i class="fas fa-heart"></i></span> Remove from Favorites
+                        </button>`
+                        : `<button class="favorite-btn" data-id="${recipe.id}">
+                            <span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites
+                        </button>`;
+                }
+
 
             // Create the card HTML
             flipCard.innerHTML = `
@@ -787,7 +812,7 @@ displayedRecipes = results.map(r => {
         ? `${recipe.totalTime} min`
         : (recipe?.cookTime || recipe?.total_time || ''),
     image: recipe?.image || 'https://via.placeholder.com/400x300.png?text=No+Image',
-    link: recipe?.url || recipe?.link || '#',
+link: recipe?.shareAs || recipe?.url || recipe?.uri,
     ingredients: recipe?.ingredientLines || recipe?.ingredients || [],
     summary: recipe?.ingredientLines
       ? recipe.ingredientLines.slice(0, 4).join(', ')
@@ -1769,39 +1794,35 @@ function setRecipesPerPage(n, resetDisplay = true) {
 // });
 
 // IM HUNGRY BUTTON functionality
-document.getElementById("hungry-btn").addEventListener("click", function () {
+const hungryBtn = document.getElementById("hungry-btn");
+if (hungryBtn) {
+    hungryBtn.addEventListener("click", function (e) {
+        e.preventDefault();
 
-    const cuisines = [
-        "american", "asian", "british", "caribbean", "central europe", "chinese",
-        "eastern europe", "french", "greek", "indian", "italian", "japanese",
-        "korean", "kosher", "mediterranean", "mexican", "middle eastern",
-        "nordic", "south american", "south east asian", "world"
-    ];
+        const cuisines = [
+            "american", "asian", "british", "caribbean", "central europe", "chinese",
+            "eastern europe", "french", "greek", "indian", "italian", "japanese",
+            "korean", "kosher", "mediterranean", "mexican", "middle eastern",
+            "nordic", "south american", "south east asian", "world"
+        ];
 
-    // random cuisince
-    const randomCuisine = cuisines[Math.floor(Math.random() * cuisines.length)];
+        const randomCuisine =
+            cuisines[Math.floor(Math.random() * cuisines.length)];
 
-    //shown in pop out so you can see what it was
-    const cuisineSelect = document.getElementById("cuisine-filter");
-    cuisineSelect.value = randomCuisine;
+        const cuisineSelect = document.getElementById("cuisine-filter");
+        if (cuisineSelect) cuisineSelect.value = randomCuisine;
 
-    // make sure allergies and diet cleared 
-    document.querySelectorAll("#diet-filters input, #allergy-filters input").forEach(cb => cb.checked = false);
+        document.querySelectorAll("#diet-filters input, #allergy-filters input")
+            .forEach(cb => cb.checked = false);
 
-    document.getElementById("search-form").dispatchEvent(new Event("submit"));
-
-});
-
-//matching pw s on register form
-const registerForm = document.querySelector("form.register-form");
-if (registerForm) {
-    registerForm.addEventListener("submit", function (e) {
-        const pass = document.getElementById("password").value;
-        const confirm = document.getElementById("confirm_password").value;
-
-        if (pass !== confirm) {
-            e.preventDefault();
-            alert("Passwords do not match!");
+        //bc FIREFOX IS DUMB
+        const form = document.getElementById("search-form");
+        if (form) {
+            const submitEvent = new Event("submit", {
+                bubbles: true,
+                cancelable: true
+            });
+            form.dispatchEvent(submitEvent);
         }
     });
 }

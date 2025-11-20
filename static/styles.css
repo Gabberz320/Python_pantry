@@ -985,6 +985,18 @@ label[for="selected-ingredients-container"],
   }
 }
 
+@media (min-width: 1181px) {
+  .side-menu {
+    top: 78px; /* same as navbar height */
+    height: calc(100vh - 78px);
+    z-index: 90; /* below navbar */
+    
+  }
+    .side-menu-inner {
+    padding-top: 25px;
+  }
+}
+
 @media (min-width: 770px) and (max-width: 1180px) {
   .side-menu {
     top: 78px; /* same as navbar height */
@@ -993,7 +1005,7 @@ label[for="selected-ingredients-container"],
     
   }
     .side-menu-inner {
-    padding-top: 15px;
+    padding-top: 25px;
   }
 }
 .reset-password-container {
