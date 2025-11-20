@@ -1897,11 +1897,14 @@ body.potato-mode {
 }
 
 
-body.dark-mode .user-avatar {
+body.dark-mode .default-avatar {
     content: url("/static/images/darkchef.png");
 }
 
-
+.oauth-avatar {
+    content: normal !important;
+    filter: none !important;
+}
 
 
 .gabby-mode #recipes-grid,

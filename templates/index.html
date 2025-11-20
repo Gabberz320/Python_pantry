@@ -55,9 +55,9 @@
                     
                     {# Check if the user object has a picture_url (for OAuth users) #}
                     {% if current_user.picture_url %}
-                        <img src="{{ current_user.picture_url }}" alt="Profile" class="user-avatar">
+                        <img src="{{ current_user.picture_url }}" alt="Profile" class="user-avatar oauth-avatar">
                     {% else %}
-                        <img src="{{ url_for('static', filename='images/chef.png') }}" alt="Profile" class="user-avatar">
+                        <img src="{{ url_for('static', filename='images/chef.png') }}" alt="Profile" class="user-avatar default-avatar">
                     {% endif %}
 
                     {# Check if the user object has a name (for OAuth users) #}
