@@ -812,7 +812,7 @@ displayedRecipes = results.map(r => {
         ? `${recipe.totalTime} min`
         : (recipe?.cookTime || recipe?.total_time || ''),
     image: recipe?.image || 'https://via.placeholder.com/400x300.png?text=No+Image',
-link: recipe?.shareAs || recipe?.url || recipe?.uri,
+link: recipe?.url || recipe?.url || recipe?.uri,
     ingredients: recipe?.ingredientLines || recipe?.ingredients || [],
     summary: recipe?.ingredientLines
       ? recipe.ingredientLines.slice(0, 4).join(', ')
