@@ -1478,8 +1478,14 @@ if (currentValue) {
 
 
   //combine chips into string w comma sep 
-  const ingredientArray = Array.from(selectedIngredients);
-  document.getElementById("ingredient-input").value = ingredientArray.join(", ");
+  // JUST FOR BEN:
+    //   const ingredientArray = Array.from(selectedIngredients);
+    //   document.getElementById("ingredient-input").value = ingredientArray.join(", ");
+const ingredientArray = Array.from(selectedIngredients);
+document.getElementById("ingredient-input").value = ingredientArray.join(", ");
+setTimeout(() => {
+    document.getElementById("ingredient-input").value = "";
+}, 50);
 });
 
 // Sidebar toggle 
