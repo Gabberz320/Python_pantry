@@ -158,13 +158,6 @@ REDIRECT_SITES = [
             }
         ];
 
-        // Mock favorite recipes
-        const mockFavorites = [
-            mockRecipes[0], // Spaghetti Carbonara
-            mockRecipes[2], // Chocolate Chip Cookies
-            mockRecipes[4]  // Chicken Curry
-        ];
-
         // User favorites (loaded from db) 
         let userFavorites = [];
 
@@ -219,19 +212,6 @@ REDIRECT_SITES = [
                 console.error('Failed to load user favorites on init:', err);
             }
 
-         // shuffle our recipe picks and show 3 on page load 
-            // const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
-            // displayedRecipes = shuffled.slice(0, 3);
-            // shuffle our recipe picks and show 3 on page load
-            // const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
-            // displayedRecipes = [...shuffled]; // store all mock recipes globally
-
-            // // Now render UI using the freshly-loaded favorites
-            // displayRecipes(displayedRecipes);
-
-
-
-
             displayHomeFavorites();
             displayFavorites();
             attachEventListeners();
@@ -242,31 +222,7 @@ REDIRECT_SITES = [
     showNextRecipes(true);
         });
 
-        // Display recipes in the home section
-        // function displayRecipes(recipes){
-        //     const recipesGrid = document.getElementById('recipes-grid');
-        //     recipesGrid.innerHTML = '';
-
-        //     if (recipes.length === 0){
-        //         recipesGrid.innerHTML = '<div class="no-results">No recipes found with those ingredients. Try different search terms.</div>';
-        //         return;
-        //     }
-
-        //     // Show only 3 recipes 
-        //     const recipesToShow = recipes.slice(0, 3);
-
-        //     recipesToShow.forEach(recipe => {
-        //         const isFavorite = userFavorites.some(fav => String(fav.id) === String(recipe.id));
-        //         const recipeCard = createRecipeCard(recipe, isFavorite);
-        //         recipesGrid.appendChild(recipeCard);
-        //     });
-        //     attachFavoriteListeners();
-        //     attachRemoveFavoriteListeners();
-
-        // }
-
-
-        
+    //pagination logic
         let currentIndex = 0;
         let RECIPES_PER_PAGE = 3;
 
@@ -287,7 +243,6 @@ REDIRECT_SITES = [
         }
 
         function showNextRecipes(reset = false) {
-        console.log("showNextRecipes called. Current index:", currentIndex); //testing
         const recipesGrid = document.getElementById('recipes-grid');
         const loadMoreBtn = document.getElementById('load-more-btn');
 
@@ -305,8 +260,6 @@ REDIRECT_SITES = [
             const recipeCard = createRecipeCard(recipe, isFavorite);
             recipesGrid.appendChild(recipeCard);
         });
-
-     
 
         attachFavoriteListeners();
         attachRemoveFavoriteListeners();
@@ -342,18 +295,6 @@ REDIRECT_SITES = [
             newBtn.addEventListener('click', () => showNextRecipes());
         }
         }
-
-//removed bc it was interfering with cycle thru mock recipes on init page load
-        // document.addEventListener('DOMContentLoaded', () => {
-        // const loadMoreBtn = document.getElementById('load-more-btn');
-        // if (loadMoreBtn) {
-        //     loadMoreBtn.addEventListener('click', () => showNextRecipes());
-        //     loadMoreBtn.style.display = 'block'; 
-        // }
-        // });
-
-
-
 
         // Display the favorites in home Section
         function displayHomeFavorites(){
@@ -410,14 +351,6 @@ REDIRECT_SITES = [
             // truncate summary for display to ~30 words
             const displaySummary = truncateWords(recipe.summary || '', 30);
 
-            // const favoriteButton = isFavorite
-            //     ? `<button class="remove-favorite-btn" data-id="${recipe.id}">
-            //         <span class="heart-icon"><i class="fas fa-heart"></i></span> Remove from Favorites
-            //     </button>`
-            //     : `<button class="favorite-btn" data-id="${recipe.id}">
-            //         <span class="heart-icon"><i class="far fa-heart"></i></span> Add to Favorites
-            //     </button>`;
-
             let favoriteButton = "";
 
                 if (!recipe.isHardcoded) {
@@ -442,7 +375,6 @@ REDIRECT_SITES = [
                         <div class="recipe-info">
 
                         ${recipe.favoriteOf ? `<p class="mock-owner">❤️ ${recipe.favoriteOf}'s Favorite</p>` : ''}
-
 
                             <h3 class="recipe-title">${recipe.title}</h3>
                             <div class="recipe-meta" id="meta-${recipe.id}">
@@ -512,11 +444,6 @@ REDIRECT_SITES = [
                         // Optionally scroll to top of the content
                         window.scrollTo({ top: 0, behavior: 'smooth' });
 
-                    // if (section === 'home') {
-                    // const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
-                    // resetLoadMore(shuffled);
-                    // }
-
                     if (section === 'home') {
                         const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
                         resetLoadMore(shuffled);
@@ -571,60 +498,6 @@ REDIRECT_SITES = [
     document.addEventListener("click", function () {
         dropdowns.forEach(d => d.classList.remove("open"));
     });
-
-
-
-
-            // Apply filters button - show active filters in sidebar and trigger a search
-            // document.getElementById('apply-filters').addEventListener('click', function(e) {
-            //     e.preventDefault();
-            //     const ingredients = document.getElementById('ingredient-input').value.trim();
-
-            //     // Show selected filters in the sidebar
-            //     const diet = document.getElementById('diet-filter')?.value || '';
-            //     const allergy = document.getElementById('allergy-filter')?.value || '';
-            //     const cuisine = document.getElementById('cuisine-filter')?.value || '';
-
-            //     const activeContainer = document.getElementById('active-filters');
-            //     const filtersList = document.getElementById('filters-list');
-            //     if (filtersList) filtersList.innerHTML = '';
-
-            //     const userFilter = [];
-            //     if (diet) userFilter.push({ label: '  Diet ', value: diet, string: '' });
-            //     if (allergy) userFilter.push({ label: '  Allergy ', value: allergy, string: '' });
-            //     if (cuisine) userFilter.push({ label: '  Cuisine', value: cuisine });
-
-            //     if (userFilter.length > 0) {
-            //         if (activeContainer) activeContainer.style.display = 'block';
-            //         userFilter.forEach(b => {
-            //             const span = document.createElement('span');
-            //             span.className = 'filter-badge';
-            //             span.textContent = `${b.label}: ${b.value}`;
-            //             filtersList.appendChild(span);
-            //         });
-            //     } else {
-            //         if (activeContainer) activeContainer.style.display = 'none';
-            //     }
-            //     document.getElementById('search-form').dispatchEvent(new Event('submit'));
-            // });
-
-            // Clear filters button
-            // document.getElementById('clear-filters').addEventListener('click', function() {
-            //     document.getElementById('diet-filter').value = '';
-            //     document.getElementById('allergy-filter').value = '';
-            //     document.getElementById('cuisine-filter').value = '';
-                
-            //     // If there are ingredients, re-search without filters
-            //     const ingredients = document.getElementById('ingredient-input').value.trim();
-            //     // hide/clear active filters UI
-            //     const activeContainer = document.getElementById('active-filters');
-            //     const filtersList = document.getElementById('filters-list');
-            //     if (filtersList) filtersList.innerHTML = '';
-            //     if (activeContainer) activeContainer.style.display = 'none';
-            //     if (ingredients) {
-            //         document.getElementById('search-form').dispatchEvent(new Event('submit'));
-            //     }
-            // });
 
             const clearFiltersBtn = document.getElementById('clear-filters');
 
@@ -688,92 +561,46 @@ if (clearFiltersBtn) {
             }
 
 
-                            // If empty, show mock data
-            // if (!ingredients) {
-            // const shuffled = [...mockRecipes].sort(() => Math.random() - 0.5);
-            // resetLoadMore(shuffled);
-            // return;
-            // }
-
-
-                // Build query and call Flask backend
-
 // Build query and call Flask backend
 
-// Build query and call Flask backend
+        // Diets
+        const selectedDiets = Array.from(
+            document.querySelectorAll('#diet-filters input[type="checkbox"]:checked')
+        )
+        .map(cb => cb.value)
+        .filter(v => v !== ""); // ignore empty "All Diets"
 
-// Diets
-const selectedDiets = Array.from(
-    document.querySelectorAll('#diet-filters input[type="checkbox"]:checked')
-)
-.map(cb => cb.value)
-.filter(v => v !== ""); // ignore empty "All Diets"
+        // Allergies
+        const selectedAllergies = Array.from(
+            document.querySelectorAll('#allergy-filters input[type="checkbox"]:checked')
+        ).map(cb => cb.value);
 
-// Allergies
-const selectedAllergies = Array.from(
-    document.querySelectorAll('#allergy-filters input[type="checkbox"]:checked')
-).map(cb => cb.value);
+        // Cuisines
+        const selectedCuisines = Array.from(
+            document.querySelectorAll('#cuisine-filters input[type="checkbox"]:checked')
+        ).map(cb => cb.value);
 
-// Cuisines  <-- You were missing this
-const selectedCuisines = Array.from(
-    document.querySelectorAll('#cuisine-filters input[type="checkbox"]:checked')
-).map(cb => cb.value);
+        // Build params
+        const params = new URLSearchParams({ ingredients });
 
-// Build params
-const params = new URLSearchParams({ ingredients });
+        // Diet params
+        // selectedDiets.forEach(d => params.append('diet', d));
+        selectedDiets
+            .filter(d => d.trim() !== "")   // FILTER OUT EMPTY VALUES
+            .forEach(d => params.append('diet', d));
 
-// Diet params
-// selectedDiets.forEach(d => params.append('diet', d));
-selectedDiets
-    .filter(d => d.trim() !== "")   // FILTER OUT EMPTY VALUES
-    .forEach(d => params.append('diet', d));
+        // Allergy params
+        selectedAllergies.forEach(a => params.append('allergy', a));
 
-// Allergy params
-selectedAllergies.forEach(a => params.append('allergy', a));
+        // Cuisine params
+        const cuisine = document.getElementById('cuisine-filter').value;
+        if (cuisine) params.append('cuisine', cuisine);
 
-// Cuisine params
-// selectedCuisines.forEach(c => params.append('cuisine', c));
+        const url = `/search_recipes?${params.toString()}`;
 
-const cuisine = document.getElementById('cuisine-filter').value;
-if (cuisine) params.append('cuisine', cuisine);
+        const recipesGrid = document.getElementById('recipes-grid');
+        recipesGrid.innerHTML = '<div class="loading">Searching recipes...</div>';
 
-const url = `/search_recipes?${params.toString()}`;
-
-const recipesGrid = document.getElementById('recipes-grid');
-recipesGrid.innerHTML = '<div class="loading">Searching recipes...</div>';
-
-
-            //     fetch(url)
-            //         .then(res => res.json())
-            //         .then(data => {
-            //             if (data.error) {
-            //                 recipesGrid.innerHTML = `<div class="no-results">Error: ${data.error}</div>`;
-            //                 return;
-            //             }
-
-            //             // Map API results to UI shape
-            //             const results = Array.isArray(data) ? data : [];
-            //             displayedRecipes = results.map(r => ({
-            //                 id: r.id,
-            //                 title: r.title || r.name || 'Untitled',
-            //                 cook_time: r.readyInMinutes ? `${r.readyInMinutes} min` : (r.cook_time || 'N/A'),
-            //                 image: r.image || '',
-            //                 link: r.sourceUrl || r.spoonacularSourceUrl || '#',
-            //                 ingredients: (r.extendedIngredients || []).map(i => i.name) || [],
-            //                 summary: r.summary ? stripHtml(r.summary) : (r.description || '')
-            //             }));
-
-            //             if(displayedRecipes.length === 0){
-            //                 recipesGrid.innerHTML = '<div class="no-results">No recipes found with those ingredients. Try different search terms.</div>';
-            //                 return;
-            //             }
-
-            //             displayRecipes(displayedRecipes);
-            //         })
-            //         .catch(err => {
-            //             recipesGrid.innerHTML = `<div class="no-results">Error: ${err.message}</div>`;
-            //         });
-            // });
             fetch(url)
             .then(res => {
                 if (!res.ok) {
@@ -783,44 +610,44 @@ recipesGrid.innerHTML = '<div class="loading">Searching recipes...</div>';
                 return res.json();
             })
             .then(data => {
-                // Edamam returns the recipes in an array (already handled by your backend)
+                // Edamam returns the recipes in an array
                 const results = Array.isArray(data) ? data : [];
                 
-// NEW MAPPING FOR EDAMAM API  (drop-in replacement)
-displayedRecipes = results.map(r => {
-  // works whether backend returns {recipe: {...}} or a flat {...}
-  const recipe = r?.recipe ?? r;
+        // NEW MAPPING FOR EDAMAM API
+        displayedRecipes = results.map(r => {
+        // works whether backend returns {recipe: {...}} or a flat {...}
+        const recipe = r?.recipe ?? r;
 
-  // extract Edamam id
-  const getRecipeId = (uri) => {
-    if (!uri) return null;
-    const parts = uri.split('#recipe_');
-    return parts.length > 1 ? parts[1] : null;
-  };
+        // extract Edamam id
+        const getRecipeId = (uri) => {
+            if (!uri) return null;
+            const parts = uri.split('#recipe_');
+            return parts.length > 1 ? parts[1] : null;
+        };
 
-  const recipeId = getRecipeId(recipe?.uri);
+        const recipeId = getRecipeId(recipe?.uri);
 
-  return {
-    id: recipeId,
-    title: recipe?.label || recipe?.title || 'Untitled Recipe',
+        return {
+            id: recipeId,
+            title: recipe?.label || recipe?.title || 'Untitled Recipe',
 
-    calories: typeof recipe?.calories === 'number' ? Math.round(recipe.calories) : null,
-    servings: recipe?.yield || null,
+            calories: typeof recipe?.calories === 'number' ? Math.round(recipe.calories) : null,
+            servings: recipe?.yield || null,
 
-    cook_time:
-        recipe?.totalTime && recipe.totalTime !== 0
-        ? `${recipe.totalTime} min`
-        : (recipe?.cookTime || recipe?.total_time || ''),
-    image: recipe?.image || 'https://via.placeholder.com/400x300.png?text=No+Image',
-link: recipe?.url || recipe?.url || recipe?.uri,
-    ingredients: recipe?.ingredientLines || recipe?.ingredients || [],
-    summary: recipe?.ingredientLines
-      ? recipe.ingredientLines.slice(0, 4).join(', ')
-      : (recipe?.summary || 'No summary available.'),
-    dietLabels: recipe?.dietLabels || [],
-    healthLabels: recipe?.healthLabels || []
-  };
-}).filter(r => r.id);
+            cook_time:
+                recipe?.totalTime && recipe.totalTime !== 0
+                ? `${recipe.totalTime} min`
+                : (recipe?.cookTime || recipe?.total_time || ''),
+            image: recipe?.image || 'https://via.placeholder.com/400x300.png?text=No+Image',
+        link: recipe?.url || recipe?.url || recipe?.uri,
+            ingredients: recipe?.ingredientLines || recipe?.ingredients || [],
+            summary: recipe?.ingredientLines
+            ? recipe.ingredientLines.slice(0, 4).join(', ')
+            : (recipe?.summary || 'No summary available.'),
+            dietLabels: recipe?.dietLabels || [],
+            healthLabels: recipe?.healthLabels || []
+        };
+        }).filter(r => r.id);
 
 
                 if (displayedRecipes.length === 0) {
@@ -863,7 +690,6 @@ link: recipe?.url || recipe?.url || recipe?.uri,
                         //Disables button to prevent duplication
                         this.disabled = true;
                         this.innerHTML = '<span class="heart-icon"><i class="fas fa-spinner fa-spin"></i></span> Saving...';
-                        // NEW: Call database API
                         const response = await fetch('/save_recipe', {
                             method: 'POST',
                             headers: {
@@ -996,7 +822,7 @@ link: recipe?.url || recipe?.url || recipe?.uri,
             });
         }
 
-        // Helper to strip HTML tags (Spoonacular returns HTML in summaries)
+        // Helper to strip HTML tags
         function stripHtml(html){
             const tmp = document.createElement('div');
             tmp.innerHTML = html || '';
@@ -1010,226 +836,6 @@ link: recipe?.url || recipe?.url || recipe?.uri,
             if(words.length <= wordLimit) return words.join(' ');
             return words.slice(0, wordLimit).join(' ') + '...';
         }
-
-
-
-
-// // autocomplete
-// const ingredientInput = document.getElementById("ingredient-input");
-
-// //dropdown box
-// const suggestionBox = document.createElement("ul");
-// suggestionBox.className = "autocomplete-list";
-// ingredientInput.parentNode.appendChild(suggestionBox);
-
-// let activeIndex = -1;
-
-// ingredientInput.addEventListener("input", async () => {
-//   const query = ingredientInput.value.trim();
-//   suggestionBox.innerHTML = "";
-//   suggestionBox.classList.remove("show");
-//   activeIndex = -1;
-
-//   if (query.length < 2) return;
-
-//   try {
-//     const res = await fetch(`/autocomplete?query=${encodeURIComponent(query)}`);
-//     const data = await res.json();
-
-//     if (!Array.isArray(data) || data.length === 0) return;
-
-//     suggestionBox.classList.add("show");
-
-//     data.slice(0, 5).forEach((item) => {
-//       const li = document.createElement("li");
-//       li.textContent = item.name;
-//       li.addEventListener("click", () => {
-//         ingredientInput.value = item.name;
-//         suggestionBox.innerHTML = "";
-//         suggestionBox.classList.remove("show");
-//       });
-//       suggestionBox.appendChild(li);
-//     });
-
-//     //match dropdown width to input
-//     const rect = ingredientInput.getBoundingClientRect();
-//     suggestionBox.style.width = rect.width + "px";
-//   } catch (err) {
-//     console.error("Autocomplete error:", err);
-//   }
-// });
-
-// // --- Keyboard navigation ---
-// ingredientInput.addEventListener("keydown", (e) => {
-//   const items = suggestionBox.querySelectorAll("li");
-//   if (!items.length) return;
-
-//   switch (e.key) {
-//     case "ArrowDown":
-//       e.preventDefault();
-//       activeIndex = (activeIndex + 1) % items.length;
-//       updateActive(items);
-//       break;
-//     case "ArrowUp":
-//       e.preventDefault();
-//       activeIndex = (activeIndex - 1 + items.length) % items.length;
-//       updateActive(items);
-//       break;
-//     case "Enter":
-//     case "Tab":
-//       if (activeIndex >= 0 && activeIndex < items.length) {
-//         e.preventDefault();
-//         ingredientInput.value = items[activeIndex].textContent;
-//         suggestionBox.innerHTML = "";
-//         suggestionBox.classList.remove("show");
-//       }
-//       break;
-//     case "Escape":
-//       suggestionBox.innerHTML = "";
-//       suggestionBox.classList.remove("show");
-//       activeIndex = -1;
-//       break;
-//   }
-// });
-
-// function updateActive(items) {
-//   items.forEach((item, i) => {
-//     item.classList.toggle("active", i === activeIndex);
-//   });
-// }
-
-// document.addEventListener("click", (e) => {
-//   if (!suggestionBox.contains(e.target) && e.target !== ingredientInput) {
-//     suggestionBox.innerHTML = "";
-//     suggestionBox.classList.remove("show");
-//   }
-// });
-
-
-
-
-// //autocomplete with chips selection
-
-// const ingredientInput = document.getElementById("ingredient-input");
-// const suggestionBox = document.createElement("ul");
-// suggestionBox.className = "autocomplete-list";
-// ingredientInput.parentNode.appendChild(suggestionBox);
-
-// const selectedIngredientsContainer = document.getElementById("selected-ingredients-container");
-// const selectedIngredients = new Set();
-
-// let activeIndex = -1;
-
-// //autocomplete
-// ingredientInput.addEventListener("input", async () => {
-//   const query = ingredientInput.value.trim();
-//   suggestionBox.innerHTML = "";
-//   suggestionBox.classList.remove("show");
-//   activeIndex = -1;
-
-//   if (query.length < 2) return;
-
-//   try {
-//     const res = await fetch(`/autocomplete?query=${encodeURIComponent(query)}`);
-//     const data = await res.json();
-
-//     if (!Array.isArray(data) || data.length === 0) return;
-
-//     suggestionBox.classList.add("show");
-//     suggestionBox.innerHTML = "";
-
-//     data.slice(0, 5).forEach((item) => {
-//       const li = document.createElement("li");
-//       li.textContent = item.name;
-//       li.addEventListener("click", () => handleIngredientSelection(item.name));
-//       suggestionBox.appendChild(li);
-//     });
-
-//     const rect = ingredientInput.getBoundingClientRect();
-//     suggestionBox.style.width = rect.width + "px";
-//   } catch (err) {
-//     console.error("Autocomplete error:", err);
-//   }
-// });
-
-// // Keyboard Navigation
-// ingredientInput.addEventListener("keydown", (e) => {
-//   const items = suggestionBox.querySelectorAll("li");
-//   if (!items.length) return;
-
-//   switch (e.key) {
-//     case "ArrowDown":
-//       e.preventDefault();
-//       activeIndex = (activeIndex + 1) % items.length;
-//       updateActive(items);
-//       break;
-//     case "ArrowUp":
-//       e.preventDefault();
-//       activeIndex = (activeIndex - 1 + items.length) % items.length;
-//       updateActive(items);
-//       break;
-//     case "Enter":
-//       if (activeIndex >= 0 && activeIndex < items.length) {
-//         e.preventDefault();
-//         handleIngredientSelection(items[activeIndex].textContent);
-//       }
-//       break;
-//     case "Escape":
-//       suggestionBox.innerHTML = "";
-//       suggestionBox.classList.remove("show");
-//       break;
-//   }
-// });
-
-// function updateActive(items) {
-//   items.forEach((item, i) => {
-//     item.classList.toggle("active", i === activeIndex);
-//   });
-// }
-
-// function handleIngredientSelection(ingredient) {
-//   const name = ingredient.trim();
-//   if (!name || selectedIngredients.has(name.toLowerCase())) return;
-
-//   selectedIngredients.add(name.toLowerCase());
-//   addIngredientChip(name);
-//   ingredientInput.value = "";
-//   suggestionBox.innerHTML = "";
-//   suggestionBox.classList.remove("show");
-// }
-
-// function addIngredientChip(ingredient) {
-//   const chip = document.createElement("div");
-//   chip.className = "chip";
-//   chip.innerHTML = `
-//     ${ingredient}
-//     <span class="remove-chip" data-ingredient="${ingredient}">&times;</span>
-//   `;
-//   selectedIngredientsContainer.appendChild(chip);
-
-//   chip.querySelector(".remove-chip").addEventListener("click", () => {
-//     selectedIngredients.delete(ingredient.toLowerCase());
-//     chip.remove();
-//   });
-// }
-
-// // Hide suggestion box when clicking outside
-// document.addEventListener("click", (e) => {
-//   if (!suggestionBox.contains(e.target) && e.target !== ingredientInput) {
-//     suggestionBox.innerHTML = "";
-//     suggestionBox.classList.remove("show");
-//   }
-// });
-
-// //join selected ingredients into input on form submit
-// document.getElementById("search-form").addEventListener("submit", (e) => {
-//   const ingredientArray = Array.from(selectedIngredients);
-//   document.getElementById("ingredient-input").value = ingredientArray.join(", ");
-// });
-
-
-
-
 
 //ingredient autocomplete and chip selection 
 
@@ -1343,17 +949,7 @@ function updateActive(items) {
   });
 }
 
-// function handleIngredientSelection(ingredient) {
-//   const name = ingredient.trim();
-//   if (!name || selectedIngredients.has(name.toLowerCase())) return;
-
-//   selectedIngredients.add(name.toLowerCase());
-//   addIngredientChip(name);
-//   ingredientInput.value = "";
-//   suggestionBox.innerHTML = "";
-//   suggestionBox.classList.remove("show");
-// }
-
+//POTATO mode logic
 function handleIngredientSelection(ingredient) {
   const name = ingredient.trim();
   const lowerName = name.toLowerCase();
@@ -1429,12 +1025,6 @@ function addIngredientChip(ingredient) {
   toggleClearIngredientsButton();
 }
 
-// function toggleClearIngredientsButton() {
-//   const btn = document.getElementById('clear-ingredients');
-//   if (!btn) return;
-//   btn.style.display = selectedIngredients.size > 0 ? 'block' : 'none';
-// }
-
 function toggleClearIngredientsButton() {
   const btn = document.getElementById('clear-ingredients');
   if (!btn) return;
@@ -1455,11 +1045,6 @@ document.getElementById("search-form").addEventListener("submit", (e) => {
   e.preventDefault();
 
   const currentValue = ingredientInput.value.trim().replace(/,$/, "");
-//   if (currentValue && !selectedIngredients.has(currentValue.toLowerCase())) {
-//     selectedIngredients.add(currentValue.toLowerCase());
-//     addIngredientChip(currentValue);
-//     ingredientInput.value = "";
-//   }
 
 if (currentValue) {
   const manualEntries = currentValue.split(",").map(v => v.trim()).filter(Boolean);
@@ -1475,7 +1060,6 @@ if (currentValue) {
   //clear input
   ingredientInput.value = "";
 }
-
 
   //combine chips into string w comma sep 
   // JUST FOR BEN:
@@ -1503,14 +1087,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Close sidebar when clicking outside
     document.addEventListener('click', function(e) {
-        // const isClickInsideSidebar = sideMenu.contains(e.target);
-        // const isClickOnToggle = sidebarToggle.contains(e.target);
-        
-        // if (!isClickInsideSidebar && !isClickOnToggle && document.body.classList.contains('sidebar-open')) {
-        //     document.body.classList.remove('sidebar-open');
-        //     sidebarToggle.setAttribute('aria-expanded', 'false');
-        //     sideMenu.setAttribute('aria-hidden', 'true');
-        // }
         const isClickInsideSidebar = sideMenu.contains(e.target);
         const isClickOnToggle = sidebarToggle.contains(e.target);
 
@@ -1520,7 +1096,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (isChipRemove) return;
 
-        // if open, and click is NOT inside the sidebar OR on the toggle button → close it
+        // if open, and click is NOT inside the sidebar OR on the toggle button then close it
         if (
             document.body.classList.contains('sidebar-open') &&
             !isClickInsideSidebar &&
@@ -1565,6 +1141,7 @@ if (clearIngredientsBtn) {
 }
   toggleClearIngredientsButton();
 
+  //GABBY mode
  const gabbyBtn = document.getElementById('gabby-btn');
     if (gabbyBtn) {
         gabbyBtn.addEventListener('click', function() {
@@ -1715,8 +1292,6 @@ function removePotatoChip(){
 }
 
 
-
-
 // Initialize dark mode from localStorage
 function initDarkMode() {
     const isDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -1757,7 +1332,6 @@ function setRecipesPerPage(n, resetDisplay = true) {
     RECIPES_PER_PAGE = Number(n) || 3;
     const loadMoreBtn = document.getElementById('load-more-btn');
     if (loadMoreBtn) {
-        // loadMoreBtn.textContent = `Load More Recipes (${RECIPES_PER_PAGE} per page)`;
         loadMoreBtn.textContent = `Load More Recipes`;
     }
     if (resetDisplay) {
@@ -1770,34 +1344,6 @@ function setRecipesPerPage(n, resetDisplay = true) {
         console.warn('Could not refresh home favorites:', e);
     }
 }
-
-// document.addEventListener("DOMContentLoaded", function () {
-//     const multiDropdowns = document.querySelectorAll(".multi-dropdown");
-
-//     multiDropdowns.forEach(dropdown => {
-//         const btn = dropdown.querySelector(".multi-dropdown-btn");
-//         const menu = dropdown.querySelector(".multi-dropdown-menu");
-
-//         // Toggle dropdown open/close
-//         btn.addEventListener("click", function (e) {
-//             e.stopPropagation();
-//             dropdown.classList.toggle("open");
-//         });
-//     });
-
-//     // Close dropdowns when clicking outside
-//     document.addEventListener("click", function () {
-//         document.querySelectorAll(".multi-dropdown.open")
-//             .forEach(dd => dd.classList.remove("open"));
-//     });
-//     // Prevent dropdown from closing when clicking inside menu
-// document.querySelectorAll(".multi-dropdown-menu").forEach(menu => {
-//     menu.addEventListener("click", function (e) {
-//         e.stopPropagation(); 
-//     });
-// });
-
-// });
 
 // IM HUNGRY BUTTON functionality
 const hungryBtn = document.getElementById("hungry-btn");
