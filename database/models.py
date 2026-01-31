@@ -20,6 +20,10 @@ class ManualUser(db.Model, UserMixin):
     reset_token_expires: Mapped[datetime] = mapped_column(DateTime, nullable=True)
     
     saved_recipes = relationship("SavedRecipe", back_populates="manual_user", cascade="all, delete-orphan")
+
+    api_token: Mapped[str] = mapped_column(String(64), nullable=True, unique=True)
+    api_token_expires: Mapped[datetime] = mapped_column(DateTime, nullable=True)
+
     
     def __repr__(self):
         return f'<User {self.manual_id} {self.email}>'
