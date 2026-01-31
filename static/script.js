@@ -82,30 +82,6 @@ REDIRECT_SITES = [
                 favoriteOf: "Karigan",
                 isHardcoded: true
             },
-                        {
-                id: 7,
-                title: "Paneer Tikka Recipe (Tandoori Paneer Starter Snack)",
-                cook_time: "150 min",
-                image: "https://www.vegrecipesofindia.com/wp-content/uploads/2011/10/grilled-paneer-tikka.jpg",
-                link: "https://www.vegrecipesofindia.com/paneer-tikka-recipe-paneer-tikka/",
-                ingredients: ["Indian cottage cheese", "onion", "Hung Curd", "ginger-garlic", "sweet paprika", "turmeric"],
-                summary: "Paneer Tikka is a popular and delicious tandoori starter and snack where Paneer (Indian cottage cheese cubes) are marinated in a spiced yogurt-based marinade, arranged on skewers and grilled in the oven.",
-                calories: 948,
-                servings: 3,
-                favoriteOf: "Tejasri",
-                isHardcoded: true
-            },
-                        {
-                id: 8,
-                title: "Chicken Dum Biryani Recipe",
-                cook_time: "150 min",
-                image: "https://www.archanaskitchen.com/_next/image?url=https%3A%2F%2Fimages.archanaskitchen.com%2Fimages%2Frecipes%2Findian%2Fmain-course%2Findian-rice-recipes%2Fbiryani-recipes%2FChicken_Biryani_08bc554215.jpg&w=1200&q=90",
-                link: "https://www.archanaskitchen.com/recipe/chicken-dum-biryani-recipe",
-                ingredients: ["chicken", "Basmati rice", "tomatoes", "onions", "green chillies", "ginger", "red chilli powder"],
-                summary: "Chicken Dum Biryani Recipe is one such recipe which is loved by everyone in the family. Biryani is derived from the Farsi word ‘birian’ originated in Persia, biryani was introduced to India during the British rule.",
-                favoriteOf: "Tejasri",
-                isHardcoded: true
-            },
                                     {
                 id: 9,
                 title: "Spaghetti & Meatballs",
@@ -130,30 +106,6 @@ REDIRECT_SITES = [
                 calories: 3180,
                 servings: 6,
                 favoriteOf: "Garrett",
-                isHardcoded: true   
-            },            {
-                id: 11,
-                title: "Finnish Salmon Soup (Lohikeitto)",
-                cook_time: "30 min",
-                image: "https://theviewfromgreatisland.com/wp-content/uploads/2017/04/Finnish-Salmon-Soup-6404-March-18-2017-2-760x500.jpg",
-                link: "https://theviewfromgreatisland.com/finnish-salmon-soup-lohikeitto-recipe/",
-                ingredients: ["salmon filet", "butter", "leek", "potatoes", "carrot", "heavy cream", "dill"],
-                summary: "Packed Finnish Salmon Soup, or Lohikeitto, is a simple Nordic salmon chowder and a comforting 30 minute meal made with a light cream broth, melt-in-your-mouth chunks of salmon, and tons of fresh dill!",
-                calories: 2304,
-                servings: 4,    
-                favoriteOf: "Robert",
-                isHardcoded: true   
-            },            {
-                id: 12,
-                title: "Borscht (Beet Soup)",
-                cook_time: "175 min",
-                image: "https://www.simplyrecipes.com/thmb/eWWz4tPo63U8-hRN0wX_uCoXVM8=/750x0/filters:no_upscale():max_bytes(150000):strip_icc():format(webp)/__opt__aboutcom__coeus__resources__content_migration__simply_recipes__uploads__2007__12__borscht-horiz-c-1800-ec20c28c577248739a38ddd6658c2c94.jpg",
-                link: "https://www.simplyrecipes.com/recipes/borscht/",
-                ingredients: ["beets", "cabbage", "carrots", "potatoes", "onion", "garlic", "beef shank", "sour cream", "beef stock"],
-                summary: "This fresh beet soup is drop dead gorgeous, but also incredibly delicious. Here's what you need to know to make it at home.",
-                calories: 2728,
-                servings: 8,    
-                favoriteOf: "Robert",
                 isHardcoded: true   
             }
         ];

@@ -23,6 +23,8 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_limiter.errors import RateLimitExceeded
 import re
+from functools import wraps
+from database.models import ApiToken
 
 
 # ---------------- APP SETUP ----------------
@@ -638,3 +640,188 @@ def random_joke():
 
 if __name__ == "__main__":
     app.run(debug=True, use_reloader=False)
+
+    # ------- API FOR FLUTTER -------
+def api_auth_required(fn):
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        auth = request.headers.get("Authorization", "")
+        if not auth.startswith("Bearer "):
+            return jsonify({"error": "missing bearer token"}), 401
+
+        token_value = auth.split(" ", 1)[1].strip()
+
+        tok = db.session.execute(
+            select(ApiToken).where(ApiToken.token == token_value)
+        ).scalar_one_or_none()
+
+        if not tok:
+            return jsonify({"error": "invalid token"}), 401
+
+        now = datetime.now(timezone.utc)
+        exp = tok.expires_at
+        if exp.tzinfo is None:
+            exp = exp.replace(tzinfo=timezone.utc)
+
+        if exp < now:
+            return jsonify({"error": "token expired"}), 401
+
+        user = None
+        if tok.manual_id:
+            user = db.session.get(ManualUser, tok.manual_id)
+        elif tok.user_id:
+            user = db.session.get(Oauth_User, tok.user_id)
+
+        if not user:
+            return jsonify({"error": "user not found"}), 401
+
+        request.api_user = user
+        return fn(*args, **kwargs)
+    return wrapper
+
+
+@app.post("/api/login")
+@limiter.limit("10 per minute")
+def api_login():
+    data = request.get_json(force=True) or {}
+    email = (data.get("email") or "").strip().lower()
+    password = data.get("password") or ""
+
+    if not email or not password:
+        return jsonify({"error": "email and password required"}), 400
+
+    user = db.session.execute(
+        select(ManualUser).where(ManualUser.email == email)
+    ).scalar_one_or_none()
+
+    if not user or not bcrypt.check_password_hash(user.password, password):
+        return jsonify({"error": "invalid credentials"}), 401
+
+    tok = ApiToken.mint_for_manual(user.manual_id, days=30)
+    db.session.add(tok)
+    db.session.commit()
+
+    return jsonify({
+        "token": tok.token,
+        "expires_at": tok.expires_at.isoformat(),
+        "user": {
+            "type": "manual",
+            "id": user.manual_id,
+            "email": user.email,
+            "name": user.name
+        }
+    }), 200
+
+@app.post("/api/register")
+@limiter.limit("10 per hour")
+def api_register():
+    data = request.get_json(force=True) or {}
+    email = (data.get("email") or "").strip().lower()
+    name = (data.get("name") or "").strip()
+    password = data.get("password") or ""
+
+    if not email or not name or not password:
+        return jsonify({"error": "email, name, password required"}), 400
+
+    existing = db.session.execute(
+        select(ManualUser).where(ManualUser.email == email)
+    ).scalar_one_or_none()
+    if existing:
+        return jsonify({"error": "email already exists"}), 409
+
+    hashed = bcrypt.generate_password_hash(password).decode("utf-8")
+    user = ManualUser(email=email, name=name, password=hashed)
+    db.session.add(user)
+    db.session.commit()
+
+    tok = ApiToken.mint_for_manual(user.manual_id, days=30)
+    db.session.add(tok)
+    db.session.commit()
+
+    return jsonify({
+        "token": tok.token,
+        "expires_at": tok.expires_at.isoformat(),
+        "user": {
+            "type": "manual",
+            "id": user.manual_id,
+            "email": user.email,
+            "name": user.name
+        }
+    }), 201
+
+
+@app.get("/api/saved_recipes")
+@api_auth_required
+def api_saved_recipes():
+    user = request.api_user
+    return jsonify([{
+        "saved_id": r.saved_id,
+        "id": r.recipe_id,
+        "title": r.title,
+        "image": r.image,
+        "link": r.link,
+        "calories": r.calories,
+        "servings": r.servings,
+        "cook_time": r.cook_time,
+        "summary": r.summary,
+        "date_saved": r.date_saved.isoformat() if r.date_saved else None
+    } for r in user.saved_recipes])
+
+@app.post("/api/save_recipe")
+@api_auth_required
+def api_save_recipe():
+    user = request.api_user
+    data = request.get_json(force=True) or {}
+
+    recipe_id = data.get("id")
+    if not recipe_id:
+        return jsonify({"error": "Recipe id not found"}), 400
+
+    query = select(SavedRecipe).where(SavedRecipe.recipe_id == recipe_id)
+    if isinstance(user, ManualUser):
+        query = query.where(SavedRecipe.manual_id == user.manual_id)
+    else:
+        query = query.where(SavedRecipe.user_id == user.user_id)
+
+    if db.session.execute(query).scalar_one_or_none():
+        return jsonify({"error": "Recipe already saved"}), 409
+
+    new_recipe = SavedRecipe(
+        recipe_id=recipe_id,
+        title=data.get("title"),
+        image=data.get("image"),
+        link=data.get("link"),
+        calories=data.get("calories"),
+        servings=data.get("servings"),
+        cook_time=data.get("cook_time"),
+        summary=data.get("summary"),
+    )
+
+    user.saved_recipes.append(new_recipe)
+    db.session.commit()
+    return jsonify({"message": "saved"}), 201
+
+@app.post("/api/delete_saved_recipe")
+@api_auth_required
+def api_delete_saved_recipe():
+    user = request.api_user
+    data = request.get_json(force=True) or {}
+    recipe_id = data.get("id")
+
+    if not recipe_id:
+        return jsonify({"error": "Missing recipe ID"}), 400
+
+    query = select(SavedRecipe).where(SavedRecipe.recipe_id == str(recipe_id))
+    if isinstance(user, ManualUser):
+        query = query.where(SavedRecipe.manual_id == user.manual_id)
+    else:
+        query = query.where(SavedRecipe.user_id == user.user_id)
+
+    recipe = db.session.execute(query).scalar_one_or_none()
+    if not recipe:
+        return jsonify({"error": "not found"}), 404
+
+    db.session.delete(recipe)
+    db.session.commit()
+    return jsonify({"message": "deleted"}), 200
+

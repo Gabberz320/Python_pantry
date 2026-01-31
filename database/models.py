@@ -5,6 +5,9 @@ from sqlalchemy.orm import mapped_column
 from sqlalchemy import String, Integer, Text, ForeignKey, DateTime, LargeBinary
 from sqlalchemy.orm import relationship
 from flask_login import UserMixin
+from datetime import timedelta
+import secrets
+
 
 class ManualUser(db.Model, UserMixin):
     __tablename__ = "manual_users"
@@ -68,3 +71,37 @@ class SavedRecipe(db.Model):
     
     def __repr__(self):
         return f"<Saved recipe {self.title}>"
+
+class ApiToken(db.Model):
+    __tablename__ = "api_tokens"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    token: Mapped[str] = mapped_column(String(128), nullable=False, unique=True, index=True)
+
+    # Either manual OR oauth will be set
+    manual_id: Mapped[int] = mapped_column(ForeignKey("manual_users.manual_id"), nullable=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("oauth_users.user_id"), nullable=True)
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=lambda: datetime.now(timezone.utc)
+    )
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+    @staticmethod
+    def mint_for_manual(manual_id: int, days: int = 30) -> "ApiToken":
+        return ApiToken(
+            token=secrets.token_hex(32),
+            manual_id=manual_id,
+            expires_at=datetime.now(timezone.utc) + timedelta(days=days),
+        )
+
+    @staticmethod
+    def mint_for_oauth(user_id: int, days: int = 30) -> "ApiToken":
+        return ApiToken(
+            token=secrets.token_hex(32),
+            user_id=user_id,
+            expires_at=datetime.now(timezone.utc) + timedelta(days=days),
+        )
+
