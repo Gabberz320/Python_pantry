@@ -26,10 +26,10 @@ import re
 from functools import wraps
 from database.models import ApiToken
 
-app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle': 280}
 
 # ---------------- APP SETUP ----------------
 app = Flask(__name__)
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle': 280}
 
 limiter = Limiter(
     get_remote_address,
