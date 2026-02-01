@@ -252,7 +252,7 @@ def userlogin():
         
         # If username or password not entered, redirect
         if not email or not password:
-            flash("Potato must enter both username and password", "danger")
+            flash("You must enter both username and password", "danger")
             return redirect(url_for("userlogin"))
         
         # Retrieve the user from the database
@@ -261,10 +261,10 @@ def userlogin():
         # Check for correct username and password, login user if both correct
         if user and bcrypt.check_password_hash(user.password, password):
             login_user(user)
-            flash(f"Welcome back potato {email}", "success")
+            flash(f"Welcome back, {email}", "success")
             return redirect(url_for("index"))
         else:
-            flash("Stop being a stupid potato and enter the right username or password!", "danger")
+            flash("Incorrect username or password. Please try again.", "danger")
             return redirect(url_for("userlogin"))
 
     return render_template("login.html")
@@ -298,7 +298,7 @@ def register():
         
         # Find whether a user with that username already exists
         if db.session.execute(select(ManualUser).where(ManualUser.email == email)).scalar():
-            flash("That potato already exists", "error")
+            flash("That email is already registered", "error")
             return redirect(url_for("register"))
         
         # Hash password with bcrypt
@@ -318,7 +318,7 @@ def register():
         # Login with login_user function and redirect to index page
         login_user(user)
 
-        flash("A potato has been registered", "success")
+        flash("User has been registered", "success")
         return redirect(url_for("index"))
 
     return render_template("register.html")
@@ -542,7 +542,7 @@ def save_recipe():
     # is_saved = db.session.execute(query).first() is not None
     
     if is_saved:
-        return jsonify({"error": "Recipe is already saved. I'm a sad potato"}), 409
+        return jsonify({"error": "Recipe is already saved."}), 409
     
     image_url = data.get("image")
     image_blob = None
@@ -826,3 +826,71 @@ def api_delete_saved_recipe():
     db.session.commit()
     return jsonify({"message": "deleted"}), 200
 
+from google.oauth2 import id_token
+import google.auth.transport.requests
+from sqlalchemy import select
+
+@app.post("/api/google_login")
+@limiter.limit("10 per minute")
+def api_google_login():
+    data = request.get_json(force=True) or {}
+    idtok = data.get("id_token")
+
+    if not idtok:
+        return jsonify({"error": "id_token required"}), 400
+
+    try:
+        req = google.auth.transport.requests.Request()
+        info = id_token.verify_oauth2_token(idtok, req, GOOGLE_CLIENT_ID)
+
+        oauth_id = info.get("sub")
+        email = (info.get("email") or "").strip().lower()
+        name = info.get("name") or ""
+        picture = info.get("picture") or ""
+
+        if not oauth_id:
+            return jsonify({"error": "invalid google token"}), 401
+
+        # Find or create user
+        user = db.session.execute(
+            select(Oauth_User).where(Oauth_User.oauth_id == oauth_id)
+        ).scalar_one_or_none()
+
+        if user:
+            user.email = email or user.email
+            user.name = name or user.name
+            user.picture_url = picture or user.picture_url
+        else:
+            user = Oauth_User(
+                oauth_id=oauth_id,
+                email=email,
+                name=name,
+                picture_url=picture
+            )
+            db.session.add(user)
+
+        db.session.commit()
+
+        # Mint API token using your existing model method
+        tok = ApiToken.mint_for_oauth(user.user_id, days=30)
+        db.session.add(tok)
+        db.session.commit()
+
+        return jsonify({
+            "token": tok.token,
+            "expires_at": tok.expires_at.isoformat(),
+            "user": {
+                "type": "oauth",
+                "id": user.user_id,
+                "email": user.email,
+                "name": user.name,
+                "picture_url": user.picture_url
+            }
+        }), 200
+
+    except ValueError as e:
+        # invalid/expired/wrong audience token
+        return jsonify({"error": "invalid google token", "detail": str(e)}), 401
+    except Exception as e:
+        app.logger.exception("api_google_login failed")
+        return jsonify({"error": "server error"}), 500
