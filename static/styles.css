@@ -1219,7 +1219,7 @@ label[for="selected-ingredients-container"],
     align-items: right;
 }
 
-body.dark {background-color: #292c35;} /* #9b59b6 */
+body.dark {background-color: rgb(41, 44, 53);} /* #9b59b6 */
 
 body.dark h1, body.dark .support a {color: #fff;}
 

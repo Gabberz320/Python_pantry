@@ -94,7 +94,7 @@ bcrypt.init_app(app)
 # ---------------- HOME PAGE ----------------
 @app.route("/")
 def index():
-    return render_template("index.html")
+    return render_template("under_construction.html")
 
 # ---------------- GOOGLE LOGIN ----------------
 @app.route("/google_login")
